@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const authenticateRoute = require('./routes/authenticateRoute')
 const branchRoute = require('./routes/branchRoute.js');
 const paymentRoute = require('./routes/paymentRoute.js');
+const globalsettingRoute = require('./routes/globalsettingRoute.js');
 
 require("dotenv").config();
 
@@ -20,6 +21,7 @@ app.use(cors());
 app.use("/",authenticateRoute);
 app.use("/branch",branchRoute);
 app.use("/payment",paymentRoute);
+app.use("/global-setting",globalsettingRoute);
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

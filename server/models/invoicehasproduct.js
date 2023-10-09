@@ -25,11 +25,4 @@ const InvoiceHasProduct = sequelize.define('InvoiceHasProduct', {
   }
 });
 
-InvoiceHasProduct.belongsTo(Invoice,{
-  foreignKey:{
-    name: 'invoice_id'
-  }
-});
-
-
 module.exports = InvoiceHasProduct;

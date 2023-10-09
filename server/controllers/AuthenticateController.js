@@ -30,7 +30,7 @@ const verifyUserLogin =[
         return res.json({"message":"Invalid credentials","error":true})
     }
 
-    const token = jwt.sign({ email: email, id: userData['dataValues']['id'] }, process.env.JWT_SECRET, { expiresIn: '4h' });
+    const token = jwt.sign({ email: email, id: userData['dataValues']['id'],branch_id:userData['dataValues']['branch_id'] }, process.env.JWT_SECRET, { expiresIn: '4h' });
     return res.json({ "token":token, "error":false });
 })];
 

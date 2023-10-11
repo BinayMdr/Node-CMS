@@ -20,7 +20,7 @@ const verifyUserLogin =[
     const userData = await user.findOne({ where: { email } });
 
     if ( userData == null) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const match = await bcrypt.compare(password, userData['password']);

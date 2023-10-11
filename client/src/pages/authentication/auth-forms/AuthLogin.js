@@ -22,6 +22,8 @@ import AnimateButton from 'components/@extended/AnimateButton';
 
 // assets
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { useSelector, useDispatch } from 'react-redux'
+import { addToken } from 'store/reducers/token'
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
@@ -36,6 +38,8 @@ const AuthLogin = () => {
     event.preventDefault();
   };
 
+  const token = useSelector((state) => state.token)
+  const dispatch = useDispatch();
   return (
     <>
       <Formik
@@ -53,12 +57,17 @@ const AuthLogin = () => {
             setStatus({ success: false });
             setSubmitting(false);
 
+            console.log(token)
+            
             const response = await api.post("login", {
                 email: values.email,
                 password: values.password,
             });
 
-            console.log(response)
+            dispatch(addToken({ value : response.data.token}));
+
+            localStorage.setItem('token', response.data.token);
+
           } catch (err) {
             setStatus({ success: false });
             setErrors({ submit: err.response.data.message });

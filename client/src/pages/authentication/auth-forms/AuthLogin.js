@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { useEffect } from 'react';
 // import axios from 'axios'; // Import axios
 import api from '../../../routes/Enpoint'
 // material-ui
@@ -22,12 +24,22 @@ import AnimateButton from 'components/@extended/AnimateButton';
 
 // assets
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
-import { useSelector, useDispatch } from 'react-redux'
-import { addToken } from 'store/reducers/token'
-
+import { useNavigate } from 'react-router-dom';
+import { tokenStatus } from 'utils/token-utils';
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const AuthLogin = () => {
+
+  const navigate = useNavigate();
+
+  const redirectToDashboard = async () => {
+    const tokenCondition = await tokenStatus();
+    if(tokenCondition) navigate('/dashboard');
+  };
+
+  useEffect(() => {
+    redirectToDashboard()
+  });
 
   const [showPassword, setShowPassword] = React.useState(false);
   const handleClickShowPassword = () => {
@@ -38,8 +50,6 @@ const AuthLogin = () => {
     event.preventDefault();
   };
 
-  const token = useSelector((state) => state.token)
-  const dispatch = useDispatch();
   return (
     <>
       <Formik
@@ -56,18 +66,15 @@ const AuthLogin = () => {
           try {
             setStatus({ success: false });
             setSubmitting(false);
-
-            console.log(token)
             
             const response = await api.post("login", {
                 email: values.email,
                 password: values.password,
             });
 
-            dispatch(addToken({ value : response.data.token}));
-
             localStorage.setItem('token', response.data.token);
 
+            navigate('/dashboard')
           } catch (err) {
             setStatus({ success: false });
             setErrors({ submit: err.response.data.message });

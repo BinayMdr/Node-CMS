@@ -34,6 +34,9 @@ const verifyUserLogin =[
     return res.json({ "token":token, "error":false });
 })];
 
+const verifyToken = (async(req,res) => {
+    return res.json({"message": "Valid Token","error":false})
+});
 module.exports = {
-    verifyUserLogin
+    verifyUserLogin,verifyToken
 }

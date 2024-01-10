@@ -13,6 +13,7 @@ import componentsOverride from './overrides';
 
 // ==============================|| DEFAULT THEME - MAIN  ||============================== //
 
+
 export default function ThemeCustomization({ children }) {
   const theme = Palette('light', 'default');
 

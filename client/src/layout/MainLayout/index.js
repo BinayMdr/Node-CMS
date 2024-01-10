@@ -14,10 +14,12 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 
 // types
 import { openDrawer } from 'store/reducers/menu';
-
+import { useNavigate } from 'react-router-dom';
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout = () => {
+
+  const navigate = useNavigate();
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const dispatch = useDispatch();
@@ -35,7 +37,7 @@ const MainLayout = () => {
   useEffect(() => {
     setOpen(!matchDownLG);
     dispatch(openDrawer({ drawerOpen: !matchDownLG }));
-
+    if(window.location.href == process.env.REACT_APP_URL) navigate('/login')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchDownLG]);
 

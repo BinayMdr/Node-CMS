@@ -19,48 +19,42 @@ const pages = {
       title: 'Branch',
       type: 'item',
       url: '/login',
-      icon: icons.LoginOutlined,
-      target: true
+      icon: icons.LoginOutlined
     },
     {
       id: 'product',
       title: 'Product',
       type: 'item',
       url: '/register',
-      icon: icons.ProfileOutlined,
-      target: true
+      icon: icons.ProfileOutlined
     },
     {
       id: 'inventory',
       title: 'Inventory',
       type: 'item',
       url: '/register',
-      icon: icons.ProfileOutlined,
-      target: true
+      icon: icons.ProfileOutlined
     },
     {
       id: 'payment',
       title: 'Payment',
       type: 'item',
-      url: '/register',
-      icon: icons.ProfileOutlined,
-      target: true
+      url: '/color',
+      icon: icons.ProfileOutlined
     },
     {
       id: 'setting',
       title: 'Setting',
       type: 'item',
       url: '/register',
-      icon: icons.ProfileOutlined,
-      target: true
+      icon: icons.ProfileOutlined
     },
     {
       id: 'globalSetting',
       title: 'Global Setting',
       type: 'item',
       url: '/register',
-      icon: icons.ProfileOutlined,
-      target: true
+      icon: icons.ProfileOutlined
     }
   ]
 };

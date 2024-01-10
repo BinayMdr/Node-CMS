@@ -15,6 +15,8 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 // types
 import { openDrawer } from 'store/reducers/menu';
 import { useNavigate } from 'react-router-dom';
+import { tokenStatus } from 'utils/token-utils';
+import { addUserData, addBranchData } from 'store/reducers/userDetails';
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout = () => {
@@ -33,6 +35,18 @@ const MainLayout = () => {
     dispatch(openDrawer({ drawerOpen: !open }));
   };
 
+  const redirectToLogin = async () => {
+    const tokenCondition = await tokenStatus();
+
+    if(tokenCondition.status) 
+    {
+      dispatch(addUserData({ userData: tokenCondition.data.user }))
+      dispatch(addBranchData({ branchData: tokenCondition.data.branch }))
+    }
+    else navigate('/login')
+    
+  };
+
   // set media wise responsive drawer
   useEffect(() => {
     setOpen(!matchDownLG);
@@ -43,6 +57,7 @@ const MainLayout = () => {
 
   useEffect(() => {
     if (open !== drawerOpen) setOpen(drawerOpen);
+    redirectToLogin()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawerOpen]);
 

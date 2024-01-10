@@ -1,9 +1,5 @@
 import { useState } from 'react';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { tokenStatus } from 'utils/token-utils';
-import { useDispatch } from 'react-redux';
-import { addUserData, addBranchData } from 'store/reducers/userDetails';
+
 // material-ui
 import {
   Box,
@@ -30,26 +26,6 @@ import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
 
 const DashboardDefault = () => {
   const [slot, setSlot] = useState('week');
-
-  const navigate = useNavigate();
-
-  const dispatch = useDispatch();
-  const redirectToLogin = async () => {
-    const tokenCondition = await tokenStatus();
-
-    if(tokenCondition.status) 
-    {
-      dispatch(addUserData({ userData: tokenCondition.data.user }))
-      dispatch(addBranchData({ branchData: tokenCondition.data.branch }))
-    }
-    else navigate('/login')
-    
-  };
-
-  useEffect(() => {
-    redirectToLogin()
-  });
-
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>

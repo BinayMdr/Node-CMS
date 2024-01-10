@@ -1,38 +1,25 @@
-// material-ui
-import { Box, IconButton, Link, useMediaQuery } from '@mui/material';
-import { GithubOutlined } from '@ant-design/icons';
+import Grid from '@mui/material/Grid';
+import Avatar from '@mui/material/Avatar';
 
-// project import
-import Search from './Search';
 import Profile from './Profile';
-import Notification from './Notification';
-import MobileSection from './MobileSection';
-
 // ==============================|| HEADER - CONTENT ||============================== //
+import {useSelector} from 'react-redux';
 
 const HeaderContent = () => {
-  const matchesXs = useMediaQuery((theme) => theme.breakpoints.down('md'));
+
+  const userDetails = useSelector((state => state.userDetails));
+  
 
   return (
     <>
-      {!matchesXs && <Search />}
-      {matchesXs && <Box sx={{ width: '100%', ml: 1 }} />}
-
-      <IconButton
-        component={Link}
-        href="https://github.com/codedthemes/mantis-free-react-admin-template"
-        target="_blank"
-        disableRipple
-        color="secondary"
-        title="Download Free Version"
-        sx={{ color: 'text.primary', bgcolor: 'grey.100' }}
-      >
-        <GithubOutlined />
-      </IconButton>
-
-      <Notification />
-      {!matchesXs && <Profile />}
-      {matchesXs && <MobileSection />}
+    <Grid container justifyContent="flex-end">
+    <Grid item>
+          <Avatar alt="profile user" sx={{ width: 32, height: 32 }}>{userDetails.userData?.name.charAt(0)} </Avatar>
+      </Grid>
+      <Grid item>
+          <Profile style={{paddingLeft: 0 }} userData={userDetails}/>
+      </Grid>
+    </Grid>
     </>
   );
 };

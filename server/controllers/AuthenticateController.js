@@ -1,4 +1,5 @@
 const user = require('../models/user');
+const branch = require('../models/branch');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require("dotenv").config();
@@ -37,6 +38,33 @@ const verifyUserLogin =[
 const verifyToken = (async(req,res) => {
     return res.json({"message": "Valid Token","error":false})
 });
+
+const userDetails = (async(req,res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const userData = await user.findByPk(decoded.id, {
+        attributes: ['id', 'name', 'email','branch_id','is_admin'],
+      });
+    
+    
+    let branchData = null;
+
+    if(userData.branch_id != null)
+    {
+        branchData = await branch.findByPk(userData.branch_id,{
+           attributes:['id','name']
+        });
+    }
+
+    let data = [];
+
+    data = { 'user': userData ,
+         'branch': branchData };
+  
+    return res.json({'data':data,'error':false});
+});
 module.exports = {
-    verifyUserLogin,verifyToken
+    verifyUserLogin,verifyToken,userDetails
 }

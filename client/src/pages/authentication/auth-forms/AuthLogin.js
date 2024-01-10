@@ -26,15 +26,25 @@ import AnimateButton from 'components/@extended/AnimateButton';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { tokenStatus } from 'utils/token-utils';
+import { useDispatch } from 'react-redux';
+import { addUserData, addBranchData } from 'store/reducers/userDetails';
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const AuthLogin = () => {
 
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
   const redirectToDashboard = async () => {
     const tokenCondition = await tokenStatus();
-    if(tokenCondition) navigate('/dashboard');
+
+    if(tokenCondition.status) 
+    {
+      dispatch(addUserData({ userData: tokenCondition.data.user }))
+      dispatch(addBranchData({ branchData: tokenCondition.data.branch }))
+      navigate('/dashboard');
+    }
+    
   };
 
   useEffect(() => {

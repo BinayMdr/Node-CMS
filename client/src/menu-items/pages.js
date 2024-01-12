@@ -1,12 +1,14 @@
 // assets
-import { LoginOutlined, ProfileOutlined } from '@ant-design/icons';
+import { LoginOutlined, ProfileOutlined , HomeOutlined,
+        SwitcherOutlined} from '@ant-design/icons';
 
 // icons
 const icons = {
   LoginOutlined,
-  ProfileOutlined
+  ProfileOutlined,
+  HomeOutlined,
+  SwitcherOutlined
 };
-
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
 const pages = {
@@ -18,15 +20,15 @@ const pages = {
       id: 'branch',
       title: 'Branch',
       type: 'item',
-      url: '/login',
-      icon: icons.LoginOutlined
+      url: '/branch',
+      icon: icons.HomeOutlined
     },
     {
       id: 'product',
       title: 'Product',
       type: 'item',
-      url: '/register',
-      icon: icons.ProfileOutlined
+      url: '/color',
+      icon: icons.SwitcherOutlined
     },
     {
       id: 'inventory',

@@ -15,6 +15,7 @@ const Typography = Loadable(lazy(() => import('pages/components-overview/Typogra
 const Color = Loadable(lazy(() => import('pages/components-overview/Color')));
 const Shadow = Loadable(lazy(() => import('pages/components-overview/Shadow')));
 const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons')));
+const Branch = Loadable(lazy(() => import('pages/module/BranchPage')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -25,6 +26,10 @@ const MainRoutes = {
     {
       path: 'dashboard',
       element: <DashboardDefault />
+    },
+    {
+      path: 'branch',
+      element: <Branch />
     },
     {
       path: 'color',

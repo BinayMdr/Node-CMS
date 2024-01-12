@@ -17,13 +17,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const columns = [
-  { id: 'name', label: 'Branch Name', minWidth: 170 },
-  { id: 'main_branch', label: 'Main Branch', minWidth: 100},
+  { id: 'name', label: 'Payment Name', minWidth: 170 },
   { id: 'is_enabled', label: 'Status', minWidth: 100},
   { id: 'action', label: 'Action', minWidth: 100},
 ];
 
-const BranchPage = () => {
+const PaymentPage = () => {
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -33,17 +32,17 @@ const BranchPage = () => {
   const [totalData,setTotalData] = React.useState(0);
 
   const [formValue, setFormValue] = React.useState({"id":null,"name":"",
-              "mainBranch":false,"status":false})
+                "status":false})
 
   const [formAction, setFormAction] = React.useState('Add');
 
   const userToken = localStorage.getItem('token');
 
 
-  const getBranch = async (page,pageSize,search) => {
+  const getPayment = async (page,pageSize,search) => {
     try
     {
-      const response = await api.get('branch', {
+      const response = await api.get('payment', {
         headers: {
           'Authorization': `Bearer ${userToken}`
         },
@@ -64,7 +63,7 @@ const BranchPage = () => {
   } 
 
   useEffect( () => {
-      getBranch(page,rowsPerPage,searchValue)
+      getPayment(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
   
   const handleChangePage = (event, newPage) => {
@@ -81,12 +80,11 @@ const BranchPage = () => {
     setPage(0)
   }
 
-  const addBranch = () => {
+  const addPayment = () => {
     setFormAction("Add")
     setFormValue({
       "id":null,
       "name":"",
-      "mainBranch":false,
       "status":false
     })
     setOpen(true)
@@ -115,7 +113,6 @@ const BranchPage = () => {
         setFormValue({
           "id":id,
           "name":element['name'],
-          "mainBranch":element['main_branch'],
           "status":element['is_enabled']
         })
       }
@@ -132,7 +129,7 @@ const BranchPage = () => {
               onChange={handleChangeSearch}/>
         <Button variant="contained"
           sx={{my:1,float:'right'}}
-          onClick={addBranch}
+          onClick={addPayment}
          ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
       <TableContainer sx={{ maxHeight: 350 }}>
         <Table stickyHeader aria-label="sticky table">
@@ -161,8 +158,6 @@ const BranchPage = () => {
                           { column.id === "name" ? (column.format && typeof value === 'number'
                             ? column.format(value)
                             : value) : 
-                            ((column.id == "main_branch") ? (value === true ? 'Yes' : 'No') 
-                            : 
                             ((column.id == "is_enabled") ? (value === true ? 'Active' : 'Inactive') 
                             : <span>
                                 <Button onClick={() => handleViewUpdate("View",row.id)}>
@@ -170,7 +165,7 @@ const BranchPage = () => {
                                 <Button>
                                     <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
                               </span>)
-                            )
+                            
                            }
                         </TableCell>
                       );
@@ -199,13 +194,12 @@ const BranchPage = () => {
     >
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h2" component="h2" sx={{textAlign:'center'}}>
-          {formAction} Branch
+          {formAction} Payment
         </Typography>
         <Divider sx={{my:2}}/>
         <Formik
         initialValues={{
           name: formValue.name,
-          mainBranch:formValue.mainBranch,
           status:formValue.status,
           submit: null
         }}
@@ -218,9 +212,8 @@ const BranchPage = () => {
             let message = "added";
             if( formAction == "Add")
             {
-              await api.post("branch", {
+              await api.post("payment", {
                 name: values.name,
-                main_branch: values.mainBranch,
                 is_enabled: values.status
               },{
                 headers: {
@@ -230,9 +223,8 @@ const BranchPage = () => {
             }
             else
             {
-              await api.put(`branch/edit/${formValue.id}`, {
+              await api.put(`payment/edit/${formValue.id}`, {
                 name: values.name,
-                main_branch: values.mainBranch,
                 is_enabled: values.status
               },{
                 headers: {
@@ -243,9 +235,9 @@ const BranchPage = () => {
             }
 
             setOpen(false)
-            getBranch(page,rowsPerPage,searchValue)
+            getPayment(page,rowsPerPage,searchValue)
             
-            toast.success(`Branch ${message} successfully`, {
+            toast.success(`Payment ${message} successfully`, {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -300,23 +292,6 @@ const BranchPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={6} >
-                <Stack spacing={1} direction="row" alignItems="center">
-                  <InputLabel htmlFor="main-branch">Main Branch</InputLabel>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        id="mainBranch"
-                        value={values.mainBranch}
-                        name="mainBranch"
-                        onChange={handleChange}
-                        checked={values.mainBranch}
-                        disabled={formAction == "View"}
-                      />
-                    }
-                  />
-                </Stack>
-              </Grid>
               <Grid item xs={6}>
                 <Stack spacing={1} direction="row" alignItems="center">
                   <InputLabel htmlFor="status">Status</InputLabel>
@@ -343,7 +318,7 @@ const BranchPage = () => {
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                      {formAction == "Edit" ? "Update" : formAction} Branch
+                      {formAction == "Edit" ? "Update" : formAction} Payment
                     </Button>
                   </AnimateButton>
                 </Grid>
@@ -359,4 +334,4 @@ const BranchPage = () => {
   );
 };
 
-export default BranchPage;
+export default PaymentPage;

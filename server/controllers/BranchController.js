@@ -21,13 +21,15 @@ const getAllBranch = (async (req,res) => {
     const branches = await branch.findAll({
       where,
       limit: parseInt(pageSize),
-      offset
+      offset,
+      order: [['createdAt', 'DESC']],
     });
 
     const totalBranchCount = await branch.count({
       where,
       limit: parseInt(pageSize),
-      offset
+      offset,
+      order: [['createdAt', 'DESC']], 
     });
     
     const pageInfo = {

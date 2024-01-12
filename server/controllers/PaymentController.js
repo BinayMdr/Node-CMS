@@ -21,13 +21,15 @@ const getAllPayment = (async (req,res) => {
     const payments = await payment.findAll({
       where,
       limit: parseInt(pageSize),
-      offset
+      offset,
+      order: [['createdAt', 'DESC']], 
     });
 
   const totalPaymentCount = await payment.count({
       where,
       limit: parseInt(pageSize),
-      offset
+      offset,
+      order: [['createdAt', 'DESC']], 
     });
     
     const pageInfo = {

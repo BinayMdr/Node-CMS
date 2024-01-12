@@ -21,13 +21,15 @@ const getAllProduct = (async (req,res) => {
     const products = await product.findAll({
       where,
       limit: parseInt(pageSize),
-      offset
+      offset,
+      order: [['createdAt', 'DESC']], 
     });
 
     const totalProductCount = await product.count({
       where,
       limit: parseInt(pageSize),
-      offset
+      offset,
+      order: [['createdAt', 'DESC']], 
     });
     
     const pageInfo = {

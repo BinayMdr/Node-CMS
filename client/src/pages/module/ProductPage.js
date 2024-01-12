@@ -17,13 +17,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const columns = [
-  { id: 'name', label: 'Branch Name', minWidth: 170 },
-  { id: 'main_branch', label: 'Main Branch', minWidth: 100},
+  { id: 'name', label: 'Product Name', minWidth: 170 },
+  { id: 'price', label: 'Price', minWidth: 100},
   { id: 'is_enabled', label: 'Status', minWidth: 100},
   { id: 'action', label: 'Action', minWidth: 100},
 ];
 
-const BranchPage = () => {
+const ProductPage = () => {
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -33,17 +33,17 @@ const BranchPage = () => {
   const [totalData,setTotalData] = React.useState(0);
 
   const [formValue, setFormValue] = React.useState({"id":null,"name":"",
-              "mainBranch":false,"status":false})
+              "price":0,"status":false})
 
   const [formAction, setFormAction] = React.useState('Add');
 
   const userToken = localStorage.getItem('token');
 
 
-  const getBranch = async (page,pageSize,search) => {
+  const getProduct = async (page,pageSize,search) => {
     try
     {
-      const response = await api.get('branch', {
+      const response = await api.get('product', {
         headers: {
           'Authorization': `Bearer ${userToken}`
         },
@@ -64,7 +64,7 @@ const BranchPage = () => {
   } 
 
   useEffect( () => {
-      getBranch(page,rowsPerPage,searchValue)
+      getProduct(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
   
   const handleChangePage = (event, newPage) => {
@@ -81,12 +81,12 @@ const BranchPage = () => {
     setPage(0)
   }
 
-  const addBranch = () => {
+  const addProduct = () => {
     setFormAction("Add")
     setFormValue({
       "id":null,
       "name":"",
-      "mainBranch":false,
+      "price":0,
       "status":false
     })
     setOpen(true)
@@ -112,10 +112,11 @@ const BranchPage = () => {
     rows.find(function(element){
       if(element['id'] == id)
       {
+        console.log(element['price'])
         setFormValue({
           "id":id,
           "name":element['name'],
-          "mainBranch":element['main_branch'],
+          "price":element['price'],
           "status":element['is_enabled']
         })
       }
@@ -132,7 +133,7 @@ const BranchPage = () => {
               onChange={handleChangeSearch}/>
         <Button variant="contained"
           sx={{my:1,float:'right'}}
-          onClick={addBranch}
+          onClick={addProduct}
          ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
       <TableContainer sx={{ maxHeight: 350 }}>
         <Table stickyHeader aria-label="sticky table">
@@ -150,19 +151,17 @@ const BranchPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
-              .map((row) => {
+            {rows.map((row) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          { column.id === "name" ? (column.format && typeof value === 'number'
+                          { (column.id === "name" || column.id === "price") ? (column.format && typeof value === 'number'
                             ? column.format(value)
                             : value) : 
-                            ((column.id == "main_branch") ? (value === true ? 'Yes' : 'No') 
-                            : 
+                            
                             ((column.id == "is_enabled") ? (value === true ? 'Active' : 'Inactive') 
                             : <span>
                                 <Button onClick={() => handleViewUpdate("View",row.id)}>
@@ -170,7 +169,7 @@ const BranchPage = () => {
                                 <Button>
                                     <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
                               </span>)
-                            )
+                            
                            }
                         </TableCell>
                       );
@@ -199,18 +198,19 @@ const BranchPage = () => {
     >
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h2" component="h2" sx={{textAlign:'center'}}>
-          {formAction} Branch
+          {formAction} Product
         </Typography>
         <Divider sx={{my:2}}/>
         <Formik
         initialValues={{
           name: formValue.name,
-          mainBranch:formValue.mainBranch,
+          price:formValue.price,
           status:formValue.status,
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          name: Yup.string().max(255).required('Name is required')
+          name: Yup.string().max(255).required('Name is required'),
+          price: Yup.number().required('Price is required').positive('Price must be positive')
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
@@ -218,9 +218,9 @@ const BranchPage = () => {
             let message = "added";
             if( formAction == "Add")
             {
-              await api.post("branch", {
+              await api.post("product", {
                 name: values.name,
-                main_branch: values.mainBranch,
+                price: values.price,
                 is_enabled: values.status
               },{
                 headers: {
@@ -230,9 +230,9 @@ const BranchPage = () => {
             }
             else
             {
-              await api.put(`branch/edit/${formValue.id}`, {
+              await api.put(`product/edit/${formValue.id}`, {
                 name: values.name,
-                main_branch: values.mainBranch,
+                price: values.price,
                 is_enabled: values.status
               },{
                 headers: {
@@ -243,9 +243,9 @@ const BranchPage = () => {
             }
 
             setOpen(false)
-            getBranch(page,rowsPerPage,searchValue)
+            getProduct(page,rowsPerPage,searchValue)
             
-            toast.success(`Branch ${message} successfully`, {
+            toast.success(`Product ${message} successfully`, {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -291,7 +291,6 @@ const BranchPage = () => {
                     placeholder="Enter name"
                     fullWidth
                     error={Boolean(touched.name && errors.name)}
-                    readOnly={formAction == "View"}
                   />
                   {touched.name && errors.name && (
                     <FormHelperText error id="standard-weight-helper-text-name-login">
@@ -300,21 +299,26 @@ const BranchPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={6} >
-                <Stack spacing={1} direction="row" alignItems="center">
-                  <InputLabel htmlFor="main-branch">Main Branch</InputLabel>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        id="mainBranch"
-                        value={values.mainBranch}
-                        name="mainBranch"
-                        onChange={handleChange}
-                        checked={values.mainBranch}
-                        disabled={formAction == "View"}
-                      />
-                    }
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="price">Price</InputLabel>
+                  <OutlinedInput
+                    id="price"
+                    type="number"
+                    value={values.price}
+                    name="price"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter price"
+                    fullWidth
+                    error={Boolean(touched.price && errors.price)}
+                    readOnly={formAction == "View"}
                   />
+                  {touched.price && errors.price && (
+                    <FormHelperText error id="standard-weight-helper-text-price-login">
+                      {errors.price}
+                    </FormHelperText>
+                  )}
                 </Stack>
               </Grid>
               <Grid item xs={6}>
@@ -343,7 +347,7 @@ const BranchPage = () => {
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                      {formAction == "Edit" ? "Update" : formAction} Branch
+                      {formAction == "Edit" ? "Update" : formAction} Product
                     </Button>
                   </AnimateButton>
                 </Grid>
@@ -359,4 +363,4 @@ const BranchPage = () => {
   );
 };
 
-export default BranchPage;
+export default ProductPage;

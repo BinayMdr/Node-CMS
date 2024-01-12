@@ -1,13 +1,17 @@
 // assets
 import { LoginOutlined, ProfileOutlined , HomeOutlined,
         SwitcherOutlined} from '@ant-design/icons';
+import PaymentIcon from '@mui/icons-material/Payment';
 
+import CategoryIcon from '@mui/icons-material/Category';
 // icons
 const icons = {
   LoginOutlined,
   ProfileOutlined,
   HomeOutlined,
-  SwitcherOutlined
+  SwitcherOutlined,
+  PaymentIcon,
+  CategoryIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -27,8 +31,15 @@ const pages = {
       id: 'product',
       title: 'Product',
       type: 'item',
-      url: '/color',
-      icon: icons.SwitcherOutlined
+      url: '/product',
+      icon: icons.CategoryIcon
+    },
+    {
+      id: 'payment',
+      title: 'Payment',
+      type: 'item',
+      url: '/payment',
+      icon: icons.PaymentIcon
     },
     {
       id: 'inventory',
@@ -37,13 +48,7 @@ const pages = {
       url: '/register',
       icon: icons.ProfileOutlined
     },
-    {
-      id: 'payment',
-      title: 'Payment',
-      type: 'item',
-      url: '/color',
-      icon: icons.ProfileOutlined
-    },
+  
     {
       id: 'setting',
       title: 'Setting',

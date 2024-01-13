@@ -178,7 +178,7 @@ const Profile = (props) => {
                           </Tabs>
                         </Box>
                         <TabPanel value={value} index={0} dir={theme.direction}>
-                          <ProfileTab handleLogout={handleLogout} />
+                          <ProfileTab handleLogout={handleLogout} navigate={navigate} setOpen={setOpen}/>
                         </TabPanel>
                       </>
                     )}

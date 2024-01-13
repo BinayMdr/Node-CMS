@@ -19,6 +19,7 @@ const Payment = Loadable(lazy(() => import('pages/module/PaymentPage')));
 const GlobalSetting = Loadable(lazy(() => import('pages/module/GlobalSettingPage')));
 const Setting = Loadable(lazy(() => import('pages/module/SettingPage')));
 const User = Loadable(lazy(() => import('pages/module/UserPage')));
+const EditProfile = Loadable(lazy(() => import('pages/module/EditProfilePage')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -53,6 +54,10 @@ const MainRoutes = {
     {
       path: 'user',
       element: <User />
+    },
+    {
+      path: 'edit-profile',
+      element: <EditProfile />
     }
   ]
 };

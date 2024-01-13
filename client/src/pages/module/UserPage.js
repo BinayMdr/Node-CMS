@@ -255,9 +255,16 @@ const UserPage = () => {
             let message = "added";
             if( formAction == "Add")
             {
+              let message = '';
+              if(values.password.length < 6) message = "Password length must be equal or greater than 6 digits"
               if( values.password !== values.confirmPassword) 
               {
-                toast.error("Password and confirm password should match", {
+                message = "Password and confirm password should match";
+              }
+
+              if(message != "")
+              {
+                toast.error(message, {
                   position: "top-right",
                   autoClose: 5000,
                   hideProgressBar: false,
@@ -290,9 +297,15 @@ const UserPage = () => {
               };
               if(values.password != '')
               {
+                let message = '';
+                if(values.password.length < 6) message = "Password length must be equal or greater than 6 digits"
                 if( values.password !== values.confirmPassword) 
                 {
-                  toast.error("Password and confirm password should match", {
+                  message = "Password and confirm password should match";
+                }
+                if(message != "")
+                {
+                  toast.error(message, {
                     position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: false,

@@ -11,27 +11,21 @@ import NavItem from './NavItem';
 
 const NavGroup = ({ item }) => {
   const menu = useSelector((state) => state.menu);
+  const userDetails = useSelector((state => state.userDetails));
+
+  const forAdminUser = userDetails?.userData?.is_admin ? 'Admin' : '';
   const { drawerOpen } = menu;
 
   const navCollapse = item.children?.map((menuItem) => {
-    switch (menuItem.type) {
-      case 'collapse':
-        return (
-          <Typography key={menuItem.id} variant="caption" color="error" sx={{ p: 2.5 }}>
-            collapse - only available in paid version
-          </Typography>
-        );
-      case 'item':
+    switch (menuItem.forUser) {
+      case 'All':
         return <NavItem key={menuItem.id} item={menuItem} level={1} />;
-      default:
-        return (
-          <Typography key={menuItem.id} variant="h6" color="error" align="center">
-            Fix - Group Collapse or Items
-          </Typography>
-        );
+      case forAdminUser:
+        return <NavItem key={menuItem.id} item={menuItem} level={1} />;
     }
   });
 
+  
   return (
     <List
       subheader={

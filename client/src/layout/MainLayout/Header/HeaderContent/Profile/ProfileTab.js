@@ -9,16 +9,17 @@ import { EditOutlined, LogoutOutlined} from '@ant-design/icons';
 
 // ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
 
-const ProfileTab = ({ handleLogout }) => {
+const ProfileTab = ({ handleLogout,navigate, setOpen }) => {
   const theme = useTheme();
 
-  const handleListItemClick = (event, index) => {
-    setSelectedIndex(index);
+  const handleListItemClick = () => {
+    setOpen(false)
+    navigate('/edit-profile')
   };
 
   return (
     <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32, color: theme.palette.grey[500] } }}>
-      <ListItemButton onClick={(event) => handleListItemClick(event, 0)}>
+      <ListItemButton onClick={() => handleListItemClick() }>
         <ListItemIcon>
           <EditOutlined />
         </ListItemIcon>

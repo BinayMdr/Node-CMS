@@ -4,6 +4,7 @@ require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const getAllUser = (async (req,res) => {
   try {
@@ -132,7 +133,6 @@ const updateUser = [
 
     const { password, branch_id, is_active } = req.body;
 
-    
     const userId = req.params.userId;
     try {
       
@@ -232,10 +232,58 @@ const getUserList = (async (req,res) => {
     });
   }
 });
+
+const updatePassword = (async (req,res) => {
+  try {
+    const decoded = req.decodedData;
+
+    const { newPassword, oldPassword } = req.body;
+
+    const { id } = decoded;
+
+    const updatedUser = await user.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    const match = await bcrypt.compare(oldPassword,updatedUser['dataValues']['password']);
+
+    if(!match)
+    {
+      return res.status(400).json({
+        message: "Old password doesn't match",
+        error: true,
+      });
+    }
+    const encryptedPassword = await bcrypt.hash(newPassword,10);
+
+    const userData = await user.update({
+      password: encryptedPassword
+    },
+      {
+        where: { id: id }
+      });
+
+
+    return res.json({
+      message: 'Profile updated',
+      error: false,
+    });
+
+  } catch (error) {
+    console.log(error)
+    return res.json({
+      "message": "Data not found",
+      "error": true
+    });
+  }
+});
 module.exports = {
     getAllUser,
     storeUser,
     updateUser,
     getUser,
-    getUserList
+    getUserList,
+    updatePassword
 }

@@ -33,6 +33,7 @@ const pages = {
       title: 'Branch',
       type: 'item',
       url: '/branch',
+      forUser: 'Admin',
       icon: icons.HomeOutlined
     },
     {
@@ -40,6 +41,7 @@ const pages = {
       title: 'Product',
       type: 'item',
       url: '/product',
+      forUser: 'Admin',
       icon: icons.CategoryIcon
     },
     {
@@ -47,6 +49,7 @@ const pages = {
       title: 'Payment',
       type: 'item',
       url: '/payment',
+      forUser: 'Admin',
       icon: icons.PaymentIcon
     },
     {
@@ -54,6 +57,7 @@ const pages = {
       title: 'User',
       type: 'item',
       url: '/user',
+      forUser: 'Admin',
       icon: icons.PeopleIcon
     },
   
@@ -62,6 +66,7 @@ const pages = {
       title: 'Setting',
       type: 'item',
       url: '/setting',
+      forUser: 'Admin',
       icon: icons.SettingsIcon
     },
     {
@@ -69,6 +74,22 @@ const pages = {
       title: 'Global Setting',
       type: 'item',
       url: '/global-setting',
+      forUser: 'Admin',
+      icon: icons.PublicIcon
+    },
+    {
+      id: 'invoice',
+      title: 'Invoice',
+      type: 'item',
+      url: '/global-setting',
+      forUser: 'All',
+      icon: icons.PublicIcon
+    },
+    {
+      id: 'edit-profile',
+      title: 'Edit Profile',
+      type: 'item',
+      url: '/edit-profile',
       icon: icons.PublicIcon
     }
   ]

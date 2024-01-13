@@ -44,9 +44,7 @@ const verifyToken = (async(req,res) => {
 });
 
 const userDetails = (async(req,res) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = req.decodedData;
 
     const userData = await user.findByPk(decoded.id, {
         attributes: ['id', 'name', 'email','branch_id','is_admin'],

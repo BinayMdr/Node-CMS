@@ -104,9 +104,7 @@ const storeInvoice = [
         total = subTotal - discount_amount;
 
 
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = req.decodedData;
 
         let latestInvoiceData = await invoice.findOne({
                         order: [['createdAt','DESC']]

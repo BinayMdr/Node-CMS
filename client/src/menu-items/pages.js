@@ -4,6 +4,8 @@ import { LoginOutlined, ProfileOutlined , HomeOutlined,
 import PaymentIcon from '@mui/icons-material/Payment';
 
 import CategoryIcon from '@mui/icons-material/Category';
+import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
+
 // icons
 const icons = {
   LoginOutlined,
@@ -11,7 +13,8 @@ const icons = {
   HomeOutlined,
   SwitcherOutlined,
   PaymentIcon,
-  CategoryIcon
+  CategoryIcon,
+  SettingsApplicationsIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -60,8 +63,8 @@ const pages = {
       id: 'globalSetting',
       title: 'Global Setting',
       type: 'item',
-      url: '/register',
-      icon: icons.ProfileOutlined
+      url: '/global-setting',
+      icon: icons.SettingsApplicationsIcon
     }
   ]
 };

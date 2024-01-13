@@ -14,7 +14,6 @@ const globalSetting = createSlice({
   reducers: {
     updateGlobalName(state, action) {
       state.globalName = action.payload.globalName;
-      console.log(action.payload.globalName)
     }
   }
 });

@@ -4,7 +4,7 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Checkbox, FormControlLabel
+        OutlinedInput,Checkbox, FormControlLabel, Select, MenuItem
       } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
@@ -17,13 +17,14 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const columns = [
-  { id: 'name', label: 'Product Name', minWidth: 170 },
-  { id: 'price', label: 'Price', minWidth: 100},
-  { id: 'is_enabled', label: 'Status', minWidth: 100},
+  { id: 'name', label: 'Name', minWidth: 170 },
+  { id: 'email', label: 'Email', minWidth: 170 },
+  { id: 'branch_id', label: 'Branch', minWidth: 170 },
+  { id: 'is_active', label: 'Status', minWidth: 100},
   { id: 'action', label: 'Action', minWidth: 100},
 ];
 
-const ProductPage = () => {
+const UserPage = () => {
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -36,14 +37,32 @@ const ProductPage = () => {
               "price":0,"status":false})
 
   const [formAction, setFormAction] = React.useState('Add');
+  const [branchList,setBranchList] = React.useState([]);
 
   const userToken = localStorage.getItem('token');
 
-
-  const getProduct = async (page,pageSize,search) => {
+  const getBranchList = async () => {
     try
     {
-      const response = await api.get('product', {
+      const response = await api.get('branch/get-list', {
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
+
+      setBranchList(response.data.data)
+      
+    }
+    catch(error)
+    {
+      console.log(error)
+    }
+  } 
+
+  const getUser = async (page,pageSize,search) => {
+    try
+    {
+      const response = await api.get('user', {
         headers: {
           'Authorization': `Bearer ${userToken}`
         },
@@ -64,8 +83,12 @@ const ProductPage = () => {
   } 
 
   useEffect( () => {
-      getProduct(page,rowsPerPage,searchValue)
+      getUser(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
+
+  useEffect( () => {
+    getBranchList()
+  },[])
   
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -81,13 +104,16 @@ const ProductPage = () => {
     setPage(0)
   }
 
-  const addProduct = () => {
+  const addUser = () => {
     setFormAction("Add")
     setFormValue({
       "id":null,
       "name":"",
-      "price":0,
-      "status":false
+      "email":"",
+      "branch":"",
+      "status":false,
+      "password":"",
+      "confirmPassword":""
     })
     setOpen(true)
   }
@@ -112,11 +138,20 @@ const ProductPage = () => {
     rows.find(function(element){
       if(element['id'] == id)
       {
+        let branchId = element['branch_id'];
+
+        if(action == "Edit" && element['Branch']['is_enabled'] == false) 
+        {
+          branchId = '';
+        }
         setFormValue({
           "id":id,
           "name":element['name'],
-          "price":element['price'],
-          "status":element['is_enabled']
+          "email":element['email'],
+          "status":element['is_active'],
+          "branch": branchId,
+          "password":"",
+          "confirmPassword":""
         })
       }
     });
@@ -132,7 +167,7 @@ const ProductPage = () => {
               onChange={handleChangeSearch}/>
         <Button variant="contained"
           sx={{my:1,float:'right'}}
-          onClick={addProduct}
+          onClick={addUser}
          ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
       <TableContainer sx={{ maxHeight: 350 }}>
         <Table stickyHeader aria-label="sticky table">
@@ -157,17 +192,18 @@ const ProductPage = () => {
                       const value = row[column.id];
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          { (column.id === "name" || column.id === "price") ? (column.format && typeof value === 'number'
+                          { (column.id === "name" || column.id === "email") ? (column.format && typeof value === 'number'
                             ? column.format(value)
-                            : value) : 
-                            
-                            ((column.id == "is_enabled") ? (value === true ? 'Active' : 'Inactive') 
+                            : value) :( (column.id == "branch_id") ? ( row.Branch.is_enabled ? `${row.Branch.name}` : `${row.Branch.name} (Inactive)`) 
+                            :
+                            ((column.id == "is_active") ? (value === true ? 'Active' : 'Inactive') 
                             : <span>
                                 <Button onClick={() => handleViewUpdate("View",row.id)}>
                                     <EyeOutlined/></Button>  
                                 <Button>
                                     <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
                               </span>)
+                            )
                             
                            }
                         </TableCell>
@@ -197,19 +233,21 @@ const ProductPage = () => {
     >
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h2" component="h2" sx={{textAlign:'center'}}>
-          {formAction} Product
+          {formAction} User
         </Typography>
         <Divider sx={{my:2}}/>
         <Formik
         initialValues={{
           name: formValue.name,
-          price:formValue.price,
+          email: formValue.email,
+          branch: formValue.branch,
           status:formValue.status,
           submit: null
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().max(255).required('Name is required'),
-          price: Yup.number().required('Price is required').positive('Price must be positive')
+          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
+          branch: Yup.string().max(255).required('Branch is required'),
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
@@ -217,10 +255,27 @@ const ProductPage = () => {
             let message = "added";
             if( formAction == "Add")
             {
-              await api.post("product", {
+              if( values.password !== values.confirmPassword) 
+              {
+                toast.error("Password and confirm password should match", {
+                  position: "top-right",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "light",
+                  });
+
+                return false;
+              }
+              await api.post("user", {
                 name: values.name,
-                price: values.price,
-                is_enabled: values.status
+                email: values.email,
+                branch_id: values.branch,
+                is_active: values.status,
+                password: values.password
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -229,11 +284,31 @@ const ProductPage = () => {
             }
             else
             {
-              await api.put(`product/edit/${formValue.id}`, {
-                name: values.name,
-                price: values.price,
-                is_enabled: values.status
-              },{
+              let formData = {
+                branch_id: values.branch,
+                is_active: values.status
+              };
+              if(values.password != '')
+              {
+                if( values.password !== values.confirmPassword) 
+                {
+                  toast.error("Password and confirm password should match", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    });
+
+                  return false;
+                }  
+                formData.password = values.password
+              }
+
+              await api.put(`user/edit/${formValue.id}`, formData ,{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
                 }
@@ -242,9 +317,9 @@ const ProductPage = () => {
             }
 
             setOpen(false)
-            getProduct(page,rowsPerPage,searchValue)
+            getUser(page,rowsPerPage,searchValue)
             
-            toast.success(`Product ${message} successfully`, {
+            toast.success(`User ${message} successfully`, {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -274,10 +349,10 @@ const ProductPage = () => {
           }
         }}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values ,setFieldValue}) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="name">Name</InputLabel>
                   <OutlinedInput
@@ -290,7 +365,7 @@ const ProductPage = () => {
                     placeholder="Enter name"
                     fullWidth
                     error={Boolean(touched.name && errors.name)}
-                    readOnly={formAction == "View"}
+                    readOnly={formAction == "View" || formAction == "Edit"}
                   />
                   {touched.name && errors.name && (
                     <FormHelperText error id="standard-weight-helper-text-name-login">
@@ -299,24 +374,56 @@ const ProductPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="price">Price</InputLabel>
+                  <InputLabel htmlFor="email">Email</InputLabel>
                   <OutlinedInput
-                    id="price"
-                    type="number"
-                    value={values.price}
-                    name="price"
+                    id="email"
+                    type="text"
+                    value={values.email}
+                    name="email"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter price"
+                    placeholder="Enter email"
                     fullWidth
-                    error={Boolean(touched.price && errors.price)}
-                    readOnly={formAction == "View"}
+                    error={Boolean(touched.email && errors.email)}
+                    readOnly={formAction == "View" || formAction == "Edit"}
                   />
-                  {touched.price && errors.price && (
-                    <FormHelperText error id="standard-weight-helper-text-price-login">
-                      {errors.price}
+                  {touched.email && errors.email && (
+                    <FormHelperText error id="standard-weight-helper-text-email-login">
+                      {errors.email}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+              <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="branch">Branch</InputLabel>
+                   <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={values.branch}
+                      onChange={(event) => {
+                        handleChange(event);
+                        setFieldValue('branch', event.target.value);
+                      }}
+                      disabled={ formAction == "View"}
+                    >
+                      {
+                        branchList.map((branch) => {
+                        const { id, name , is_enabled} = branch;
+                        return (
+                          <MenuItem key={id} value={id} disabled={ !is_enabled }>
+                            {name}
+                          </MenuItem>
+                        );
+                        })
+                      }
+                    </Select>
+
+                  {touched.branch && errors.branch && (
+                    <FormHelperText error id="standard-weight-helper-text-branch-login">
+                      {errors.branch}
                     </FormHelperText>
                   )}
                 </Stack>
@@ -338,6 +445,55 @@ const ProductPage = () => {
                   />
                 </Stack>
               </Grid>
+              { (formAction == 'Add' || formAction == 'Edit') &&
+                <Grid item xs={6}>
+                  <Stack spacing={1}>
+                    <InputLabel htmlFor="password">Password</InputLabel>
+                    <OutlinedInput
+                      id="password"
+                      type="password"
+                      value={values.password}
+                      name="password"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      placeholder="Enter password"
+                      fullWidth
+                      error={Boolean(touched.password && errors.password)}
+                      readOnly={formAction == "View"}
+                    />
+                    {touched.password && errors.password && (
+                      <FormHelperText error id="standard-weight-helper-text-password-login">
+                        {errors.password}
+                      </FormHelperText>
+                    )}
+                  </Stack>
+                </Grid>
+              }
+              {
+                (formAction == 'Add' || formAction == 'Edit') &&
+                <Grid item xs={6}>
+                  <Stack spacing={1}>
+                    <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
+                    <OutlinedInput
+                      id="confirmPassword"
+                      type="password"
+                      value={values.confirmPassword}
+                      name="confirmPassword"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      placeholder="Enter confirm password"
+                      fullWidth
+                      error={Boolean(touched.confirmPassword && errors.confirmPassword)}
+                      readOnly={formAction == "View"}
+                    />
+                    {touched.confirmPassword && errors.confirmPassword && (
+                      <FormHelperText error id="standard-weight-helper-text-confirmPassword-login">
+                        {errors.confirmPassword}
+                      </FormHelperText>
+                    )}
+                  </Stack>
+                </Grid>
+              }
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText error>{errors.submit}</FormHelperText>
@@ -347,7 +503,7 @@ const ProductPage = () => {
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                      {formAction == "Edit" ? "Update" : formAction} Product
+                      {formAction == "Edit" ? "Update" : formAction} User
                     </Button>
                   </AnimateButton>
                 </Grid>
@@ -363,4 +519,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage;
+export default UserPage;

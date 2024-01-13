@@ -12,12 +12,13 @@ const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
 
 // render - utilities
 // const Color = Loadable(lazy(() => import('pages/components-overview/Color')));
-const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons')));
+// const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons')));
 const Branch = Loadable(lazy(() => import('pages/module/BranchPage')));
 const Product = Loadable(lazy(() => import('pages/module/ProductPage')));
 const Payment = Loadable(lazy(() => import('pages/module/PaymentPage')));
 const GlobalSetting = Loadable(lazy(() => import('pages/module/GlobalSettingPage')));
 const Setting = Loadable(lazy(() => import('pages/module/SettingPage')));
+const User = Loadable(lazy(() => import('pages/module/UserPage')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -50,8 +51,8 @@ const MainRoutes = {
       element: <Setting />
     },
     {
-      path: 'icons/ant',
-      element: <AntIcons />
+      path: 'user',
+      element: <User />
     }
   ]
 };

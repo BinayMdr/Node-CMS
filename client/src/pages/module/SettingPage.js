@@ -127,27 +127,35 @@ const SettingPage = () => {
         }}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
-
-              await api.put(`setting`, {
-                address: address,
-                number: number,
-                branchId:branch
-              },{
-                headers: {
-                  'Authorization': `Bearer ${userToken}`
-                }
+              if( address != "" || number != "")
+              {
+                await api.put(`setting`, {
+                  address: address,
+                  number: number,
+                  branchId:branch
+                },{
+                  headers: {
+                    'Authorization': `Bearer ${userToken}`
+                  }
+                });
+              
+              toast.success(`Setting updated successfully`, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
               });
-            
-            toast.success(`Setting updated successfully`, {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            });
+            }
+            else
+            {
+              if(address == "") setAddressError(true);
+              if(number == "") setNumberError(true); 
+              return false;
+            }
 
           } catch (err) {
             setStatus({ success: false });

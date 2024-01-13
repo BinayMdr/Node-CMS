@@ -11,6 +11,7 @@ const globalsettingRoute = require('./routes/globalsettingRoute.js');
 const settingRoute = require('./routes/settingRoute.js');
 const productRoute = require('./routes/productRoute.js');
 const invoiceRoute = require('./routes/invoiceRoute.js');
+const userRoute = require('./routes/userRoute.js');
 
 require("dotenv").config();
 
@@ -28,6 +29,7 @@ app.use("/global-setting",globalsettingRoute);
 app.use("/setting",settingRoute);
 app.use("/product",productRoute);
 app.use("/invoice",invoiceRoute);
+app.use("/user",userRoute);
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

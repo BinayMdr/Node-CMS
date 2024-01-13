@@ -24,11 +24,15 @@ const verifyUserLogin =[
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    if ( !userData.is_active) {
+        return res.status(401).json({ message: 'User cannot login the system' });
+    }
+
     const match = await bcrypt.compare(password, userData['password']);
 
     if(!match)
     {
-        return res.json({"message":"Invalid credentials","error":true})
+        return res.status(401).json({"message":"Invalid credentials","error":true})
     }
 
     const token = jwt.sign({ email: email, id: userData['dataValues']['id'],branch_id:userData['dataValues']['branch_id'] }, process.env.JWT_SECRET, { expiresIn: '4h' });

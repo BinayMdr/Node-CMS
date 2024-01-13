@@ -7,6 +7,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PublicIcon from '@mui/icons-material/Public';
+import PeopleIcon from '@mui/icons-material/People';
 // icons
 const icons = {
   LoginOutlined,
@@ -17,13 +18,14 @@ const icons = {
   CategoryIcon,
   SettingsApplicationsIcon,
   SettingsIcon,
-  PublicIcon
+  PublicIcon,
+  PeopleIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
 const pages = {
-  id: 'authentication',
-  title: 'Authentication',
+  id: 'modules',
+  title: 'Modules',
   type: 'group',
   children: [
     {
@@ -48,11 +50,11 @@ const pages = {
       icon: icons.PaymentIcon
     },
     {
-      id: 'inventory',
-      title: 'Inventory',
+      id: 'user',
+      title: 'User',
       type: 'item',
-      url: '/register',
-      icon: icons.ProfileOutlined
+      url: '/user',
+      icon: icons.PeopleIcon
     },
   
     {

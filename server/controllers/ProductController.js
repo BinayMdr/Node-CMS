@@ -197,7 +197,7 @@ const getProductList = (async (req,res) => {
 
     let where = {};
 
-    where.is_enabled =  1 ;
+    // where.is_enabled =  1 ;
 
     if (filter) {
       where.name = { [Op.like]: `%${filter}%` };

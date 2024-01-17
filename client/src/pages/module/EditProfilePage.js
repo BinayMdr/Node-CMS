@@ -4,7 +4,6 @@ import {Paper,Button,Box, Grid,
         OutlinedInput
       } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
-import { useEffect } from 'react';
 import api from 'routes/Enpoint'
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -13,40 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const EditProfilePage = () => {
 
-  const [formValue, setFormValue] = React.useState({"oldPassword":"","newPassword":"","confirmPassword":""})
-
-  const [showData, setShowData] = React.useState(false)
   const userToken = localStorage.getItem('token');
-
-
-  const getGlobalSetting = async () => {
-    try
-    {
-      const response = await api.get('global-setting');
-
-      const pluckedData = response.data.data.map(({name,value}) => ({
-        name,value
-      }));
-      
-      const convertedObject = pluckedData.reduce((result, { name, value }) => {
-        result[name] = value;
-        return result;
-      }, {});
-
-      setFormValue(convertedObject);
-      
-      
-      setShowData(true)
-    }
-    catch(error)
-    {
-      console.log(error)
-    }
-  } 
-
-  useEffect( () => {
-    getGlobalSetting()
-  },[])
   
   const style = {
     position: 'relative',
@@ -59,13 +25,13 @@ const EditProfilePage = () => {
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <ToastContainer></ToastContainer>
-     { showData &&
+     
       <Box sx={style}>
         <Formik
         initialValues={{
-          oldPassword: formValue.oldPassword,
-          newPassword:formValue.newPassword,
-          confirmPassword:formValue.confirmPassword,
+          oldPassword: '',
+          newPassword:'',
+          confirmPassword:'',
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -75,8 +41,9 @@ const EditProfilePage = () => {
           confirmPassword: Yup.string().min(6,'Confirm Password must be equal or greater than 6 digits')
                     .required('Confirm password is required'),
         })}
-        onSubmit={async (values, { setStatus, setSubmitting }) => {
+        onSubmit={async (values, { setStatus, setSubmitting ,resetForm}) => {
           try {
+            resetForm()
             if( values.newPassword !== values.confirmPassword) 
             {
               toast.error("Password and confirm password should match", {
@@ -90,6 +57,7 @@ const EditProfilePage = () => {
                 theme: "light",
                 });
 
+              
               return false;
             }  
               await api.put(`user/update-password`, {
@@ -100,7 +68,8 @@ const EditProfilePage = () => {
                   'Authorization': `Bearer ${userToken}`
                 }
               });
-          
+              
+            resetForm()
             toast.success(`Profile updated successfully`, {
             position: "top-right",
             autoClose: 5000,
@@ -111,7 +80,7 @@ const EditProfilePage = () => {
             progress: undefined,
             theme: "light",
             });
-
+            
           } catch (err) {
             setStatus({ success: false });
             setSubmitting(false);
@@ -209,7 +178,7 @@ const EditProfilePage = () => {
         )}
       </Formik>
       </Box>
-     }
+     
     </Paper>
   );
 };

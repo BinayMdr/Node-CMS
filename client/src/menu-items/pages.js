@@ -8,6 +8,7 @@ import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PublicIcon from '@mui/icons-material/Public';
 import PeopleIcon from '@mui/icons-material/People';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 // icons
 const icons = {
   LoginOutlined,
@@ -19,7 +20,8 @@ const icons = {
   SettingsApplicationsIcon,
   SettingsIcon,
   PublicIcon,
-  PeopleIcon
+  PeopleIcon,
+  ReceiptIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -81,9 +83,9 @@ const pages = {
       id: 'invoice',
       title: 'Invoice',
       type: 'item',
-      url: '/global-setting',
+      url: '/invoice',
       forUser: 'All',
-      icon: icons.PublicIcon
+      icon: icons.ReceiptIcon
     },
     {
       id: 'edit-profile',

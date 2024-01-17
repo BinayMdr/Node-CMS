@@ -97,13 +97,13 @@ const BranchPage = () => {
   }
 
   const style = {
-    position: 'absolute',
+    position: 'relative',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: 500,
     bgcolor: 'background.paper',
-    p: 4,
+    p: '30px',
   };
 
   const handleViewUpdate = (action,id) =>{

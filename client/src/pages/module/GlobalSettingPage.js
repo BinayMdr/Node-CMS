@@ -52,14 +52,11 @@ const GlobalSettingPage = () => {
   },[])
   
   const style = {
-    position: 'absolute',
-    top: '50%',
+    position: 'relative',
     left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 800,
+    transform: 'translate(-50%, 0%)',
     bgcolor: 'background.paper',
-    p: 4,
-    marginTop:'25px'
+    p: 4
   };
 
   return (

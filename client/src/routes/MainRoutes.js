@@ -20,6 +20,7 @@ const GlobalSetting = Loadable(lazy(() => import('pages/module/GlobalSettingPage
 const Setting = Loadable(lazy(() => import('pages/module/SettingPage')));
 const User = Loadable(lazy(() => import('pages/module/UserPage')));
 const EditProfile = Loadable(lazy(() => import('pages/module/EditProfilePage')));
+const Invoice = Loadable(lazy(() => import('pages/module/InvoicePage')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -58,6 +59,10 @@ const MainRoutes = {
     {
       path: 'edit-profile',
       element: <EditProfile />
+    },
+    {
+      path: 'invoice',
+      element: <Invoice />
     }
   ]
 };

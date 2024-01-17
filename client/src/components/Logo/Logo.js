@@ -2,6 +2,7 @@ import { useEffect,useState } from "react";
 import api from 'routes/Enpoint';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateGlobalName } from "store/reducers/globalSetting";
+import { Typography } from "../../../node_modules/@mui/material/index";
 // material-ui
 
 /**
@@ -60,7 +61,7 @@ const Logo = () => {
      */
     <>
      {
-      (window.location.href !== `${process.env.REACT_APP_URL}login`) ? <span>{globalSettingName ?? ""}</span> : null
+      (window.location.href !== `${process.env.REACT_APP_URL}login`) ? <Typography variant="h2" component="h2">{globalSettingName ?? ""}</Typography> : null
       }
     </>
   );

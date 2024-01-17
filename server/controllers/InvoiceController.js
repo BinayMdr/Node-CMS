@@ -2,6 +2,7 @@ const invoice = require('../models/invoice');
 const product = require('../models/product');
 const payment = require('../models/payment');
 const user = require('../models/user');
+const branch = require('../models/branch');
 const invoicehasproduct = require('../models/invoicehasproduct');
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
@@ -10,7 +11,7 @@ const jwt = require('jsonwebtoken');
 
 const getAllInvoice = (async (req,res) => {
   try {
-    let {page,pageSize,startDate,endDate} = req.query;
+    let {page,pageSize,startDate,endDate,filter} = req.query;
 
     if(page == undefined) page = 1;
     if(pageSize == undefined) pageSize = 10;
@@ -18,16 +19,29 @@ const getAllInvoice = (async (req,res) => {
     const offset = (page - 1) * pageSize;
     let where = {};
 
-    const startTimestamp = new Date(`${startDate} 00:00:00`);
-    const endTimestamp = new Date(`${endDate} 23:59:59`);
+    console.log(startDate)
+    console.log(endDate)
 
-    where.createdAt = { [Op.between]: [startTimestamp, endTimestamp] };
+    if( startDate != "" && endDate != "")
+    {
+      const startTimestamp = new Date(`${startDate} 00:00:00`);
+      const endTimestamp = new Date(`${endDate} 23:59:59`);
+      where.createdAt = { [Op.between]: [startTimestamp, endTimestamp] };
+    }
     
-    
+    if (filter) {
+      where.invoice_number = { [Op.like]: `%${filter}%` };
+    }
+
     const invoices = await invoice.findAll({
       where,
       limit: parseInt(pageSize),
-      offset
+      offset,
+      order: [['createdAt', 'DESC']], 
+      include:[{
+        model: branch,
+        attributes:['name','is_enabled']
+      }]
     });
 
     for(let i = 0 ; i < invoices.length ; i++)
@@ -38,7 +52,8 @@ const getAllInvoice = (async (req,res) => {
     const totalInvoiceCount = await invoice.count({
       where,
       limit: parseInt(pageSize),
-      offset
+      offset,
+      order: [['createdAt', 'DESC']], 
     });
     
     const pageInfo = {
@@ -100,7 +115,7 @@ const storeInvoice = [
             subTotal = subTotal + ( productItem['dataValues']['price'] * invoice_items[i]['quantity']);
         }
 
-        discount_amount = (subTotal * (10/100)).toFixed(2);
+        discount_amount = (subTotal * (discount_percent/100)).toFixed(2);
         total = subTotal - discount_amount;
 
 
@@ -114,11 +129,22 @@ const storeInvoice = [
 
         if(latestInvoiceData)
         {
-            invoiceNumber = process.env.INVOICE_PREFIX + ( parseInt(latestInvoiceData['dataValues']['invoice_number'].split(process.env.INVOICE_PREFIX).pop()) + 1);
+            const numberPart =  ( parseInt(latestInvoiceData['dataValues']['invoice_number'].split(process.env.INVOICE_PREFIX).pop()) + 1);
+
+            invoiceNumber = process.env.INVOICE_PREFIX;
+
+            for (i = 1; i <= 4 - numberPart.toString().length ; i++)
+            {
+              console.log(i)
+              invoiceNumber += '0'; 
+            }
+
+            invoiceNumber += numberPart;
+
         }
         else
         {
-            invoiceNumber = process.env.INVOICE_PREFIX + "1";
+            invoiceNumber = process.env.INVOICE_PREFIX + "0001";
         }
 
         let invoiceData = await invoice.create({
@@ -290,8 +316,8 @@ const dataFormatter = (async (invoice) => {
       });
 
       let productItem = {
-        product_id : invoiceProducts[i]['dataValues']['product_id'],
-        product_name : productData['dataValues']['name'],
+        id : invoiceProducts[i]['dataValues']['product_id'],
+        name : productData['dataValues']['name'],
         price : invoiceProducts[i]['dataValues']['price'],
         quantity : invoiceProducts[i]['dataValues']['quantity'],
         total : invoiceProducts[i]['dataValues']['total']

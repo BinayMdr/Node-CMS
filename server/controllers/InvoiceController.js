@@ -159,7 +159,9 @@ const storeInvoice = [
             payment_method_id:payment_method_id,
             branch_id:decoded['branch_id'],
             prepared_by_id:decoded['id'],
-            status: "Pending"
+            status: "Pending",
+            received_amount:0,
+            changed_amount: 0
         });
 
         for(let i = 0; i < items.length ; i++ )
@@ -231,7 +233,7 @@ const updateInvoice = [
             subTotal = subTotal + ( productItem['dataValues']['price'] * invoice_items[i]['quantity']);
         }
 
-        discount_amount = (subTotal * (10/100)).toFixed(2);
+        discount_amount = (subTotal * (discount_percent/100)).toFixed(2);
         total = subTotal - discount_amount;
 
       let invoiceData = await invoice.update({

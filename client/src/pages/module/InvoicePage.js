@@ -37,7 +37,7 @@ const InvoicePage = () => {
   const [rows,setRows] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [totalData,setTotalData] = React.useState(0);
-  
+  const [invoiceStatus, setInvoiceStatus] = React.useState('');
 
   const [subTotal,setSubTotal] = React.useState(0);
   const [total,setTotal] = React.useState(0);
@@ -47,6 +47,11 @@ const InvoicePage = () => {
 
   const [formAction, setFormAction] = React.useState('Add');
   const [productList,setProductList] = React.useState([]);
+
+  const [paymentMethodList, setPaymentMethodList] = React.useState([]);
+  const [paymentMethod,setPaymentMethod] = React.useState("");
+  const [receivedAmount,setReceivedAmount] = React.useState("");
+  const [changedAmount,setChangedAmount] = React.useState("");
 
   const userToken = localStorage.getItem('token');
 
@@ -60,6 +65,24 @@ const InvoicePage = () => {
       });
 
       setProductList(response.data.data)
+      
+    }
+    catch(error)
+    {
+      console.log(error)
+    }
+  } 
+
+  const getPaymentMethodList = async () => {
+    try
+    {
+      const response = await api.get('payment/get-list', {
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
+
+      setPaymentMethodList(response.data.data)
       
     }
     catch(error)
@@ -99,6 +122,7 @@ const InvoicePage = () => {
 
   useEffect( () => {
     getProductList()
+    getPaymentMethodList()
   },[])
   
   const handleChangePage = (event, newPage) => {
@@ -165,7 +189,7 @@ const InvoicePage = () => {
 
   const updateTotalPrice = (itemLists) => {
     
-    const itemsTotal = itemLists.reduce((sum,item) => sum + item.total,0);
+    const itemsTotal = itemLists.reduce((sum,item) => sum + parseFloat(item.total),0);
     setSubTotal(itemsTotal)
 
     let newTotal = 0;
@@ -174,33 +198,40 @@ const InvoicePage = () => {
       newTotal = itemsTotal - (discount/100) * itemsTotal;
 
       setTotal(newTotal)
+
+      if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
     }
     else
     {
       setTotal(itemsTotal)
+
+      if(receivedAmount != 0) handleChangedAmount(itemsTotal,receivedAmount)
     }
   }
 
   const updateDiscount = (event) => {
     const newDiscount = parseInt(event.target.value,10);
 
-    if(isNaN(newDiscount) || newDiscount < 1) return false;
+    if(isNaN(newDiscount) || newDiscount < 0) return false;
 
     setDiscount(event.target.value)
 
-    const itemsTotal = invoiceList.reduce((sum,item) => sum + item.total,0);
-    setSubTotal(itemsTotal)
+    const itemsTotal = subTotal
 
+    console.log(itemsTotal)
     let newTotal = 0;
     if(event.target.value != 0)
     {
       newTotal = itemsTotal - (newDiscount/100) * itemsTotal;
 
       setTotal(newTotal)
+
+      if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
     }
     else
     {
       setTotal(itemsTotal)
+      if(receivedAmount != 0) handleChangedAmount(itemsTotal,receivedAmount)
     }
   }
   const addInvoice = () => {
@@ -214,9 +245,11 @@ const InvoicePage = () => {
     setSubTotal(0)
     setTotal(0)
     setDiscount(0)
-
+    setInvoiceStatus('')
     setInvoiceList([])
-
+    setPaymentMethod('')
+    setReceivedAmount(0)
+    setChangedAmount(0)
     setOpen(true)
   }
 
@@ -234,7 +267,6 @@ const InvoicePage = () => {
     p: '30px', overflowY:'auto',maxHeight:'600px'
   };
 
-  console.log(formValue)
   const handleViewUpdate = (action,id) =>{
     setFormAction(action)
     
@@ -250,14 +282,38 @@ const InvoicePage = () => {
         setSubTotal(element['sub_total'])
         setTotal(element['total'])
         setDiscount(element['discount_percent'])
-
+        setInvoiceStatus(element['status'])
         setInvoiceList(element['products'])
+        setPaymentMethod(element['payment_method_id'])
+        setChangedAmount(element['changed_amount'])
+        setReceivedAmount(element['received_amount'])
       }
     });
     setOpen(true)
 
+  } 
+
+  const handleReceivedAmountChange = (event) => {
+    const newReceivedAmount = parseInt(event.target.value,10);
+
+    if(isNaN(newReceivedAmount) || newReceivedAmount < 0) return false;
+
+    if(newReceivedAmount == 0)
+    {
+      setReceivedAmount(0)
+      setChangedAmount(0)
+      return false
+    }
+    setReceivedAmount(event.target.value)
+
+    handleChangedAmount(total,event.target.value)
   }
 
+  const handleChangedAmount = (newTotal,received_amount) => {
+    const newChangedAmount = received_amount - newTotal;
+
+    setChangedAmount(newChangedAmount)
+  }
   const formatDate = (date) => {
     let splitDate = new Date(date).toISOString().split('T')[0];
     return splitDate
@@ -366,6 +422,7 @@ const InvoicePage = () => {
         <Divider sx={{my:2}}/>
         <Formik
         initialValues={{
+          id: formAction.id,
           customerName: formValue.customerName,
           submit: null
         }}
@@ -374,30 +431,28 @@ const InvoicePage = () => {
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
+            let message = '';
+            if(invoiceList.length < 1) message = "Please add items"
+            
+            if(message != "")
+            {
+              toast.error(message, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                });
 
-            console.log('here')
-            let message = "added";
+              return false;
+            }
+
             if( formAction == "Add")
             {
-              let message = '';
-              if(invoiceList.length < 1) message = "Please add items"
-              
-              if(message != "")
-              {
-                toast.error(message, {
-                  position: "top-right",
-                  autoClose: 5000,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "light",
-                  });
-
-                return false;
-              }
-
+              message = 'added'
               await api.post("invoice", {
                 customer_name: values.customerName,
                 discount_percent: discount,
@@ -411,36 +466,16 @@ const InvoicePage = () => {
             else
             {
               let formData = {
-                branch_id: values.branch,
-                is_active: values.status
+                customer_name: values.customerName,
+                discount_percent:discount,
+                invoice_items: invoiceList,
+                status: invoiceStatus,
+                payment_method_id:paymentMethod,
+                received_amount: receivedAmount,
+                changed_amount: changedAmount
               };
-              if(values.password != '')
-              {
-                let message = '';
-                if(values.password.length < 6) message = "Password length must be equal or greater than 6 digits"
-                if( values.password !== values.confirmPassword) 
-                {
-                  message = "Password and confirm password should match";
-                }
-                if(message != "")
-                {
-                  toast.error(message, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                    });
 
-                  return false;
-                }  
-                formData.password = values.password
-              }
-
-              await api.put(`user/edit/${formValue.id}`, formData ,{
+              await api.put(`invoice/edit/${formValue.id}`, formData ,{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
                 }
@@ -454,6 +489,8 @@ const InvoicePage = () => {
             setSubTotal(0)
             setTotal(0)
             setDiscount(0)
+            setInvoiceStatus('')
+            setPaymentMethod('')
 
             toast.success(`Invoice ${message} successfully`, {
             position: "top-right",
@@ -594,40 +631,41 @@ const InvoicePage = () => {
                 })
               }
 
+              { (formAction != "View") &&
+                <Grid item xs={4}>
+                  <Stack spacing={1}>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={values.branch}
+                        onChange={(event) => {
+                          handleChange(event);
+                          addItemToInvoice(event.target.value)
+                        }}
+                        disabled={ formAction == "View"}
+                      >
+                        {
+                          productList.map((product) => {
+                          const invoiceIds = invoiceList.map(invoice => invoice.id);
 
-              <Grid item xs={4}>
-                <Stack spacing={1}>
-                   <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={values.branch}
-                      onChange={(event) => {
-                        handleChange(event);
-                        addItemToInvoice(event.target.value)
-                      }}
-                      disabled={ formAction == "View"}
-                    >
-                      {
-                        productList.map((product) => {
-                        const invoiceIds = invoiceList.map(invoice => invoice.id);
-
-                        const { id, name , is_enabled} = product;
-                        return (
-                          (formAction != "Add" && !invoiceIds.includes(id)) ? (
-                            <MenuItem key={id} value={id} disabled={!is_enabled}>
-                              {name}
-                            </MenuItem>
-                          ) : ( ( formAction == "Add" && is_enabled && !invoiceIds.includes(id)) ?
-                            <MenuItem key={id} value={id} disabled={!is_enabled}>
-                              {name}
-                            </MenuItem> : null
-                          )
-                          );
-                          })
-                        }
-                    </Select>
-                </Stack>
-              </Grid>
+                          const { id, name , is_enabled} = product;
+                          return (
+                            (formAction != "Add" && !invoiceIds.includes(id)) ? (
+                              <MenuItem key={id} value={id} disabled={!is_enabled}>
+                                {name}
+                              </MenuItem>
+                            ) : ( ( formAction == "Add" && is_enabled && !invoiceIds.includes(id)) ?
+                              <MenuItem key={id} value={id} disabled={!is_enabled}>
+                                {name}
+                              </MenuItem> : null
+                            )
+                            );
+                            })
+                          }
+                      </Select>
+                  </Stack>
+                </Grid>
+              }
               <Grid item xs={2}>
                 <Stack spacing={1}>
                 {/* <Typography> 0 </Typography> */}
@@ -689,7 +727,97 @@ const InvoicePage = () => {
                 <InputLabel>Rs. {total}</InputLabel>
                 </Stack>
               </Grid>
+              { (formAction != "Add") &&
+                <> 
+                     <Grid item xs={6}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="received_amount">Received Amount</InputLabel>
+                      <OutlinedInput
+                        id="receivedAmount"
+                        type="number"
+                        value={receivedAmount}
+                        name="receivedAmount"
+                        onBlur={handleBlur}
+                        onChange={handleReceivedAmountChange}
+                        fullWidth
+                        readOnly={formAction == "View"}
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="changed_amount">Changed Amount</InputLabel>
+                      <OutlinedInput
+                        id="changedAmount"
+                        type="number"
+                        value={changedAmount}
+                        name="changedAmount"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        fullWidth
+                        readOnly
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Stack spacing={1}>
+                      <InputLabel>Status</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-status-select"
+                        value={invoiceStatus}
+                        onChange={(event) => {
+                          setInvoiceStatus(event.target.value)
+                        }}
+                        disabled={ formAction == "View"}
+                      >
+                        <MenuItem key="Pending" value="Pending">Pending</MenuItem>
+                        <MenuItem key="Completed" value="Completed">Completed</MenuItem>
+                        <MenuItem key="Cancelled" value="Cancelled">Cancelled</MenuItem>
+                      </Select>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Stack spacing={1}>
+                      <InputLabel>Payment Method</InputLabel>
+                        <Select
+                          labelId="demo-simple-select-label"
+                          id="demo-status-select"
+                          value={paymentMethod}
+                          onChange={(event) => {
+                            setPaymentMethod(event.target.value)
+                          }}
+                          disabled={ formAction == "View"}
+                        >
 
+                          {
+                            paymentMethodList.map((paymentMethod) => {
+
+                            return (
+                                ( (paymentMethod.is_enabled) ? 
+                                    <MenuItem key={paymentMethod.id} value={paymentMethod.id}>
+                                      {paymentMethod.name}
+                                    </MenuItem>
+                                  :
+                                  (
+                                    (paymentMethod.id == paymentMethod) ?
+                                    <MenuItem key={paymentMethod.id} value={paymentMethod.id}>
+                                      {paymentMethod.name} (Inactive)
+                                    </MenuItem>
+                                    : null
+                                  )
+                                  
+                                )
+                              );
+                              })
+                          }
+
+                        </Select>
+                    </Stack>
+                  </Grid> 
+               
+                </>
+              }
               
 
 

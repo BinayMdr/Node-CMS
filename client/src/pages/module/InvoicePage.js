@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import {Paper,Table,TableBody,
         TableCell,TableContainer,TableHead,
         TablePagination,TableRow,TextField,
@@ -6,6 +7,7 @@ import {Paper,Table,TableBody,
         Stack, InputLabel,FormHelperText,
         OutlinedInput,Select, MenuItem
       } from '@mui/material';
+
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
 import api from 'routes/Enpoint'
@@ -16,6 +18,10 @@ import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PrintIcon from '@mui/icons-material/Print';
+import {useRef} from 'react';
+import { useReactToPrint } from 'react-to-print';
+import { ComponentToPrint } from 'pages/invoice-pdf/ComponentToPrint';
 
 const columns = [
   { id: 'invoice_number', label: 'Invoice No.', minWidth: 100 },
@@ -29,6 +35,13 @@ const columns = [
 
 const InvoicePage = () => {
 
+
+  const componentRef = useRef();
+ 
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+  });
+
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = React.useState('');
@@ -38,6 +51,7 @@ const InvoicePage = () => {
   const [open, setOpen] = React.useState(false);
   const [totalData,setTotalData] = React.useState(0);
   const [invoiceStatus, setInvoiceStatus] = React.useState('');
+  const [invoiceData,setInvoiceData] = React.useState([]);
 
   const [subTotal,setSubTotal] = React.useState(0);
   const [total,setTotal] = React.useState(0);
@@ -287,6 +301,8 @@ const InvoicePage = () => {
         setPaymentMethod(element['payment_method_id'])
         setChangedAmount(element['changed_amount'])
         setReceivedAmount(element['received_amount'])
+
+        setInvoiceData(element);
       }
     });
     setOpen(true)
@@ -318,6 +334,8 @@ const InvoicePage = () => {
     let splitDate = new Date(date).toISOString().split('T')[0];
     return splitDate
   }
+
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <ToastContainer></ToastContainer>
@@ -386,6 +404,8 @@ const InvoicePage = () => {
                                     <EyeOutlined/></Button>  
                                 <Button>
                                     <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
+                                <Button>
+                                    <PrintIcon onClick={() => handleViewUpdate("Print",row.id)}/></Button>
                               </span>))
                             )
                             
@@ -409,6 +429,7 @@ const InvoicePage = () => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
+
     <Modal
       open={open}
       onClose={handleClose}
@@ -416,11 +437,17 @@ const InvoicePage = () => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Typography id="modal-modal-title" variant="h2" component="h2" sx={{textAlign:'center'}}>
-          {formAction} Invoice { (formValue.invoiceNumber != "") ? "("+(formValue.invoiceNumber)+")" : '' }
-        </Typography>
-        <Divider sx={{my:2}}/>
+        { (formAction !== "Print") &&
+          <>
+            <Typography id="modal-modal-title" variant="h2" component="h2" sx={{textAlign:'center'}}>
+              {formAction} Invoice { (formValue.invoiceNumber != "") ? "("+(formValue.invoiceNumber)+")" : '' }
+            </Typography>
+            <Divider sx={{my:2}} />
+          </>
+        }
         <Formik
+
+        id="formik-container"
         initialValues={{
           id: formAction.id,
           customerName: formValue.customerName,
@@ -525,7 +552,7 @@ const InvoicePage = () => {
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values}) => (
           <form noValidate onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
+           { (formAction != "Print") && <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="customerName">Customer Name</InputLabel>
@@ -820,7 +847,6 @@ const InvoicePage = () => {
               }
               
 
-
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText error>{errors.submit}</FormHelperText>
@@ -836,7 +862,21 @@ const InvoicePage = () => {
                 </Grid>
               }
             </Grid>
-          </form>
+            }
+            
+          { (formAction == "Print") &&
+              <> 
+                <ComponentToPrint ref={componentRef} invoiceData={invoiceData}/>
+                <Grid item xs={12}>
+                  <Button onClick={handlePrint} fullWidth size="large" type="button" variant="contained"
+                    sx={{backgroundColor:'red',
+                    '&:hover': {
+                      backgroundColor: 'darkred',
+                    }}}>Print this out!</Button>
+                </Grid>
+                </>
+               }
+           </form>
         )}
       </Formik>
       </Box>

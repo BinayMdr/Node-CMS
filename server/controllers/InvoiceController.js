@@ -19,9 +19,6 @@ const getAllInvoice = (async (req,res) => {
     const offset = (page - 1) * pageSize;
     let where = {};
 
-    console.log(startDate)
-    console.log(endDate)
-
     if( startDate != "" && endDate != "")
     {
       const startTimestamp = new Date(`${startDate} 00:00:00`);
@@ -33,16 +30,29 @@ const getAllInvoice = (async (req,res) => {
       where.invoice_number = { [Op.like]: `%${filter}%` };
     }
 
-    const invoices = await invoice.findAll({
-      where,
-      limit: parseInt(pageSize),
-      offset,
-      order: [['createdAt', 'DESC']], 
-      include:[{
-        model: branch,
-        attributes:['name','is_enabled']
-      }]
-    });
+    const decoded = req.decodedData;
+
+    const userData = await user.findOne({
+      where: {
+        id: decoded['id'],
+      }
+    }); 
+
+    if(!userData.is_admin) where.branch_id = userData.branch_id;
+    
+
+      const invoices = await invoice.findAll({
+        where,
+        limit: parseInt(pageSize),
+        offset,
+        order: [['createdAt', 'DESC']], 
+        include:[{
+          model: branch,
+          attributes:['name','is_enabled']
+        }]
+      });
+
+    
 
     for(let i = 0 ; i < invoices.length ; i++)
     {
@@ -55,7 +65,6 @@ const getAllInvoice = (async (req,res) => {
       offset,
       order: [['createdAt', 'DESC']], 
     });
-    
     const pageInfo = {
       "totalData" : parseInt(totalInvoiceCount),
       "currentPage" : parseInt(page),

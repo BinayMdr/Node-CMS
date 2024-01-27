@@ -68,6 +68,7 @@ const GlobalSettingPage = () => {
         initialValues={{
           name: formValue.name,
           pan:formValue.pan,
+          invoicePrefix:formValue?.invoicePrefix,
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -79,7 +80,8 @@ const GlobalSettingPage = () => {
 
               await api.put(`global-setting`, {
                 name: values.name,
-                pan: values.pan
+                pan: values.pan,
+                invoicePrefix: values.invoicePrefix
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -160,6 +162,27 @@ const GlobalSettingPage = () => {
                   {touched.pan && errors.pan && (
                     <FormHelperText error id="standard-weight-helper-text-pan-login">
                       {errors.pan}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="invoicePrefix">Invoice Prefix</InputLabel>
+                  <OutlinedInput
+                    id="invoicePrefix"
+                    type="text"
+                    value={values.invoicePrefix}
+                    name="invoicePrefix"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter invoice prefix"
+                    fullWidth
+                    error={Boolean(touched.invoicePrefix && errors.invoicePrefix)}
+                  />
+                  {touched.invoicePrefix && errors.invoicePrefix && (
+                    <FormHelperText error id="standard-weight-helper-text-invoicePrefix-login">
+                      {errors.invoicePrefix}
                     </FormHelperText>
                   )}
                 </Stack>

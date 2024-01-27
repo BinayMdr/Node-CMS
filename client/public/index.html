@@ -35,9 +35,11 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-  <script>
+  <script type="text/javascript">
     // Define the API URL
-    const apiUrl = 'http://localhost:5000/global-setting';
+
+    const url = "%REACT_APP_API_ENDPOINT%";
+    const apiUrl = url + "global-setting";
 
     let newPageTitle = null;
     async function fetchData() {
@@ -59,7 +61,6 @@
     }
 
     fetchData();
-
   </script>
   </body>
 </html>

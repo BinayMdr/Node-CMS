@@ -3,6 +3,7 @@ const product = require('../models/product');
 const payment = require('../models/payment');
 const user = require('../models/user');
 const branch = require('../models/branch');
+const globalSetting = require('../models/globalsetting');
 const invoicehasproduct = require('../models/invoicehasproduct');
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
@@ -79,7 +80,6 @@ const getAllInvoice = (async (req,res) => {
     });
     
   } catch (error) {
-    console.log(error)
     return res.json({
       "message": "Data not found",
       "error": true
@@ -135,16 +135,23 @@ const storeInvoice = [
                     }); 
         
         let invoiceNumber = null;
+        
+        const invoicePrefixSetting = await globalSetting.findOne({
+            where: {
+              name: 'invoicePrefix',
+            }
+            });
+        
+        const invoicePrefix = invoicePrefixSetting['dataValues']['value'];
 
         if(latestInvoiceData)
         {
-            const numberPart =  ( parseInt(latestInvoiceData['dataValues']['invoice_number'].split(process.env.INVOICE_PREFIX).pop()) + 1);
+            const numberPart =  ( parseInt(latestInvoiceData['dataValues']['invoice_number'].split(invoicePrefix).pop()) + 1);
 
-            invoiceNumber = process.env.INVOICE_PREFIX;
+            invoiceNumber = invoicePrefix;
 
             for (i = 1; i <= 4 - numberPart.toString().length ; i++)
             {
-              console.log(i)
               invoiceNumber += '0'; 
             }
 
@@ -153,7 +160,7 @@ const storeInvoice = [
         }
         else
         {
-            invoiceNumber = process.env.INVOICE_PREFIX + "0001";
+            invoiceNumber = invoicePrefix + "0001";
         }
 
         let invoiceData = await invoice.create({
@@ -189,8 +196,6 @@ const storeInvoice = [
       });
       
     } catch (error) {
-      console.error('Error in invoice creation:', error);
-
       return res.status(500).json({
         message: 'Error in invoice creation',
         error: true,
@@ -279,8 +284,6 @@ const updateInvoice = [
         error: false,
       });
     } catch (error) {
-      console.error('Error in invoice update:', error);
-
       return res.status(500).json({
         message: 'Error in invoice update',
         error: true,

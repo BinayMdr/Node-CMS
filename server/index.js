@@ -13,6 +13,7 @@ const productRoute = require('./routes/productRoute.js');
 const invoiceRoute = require('./routes/invoiceRoute.js');
 const userRoute = require('./routes/userRoute.js');
 const offerRoute = require('./routes/offerRoute.js');
+const dashboardRoute = require('./routes/dashboardRoute.js');
 
 require("dotenv").config();
 
@@ -32,6 +33,7 @@ app.use("/product",productRoute);
 app.use("/invoice",invoiceRoute);
 app.use("/user",userRoute);
 app.use("/offer",offerRoute);
+app.use("/dashboard",dashboardRoute);
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

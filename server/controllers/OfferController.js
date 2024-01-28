@@ -1,4 +1,5 @@
 const offer = require('../models/offer');
+const product = require('../models/product');
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
@@ -212,7 +213,7 @@ const getOffer = (async (req,res) => {
   });
 
   if (existingOffer) {
-    return res.status(400).json({
+    return res.json({
       data: existingOffer,
       error: false,
     });
@@ -225,10 +226,77 @@ const getOffer = (async (req,res) => {
 
 });
 
+const checkOffer = (async (req,res) => {
+  let {invoiceItems} = req.query;
 
+  let hasOffer = false;
+  let offerData = [];
+  try{
+
+       
+      let subTotal = 0;
+      for(let i = 0; i < invoiceItems.length ; i++ )
+      {
+          let productItem = await product.findOne({
+              where: {id: invoiceItems[i]['id']}
+          });
+
+          subTotal = subTotal + ( productItem['dataValues']['price'] * invoiceItems[i]['quantity']);
+      }
+
+      let offerExist = await offer.findOne({
+        where: {
+          offer_on_amount: {
+            [Op.lte]: subTotal
+          },
+          is_enabled: true
+        }
+      });
+
+      if(offerExist != null) 
+      {
+        hasOffer = true;
+        offerData = offerExist
+      }
+        
+
+      if(!hasOffer)
+      {
+        for(let i = 0 ; i < invoiceItems.length ; i ++)
+        {
+          let offerExist = await offer.findOne({
+            where: {
+              offer_on_product:invoiceItems[i]['id'],
+              offer_on_quantity: {
+                [Op.lte]: invoiceItems[i]['quantity']
+              },
+              is_enabled: true
+            }
+          });
+
+          if(offerExist != null) 
+          {
+            hasOffer = true;
+            offerData = offerExist
+            break;
+          }
+        } 
+      }
+      return res.json({
+        data: offerData,
+        error: false,
+      });
+
+  }
+  catch(ex)
+  {
+    console.log(ex)
+  }
+});
 module.exports = {
     getAllOffer,
     storeOffer,
     updateOffer,
-    getOffer
+    getOffer,
+    checkOffer
 }

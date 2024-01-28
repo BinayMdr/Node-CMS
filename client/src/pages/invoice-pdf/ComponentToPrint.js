@@ -162,6 +162,30 @@ const ComponentToPrint = React.forwardRef((props, ref) => {
           </Stack>
         </Grid>
 
+        { (invoiceData.offer_id != null) &&
+            <>
+              <Grid item xs={3}>
+                <Stack spacing={1}>
+                <Typography variant="span" ml={2} fontWeight="bold"></Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={2}>
+                <Stack spacing={1}>
+                <Typography variant="span" ml={2} fontWeight="bold"></Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={4}>
+                <Stack spacing={1}>
+                <Typography variant="span" ml={2} fontWeight="bold">Offer</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={3}>
+                <Stack spacing={1}>
+                <Typography variant="span" ml={2} fontWeight="bold">{invoiceData.Offer?.name + " ("+ invoiceData.offer_amount +")"}</Typography>
+                </Stack>
+              </Grid>
+            </>
+        }
         <Grid item xs={3}>
           <Stack spacing={1}>
           <Typography variant="span" ml={2} fontWeight="bold"></Typography>

@@ -52,6 +52,8 @@ const InvoicePage = () => {
   const [totalData,setTotalData] = React.useState(0);
   const [invoiceStatus, setInvoiceStatus] = React.useState('');
   const [invoiceData,setInvoiceData] = React.useState([]);
+  const [offer,setOffer] = React.useState(null);
+  const [offerAmount,setOfferAmount] = React.useState(0);
 
   const [subTotal,setSubTotal] = React.useState(0);
   const [total,setTotal] = React.useState(0);
@@ -168,6 +170,95 @@ const InvoicePage = () => {
     setEndDateValue('')
   }
 
+  const handleOffer = async (invoiceItems) => {
+
+    try
+    {
+      const response = await api.get('offer/check',{
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        },
+        params: {
+          invoiceItems: invoiceItems
+        }
+      });
+
+      if(response.data.data.length == 0) 
+      { 
+        setOffer(null)
+        setOfferAmount(0)
+        const itemsTotal = invoiceItems.reduce((sum,item) => sum + parseFloat(item.total),0);
+        
+        setSubTotal(itemsTotal.toFixed(2))
+
+        let newTotal = 0;
+        if(discount != 0)
+        {
+          newTotal = itemsTotal - (discount/100) * itemsTotal;          
+          setTotal(newTotal)
+          if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
+        }
+        else
+        { 
+          setTotal(itemsTotal)
+
+          if(receivedAmount != 0) handleChangedAmount(itemsTotal,receivedAmount)
+        }
+      }
+      else 
+      {
+        setOffer(response.data.data)
+
+        if(response.data.data.offer_type == "Amount") setOfferAmount(response.data.data.amount_off)
+
+        let offerData = response.data.data
+
+        const itemsTotal = invoiceItems.reduce((sum,item) => sum + parseFloat(item.total),0);
+        
+        setSubTotal(itemsTotal.toFixed(2))
+
+        let newTotal = 0;
+        if(discount != 0)
+        {
+          newTotal = itemsTotal - (discount/100) * itemsTotal;
+
+          if(offerData.offer_type == "Amount") newTotal = newTotal - offerData.amount_off;
+          else
+          {
+            let offerDiscount = (offerData.discount_off/100) * newTotal;
+            setOfferAmount(offerDiscount.toFixed(2));
+            newTotal = newTotal - offerDiscount;
+          }
+          
+          setTotal(newTotal)
+
+          if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
+        }
+        else
+        {
+          if(offerData.offer_type == "Amount") newTotal = itemsTotal - offerData.amount_off;
+          else
+          {
+            let offerDiscount = (offerData.discount_off/100) * itemsTotal;
+            
+            setOfferAmount(offerDiscount.toFixed(2));
+            newTotal = itemsTotal - offerDiscount;
+          }
+          
+          setTotal(newTotal)
+
+          if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
+        }
+
+      }
+
+    }
+    catch(error)
+    {
+      console.log(error)
+    }
+
+  }
   const addItemToInvoice = (productId) => {
     const selectedProduct = productList.find(product => product.id === productId);
 
@@ -175,12 +266,16 @@ const InvoicePage = () => {
               "quantity":1,"price":selectedProduct['price'],"total":selectedProduct['price']}];
     setInvoiceList(updatedInvoiceList)
     updateTotalPrice(updatedInvoiceList)
+
+    handleOffer(updatedInvoiceList)
   } 
 
   const removeItemFromInvoice = (id) => {
     const updatedInvoiceList = invoiceList.filter(invoice => invoice.id !== id)
     setInvoiceList(updatedInvoiceList)
     updateTotalPrice(updatedInvoiceList)
+
+    handleOffer(updatedInvoiceList)
   }
 
   const updateQuantity = (event,id) => {
@@ -199,27 +294,56 @@ const InvoicePage = () => {
 
     setInvoiceList(updatedItems)
     updateTotalPrice(updatedItems)
+
+    handleOffer(updatedItems)
   } 
 
   const updateTotalPrice = (itemLists) => {
-    
     const itemsTotal = itemLists.reduce((sum,item) => sum + parseFloat(item.total),0);
-    setSubTotal(itemsTotal)
+    setSubTotal(itemsTotal.toFixed(2))
 
     let newTotal = 0;
     if(discount != 0)
     {
       newTotal = itemsTotal - (discount/100) * itemsTotal;
 
-      setTotal(newTotal)
+      if(offer != null)
+      {
+         if(offer.offer_type == "Amount") newTotal = newTotal - offerAmount;
+         else
+         {
+           let offerDiscount = (offer.discount_off/100) * newTotal;
+           setOfferAmount(offerDiscount.toFixed(2));
+           newTotal = newTotal - offerDiscount;
+         }
+      }
+
+      setTotal(newTotal.toFixed(2))
 
       if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
     }
     else
     {
-      setTotal(itemsTotal)
+      if(offer != null)
+      {
+        if(offer.offer_type == "Amount") newTotal = itemsTotal - offerAmount;
+        else
+        {
+          let offerDiscount = (offer.discount_off/100) * itemsTotal;
+          setOfferAmount(offerDiscount.toFixed(2));
+          newTotal = itemsTotal - offerDiscount;
+        }
 
-      if(receivedAmount != 0) handleChangedAmount(itemsTotal,receivedAmount)
+        setTotal(newTotal.toFixed(2))
+
+        if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
+      }
+      else
+      {
+        setTotal(itemsTotal.toFixed(2))
+
+        if(receivedAmount != 0) handleChangedAmount(itemsTotal,receivedAmount)
+      }
     }
   }
 
@@ -232,20 +356,48 @@ const InvoicePage = () => {
 
     const itemsTotal = subTotal
 
-    console.log(itemsTotal)
     let newTotal = 0;
     if(event.target.value != 0)
     {
       newTotal = itemsTotal - (newDiscount/100) * itemsTotal;
 
-      setTotal(newTotal)
+      if(offer != null)
+      {
+         if(offer.offer_type == "Amount") newTotal = newTotal - offerAmount;
+         else
+         {
+           let offerDiscount = (offer.discount_off/100) * newTotal;
+           setOfferAmount(offerDiscount.toFixed(2));
+           newTotal = newTotal - offerDiscount;
+         }
+      }
+
+      setTotal(newTotal.toFixed(2))
 
       if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
     }
     else
     {
-      setTotal(itemsTotal)
-      if(receivedAmount != 0) handleChangedAmount(itemsTotal,receivedAmount)
+      if(offer != null)
+      {
+         if(offer.offer_type == "Amount") newTotal = itemsTotal - offerAmount;
+         else
+         {
+           let offerDiscount = (offer.discount_off/100) * itemsTotal;
+           setOfferAmount(offerDiscount.toFixed(2));
+           newTotal = itemsTotal - offerDiscount;
+         }
+        
+        setTotal(newTotal.toFixed(2))
+
+        if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
+      }
+      else
+      {
+        setTotal(itemsTotal.toFixed(2))
+
+        if(receivedAmount != 0) handleChangedAmount(itemsTotal,receivedAmount)
+      }
     }
   }
   const addInvoice = () => {
@@ -264,6 +416,8 @@ const InvoicePage = () => {
     setPaymentMethod('')
     setReceivedAmount(0)
     setChangedAmount(0)
+    setOffer(null)
+    setOfferAmount(0)
     setOpen(true)
   }
 
@@ -302,13 +456,30 @@ const InvoicePage = () => {
         setChangedAmount(element['changed_amount'])
         setReceivedAmount(element['received_amount'])
 
+        if(element['offer_id'] != null )
+        {
+          setOffer({
+            'id': element['offer_id'],
+            'name': element.Offer?.name,
+            'offer_type': element.Offer?.discount_type,
+            'discount_off': element.Offer?.discount_off,
+            'amount_off': element.Offer?.amount_off
+          })
+
+          setOfferAmount(element['offer_amount'])
+        }
+        else
+        {
+          setOffer(null)
+          setOfferAmount(0)
+        }
         setInvoiceData(element);
       }
     });
     setOpen(true)
-
   } 
 
+  
   const handleReceivedAmountChange = (event) => {
     const newReceivedAmount = parseInt(event.target.value,10);
 
@@ -483,7 +654,9 @@ const InvoicePage = () => {
               await api.post("invoice", {
                 customer_name: values.customerName,
                 discount_percent: discount,
-                invoice_items: invoiceList
+                invoice_items: invoiceList,
+                offer_id: (offer != null) ? offer.id : '',
+                offer_amount: (offer != null) ? offerAmount : ''
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -499,7 +672,9 @@ const InvoicePage = () => {
                 status: invoiceStatus,
                 payment_method_id:paymentMethod,
                 received_amount: receivedAmount,
-                changed_amount: changedAmount
+                changed_amount: changedAmount,
+                offer_id: (offer != null) ? offer.id : '',
+                offer_amount: (offer != null) ? offerAmount : ''
               };
 
               await api.put(`invoice/edit/${formValue.id}`, formData ,{
@@ -582,12 +757,12 @@ const InvoicePage = () => {
                 </Stack>
               </Grid>
 
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Stack spacing={1}>
                 <InputLabel>Product</InputLabel>
                 </Stack>
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <Stack spacing={1}>
                 <InputLabel>Qty.</InputLabel>
                 </Stack>
@@ -613,12 +788,12 @@ const InvoicePage = () => {
                 const { id, name , price, total, quantity} = invoice;
                 return (
                   <>
-                  <Grid item xs={4} >
+                  <Grid item xs={3} >
                     <Stack spacing={1}>
                       <Typography key={id}>{name}</Typography>
                     </Stack>
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     <Stack spacing={1}>
                       <OutlinedInput
                         id={id.toString()}
@@ -659,7 +834,7 @@ const InvoicePage = () => {
               }
 
               { (formAction != "View") &&
-                <Grid item xs={4}>
+                <Grid item xs={3}>
                   <Stack spacing={1}>
                     <Select
                         labelId="demo-simple-select-label"
@@ -693,7 +868,7 @@ const InvoicePage = () => {
                   </Stack>
                 </Grid>
               }
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <Stack spacing={1}>
                 {/* <Typography> 0 </Typography> */}
                 </Stack>
@@ -714,36 +889,58 @@ const InvoicePage = () => {
                 </Stack>
               </Grid>
               
-              <Grid item xs={8}>
-                <Stack spacing={1} sx={{float:'right'}}>
-                <InputLabel>Sub. Total</InputLabel>
-                </Stack>
-              </Grid>
-              <Grid item xs={4}>
-                <Stack spacing={1}>
-                <InputLabel>Rs. {subTotal}</InputLabel>
-                </Stack>
-              </Grid>
-              <Grid item xs={8}>
-                <Stack spacing={1} sx={{float:'right'}}>
-                <InputLabel>Discount</InputLabel>
-                </Stack>
-              </Grid>
-              <Grid item xs={4}>
-                <Stack spacing={1}>
-                  <OutlinedInput
-                    id="discount"
-                    type="number"
-                    value={discount}
-                    name="discount"
-                    onBlur={handleBlur}
-                    onChange={(event) => updateDiscount(event)}
-                    fullWidth
-                    readOnly={formAction == "View"}
-                  />
-                </Stack>
-              </Grid>
+             
+                  <Grid item xs={8}>
+                    <Stack spacing={1} sx={{float:'right'}}>
+                    <InputLabel>Sub. Total</InputLabel>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Stack spacing={1}>
+                    <InputLabel>Rs. {subTotal}</InputLabel>
+                    </Stack>
+                  </Grid>
+              { (offer == null) &&
+                <>
+                  <Grid item xs={8}>
+                    <Stack spacing={1} sx={{float:'right'}}>
+                    <InputLabel>Discount</InputLabel>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Stack spacing={1}>
+                      <OutlinedInput
+                        id="discount"
+                        type="number"
+                        value={discount}
+                        name="discount"
+                        onBlur={handleBlur}
+                        onChange={(event) => updateDiscount(event)}
+                        fullWidth
+                        readOnly={formAction == "View"}
+                      />
+                    </Stack>
+                  </Grid>
+                </>
+              }
 
+              {
+                (offer != null) &&
+                <>
+                  <Grid item xs={8}>
+                    <Stack spacing={1} sx={{float:'right'}}>
+                    <InputLabel>Offer</InputLabel>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Stack spacing={1}>
+                      <InputLabel style={{ whiteSpace: 'pre-line', overflowWrap: 'break-word', maxHeight: '100%' }}>
+                        {offer.name} {offerAmount}
+                      </InputLabel>
+                    </Stack>
+                  </Grid>
+                </>
+              }
               <Grid item xs={8}>
                 <Stack spacing={1} sx={{float:'right'}}>
                 <InputLabel>Total</InputLabel>

@@ -5,6 +5,7 @@ const user = require('../models/user');
 const branch = require('../models/branch');
 const globalSetting = require('../models/globalsetting');
 const invoicehasproduct = require('../models/invoicehasproduct');
+const offer = require('../models/offer');
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
@@ -50,6 +51,10 @@ const getAllInvoice = (async (req,res) => {
         include:[{
           model: branch,
           attributes:['name','is_enabled']
+        },
+        {
+          model: offer,
+          attributes:['name','offer_type','discount_off','amount_off']
         }]
       });
 
@@ -80,6 +85,7 @@ const getAllInvoice = (async (req,res) => {
     });
     
   } catch (error) {
+    console.log(error)
     return res.json({
       "message": "Data not found",
       "error": true
@@ -98,7 +104,7 @@ const storeInvoice = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id } = req.body;
+    const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id, offer_id, offer_amount } = req.body;
 
     try {
 
@@ -124,9 +130,10 @@ const storeInvoice = [
             subTotal = subTotal + ( productItem['dataValues']['price'] * invoice_items[i]['quantity']);
         }
 
+        subTotal = subTotal.toFixed(2);
         discount_amount = (subTotal * (discount_percent/100)).toFixed(2);
-        total = subTotal - discount_amount;
-
+        total = (subTotal - discount_amount).toFixed(2);
+        if(offer_amount != "") total = (total - offer_amount).toFixed(2);
 
         const decoded = req.decodedData;
 
@@ -177,7 +184,9 @@ const storeInvoice = [
             prepared_by_id:decoded['id'],
             status: "Pending",
             received_amount:0,
-            changed_amount: 0
+            changed_amount: 0,
+            offer_id: (offer_id != "") ? offer_id : null,
+            offer_amount: (offer_amount != "") ? offer_amount : null
         });
 
         for(let i = 0; i < items.length ; i++ )
@@ -196,6 +205,7 @@ const storeInvoice = [
       });
       
     } catch (error) {
+      console.log(error)
       return res.status(500).json({
         message: 'Error in invoice creation',
         error: true,
@@ -216,7 +226,7 @@ const updateInvoice = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id,status } = req.body;
+    const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id,status,offer_id,offer_amount } = req.body;
     const invoiceId = req.params.invoiceId;
 
     try {
@@ -247,8 +257,11 @@ const updateInvoice = [
             subTotal = subTotal + ( productItem['dataValues']['price'] * invoice_items[i]['quantity']);
         }
 
+        subTotal = subTotal.toFixed(2)
         discount_amount = (subTotal * (discount_percent/100)).toFixed(2);
-        total = subTotal - discount_amount;
+        total = (subTotal - discount_amount).toFixed(2);
+
+        if(offer_amount != "") total = (total - offer_amount).toFixed(2);
 
       let invoiceData = await invoice.update({
         customer_name: customer_name,
@@ -259,7 +272,9 @@ const updateInvoice = [
         received_amount:received_amount,
         changed_amount:changed_amount,
         payment_method_id:payment_method_id,
-        status: status
+        status: status,
+        offer_id: (offer_id != "") ? offer_id : null,
+        offer_amount: (offer_amount != "") ? offer_amount : null
       },
       {
         where: { id: invoiceId }

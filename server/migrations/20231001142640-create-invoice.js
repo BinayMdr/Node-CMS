@@ -49,6 +49,12 @@ module.exports = {
       },
       branch_id: {
         type: Sequelize.INTEGER
+      }, 
+      offer_id: {
+        type: Sequelize.INTEGER
+      },
+      offer_amount: {
+        type: Sequelize.FLOAT
       },
       createdAt: {
         allowNull: false,

@@ -5,6 +5,7 @@ const Customer = require("./customer");
 const User = require("./user");
 const PaymentMethod = require("./payment");
 const InvoiceHasProduct = require("./invoicehasproduct");
+const Offer = require("./offer");
 
 const Invoice = sequelize.define('Invoice', {
   invoice_number: {
@@ -49,6 +50,12 @@ const Invoice = sequelize.define('Invoice', {
   branch_id: {
     type: DataTypes.INTEGER,
   },
+  offer_id:{
+    type: DataTypes.INTEGER
+  },
+  offer_amount:{
+    type:DataTypes.FLOAT
+  }
 });
 
 Invoice.belongsTo(Branch, {
@@ -81,4 +88,9 @@ Invoice.hasMany(InvoiceHasProduct, {
   }
 });
 
+Invoice.belongsTo(Offer, {
+  foreignKey: {
+    name: 'offer_id'
+  }
+});
 module.exports = Invoice;

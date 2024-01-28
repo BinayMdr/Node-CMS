@@ -9,6 +9,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import PublicIcon from '@mui/icons-material/Public';
 import PeopleIcon from '@mui/icons-material/People';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+
 // icons
 const icons = {
   LoginOutlined,
@@ -21,7 +23,8 @@ const icons = {
   SettingsIcon,
   PublicIcon,
   PeopleIcon,
-  ReceiptIcon
+  ReceiptIcon,
+  LocalOfferIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -93,6 +96,14 @@ const pages = {
       type: 'item',
       url: '/edit-profile',
       icon: icons.PublicIcon
+    },
+    {
+      id: 'offer',
+      title: 'Offer',
+      type: 'item',
+      url: '/offer',
+      forUser: 'Admin',
+      icon: icons.LocalOfferIcon
     }
   ]
 };

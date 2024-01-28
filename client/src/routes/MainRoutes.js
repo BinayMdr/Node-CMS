@@ -21,6 +21,7 @@ const Setting = Loadable(lazy(() => import('pages/module/SettingPage')));
 const User = Loadable(lazy(() => import('pages/module/UserPage')));
 const EditProfile = Loadable(lazy(() => import('pages/module/EditProfilePage')));
 const Invoice = Loadable(lazy(() => import('pages/module/InvoicePage')));
+const Offer = Loadable(lazy(() => import('pages/module/OfferPage')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -63,6 +64,10 @@ const MainRoutes = {
     {
       path: 'invoice',
       element: <Invoice />
+    },
+    {
+      path: 'offer',
+      element: <Offer />
     }
   ]
 };

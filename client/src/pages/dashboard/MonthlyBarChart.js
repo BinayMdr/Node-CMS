@@ -43,25 +43,29 @@ const barChartOptions = {
 
 // ==============================|| MONTHLY BAR CHART ||============================== //
 
-const MonthlyBarChart = () => {
+const MonthlyBarChart = (dashboardData) => {
   const theme = useTheme();
 
   const { primary, secondary } = theme.palette.text;
   const info = theme.palette.info.light;
+  const [series,setSeries] = useState({});
 
-  const [series] = useState([
-    {
-      data: [80, 95, 70, 42, 65, 55, 78]
-    }
-  ]);
+  useEffect(() => {
+    const earningPerDay = dashboardData.dashboardData.earningPerDay.map((e) => e.total)
+    
+    setSeries([{name:'Earning',data : earningPerDay}])
+   
+  },[dashboardData]);
 
   const [options, setOptions] = useState(barChartOptions);
 
   useEffect(() => {
     setOptions((prevState) => ({
       ...prevState,
+      
       colors: [info],
       xaxis: {
+        categories: dashboardData?.dashboardData.earningPerDay.map((order) => order.day_name),
         labels: {
           style: {
             colors: [secondary, secondary, secondary, secondary, secondary, secondary, secondary]
@@ -74,10 +78,12 @@ const MonthlyBarChart = () => {
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [primary, info, secondary]);
-
+  
   return (
     <div id="chart">
-      <ReactApexChart options={options} series={series} type="bar" height={365} />
+      { series && series.length > 0 &&
+        <ReactApexChart options={options} series={series} type="bar" height={365} />
+      }
     </div>
   );
 };

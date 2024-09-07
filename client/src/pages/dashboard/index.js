@@ -24,21 +24,21 @@ import api from 'routes/Enpoint'
 const DashboardDefault = () => {
   const [slot, setSlot] = useState('week');
   const [dashboardData, setDashboardData] = useState([]);
+  
   const userDetails = useSelector((state => state.userDetails));
 
   const isAdminUser = userDetails?.userData?.is_admin ? 'Admin' : 'User';
   const userToken = localStorage.getItem('token');
 
-  const getDashboardDetail = async () => {
+  const getDashboardDetail = async (filter = 'week') => {
     try
     {
-      const response = await api.get('dashboard/details', {
+      const response = await api.get(`dashboard/details?orderFilterBy=${filter}`, {
         headers: {
           'Authorization': `Bearer ${userToken}`
         }
       });
 
-      console.log(response.data.data)
       setDashboardData(response.data.data)
     }
     catch(error)
@@ -50,6 +50,12 @@ const DashboardDefault = () => {
   useEffect( () => {
     getDashboardDetail()
   },[])
+
+  function updateSlot(value)
+  {
+    setSlot(value)
+    getDashboardDetail(value);
+  }
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
@@ -98,13 +104,13 @@ const DashboardDefault = () => {
       <Grid item xs={12} md={7} lg={8}>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
-            <Typography variant="h5">Unique Visitor</Typography>
+            <Typography variant="h5">No. of completed orders</Typography>
           </Grid>
           <Grid item>
             <Stack direction="row" alignItems="center" spacing={0}>
               <Button
                 size="small"
-                onClick={() => setSlot('month')}
+                onClick={() => updateSlot('month')}
                 color={slot === 'month' ? 'primary' : 'secondary'}
                 variant={slot === 'month' ? 'outlined' : 'text'}
               >
@@ -112,7 +118,7 @@ const DashboardDefault = () => {
               </Button>
               <Button
                 size="small"
-                onClick={() => setSlot('week')}
+                onClick={() => updateSlot('week')}
                 color={slot === 'week' ? 'primary' : 'secondary'}
                 variant={slot === 'week' ? 'outlined' : 'text'}
               >
@@ -121,11 +127,13 @@ const DashboardDefault = () => {
             </Stack>
           </Grid>
         </Grid>
-        <MainCard content={false} sx={{ mt: 1.5 }}>
-          <Box sx={{ pt: 1, pr: 2 }}>
-            <IncomeAreaChart slot={slot} />
-          </Box>
-        </MainCard>
+        { dashboardData.noOfOrder &&
+          <MainCard content={false} sx={{ mt: 1.5 }}>
+            <Box sx={{ pt: 1, pr: 2 }}>
+              <IncomeAreaChart slot={slot} dashboardData={dashboardData}/>
+            </Box>
+          </MainCard>
+        }
       </Grid>
       <Grid item xs={12} md={5} lg={4}>
         <Grid container alignItems="center" justifyContent="space-between">
@@ -134,17 +142,19 @@ const DashboardDefault = () => {
           </Grid>
           <Grid item />
         </Grid>
-        <MainCard sx={{ mt: 2 }} content={false}>
-          <Box sx={{ p: 3, pb: 0 }}>
-            <Stack spacing={2}>
-              <Typography variant="h6" color="textSecondary">
-                This Week Statistics
-              </Typography>
-              <Typography variant="h3">$7,650</Typography>
-            </Stack>
-          </Box>
-          <MonthlyBarChart />
-        </MainCard>
+        { dashboardData.earningPerDay && 
+          <MainCard sx={{ mt: 2 }} content={false}>
+            <Box sx={{ p: 3, pb: 0 }}>
+              <Stack spacing={2}>
+                <Typography variant="h6" color="textSecondary">
+                  This Week Statistics
+                </Typography>
+                <Typography variant="h3"></Typography>
+              </Stack>
+            </Box>
+            <MonthlyBarChart dashboardData={dashboardData}/>
+          </MainCard>
+        }
       </Grid>
 
      

@@ -101,7 +101,7 @@ const GlobalSettingPage = () => {
             progress: undefined,
             theme: "light",
             });
-
+            window.location.reload();
           } catch (err) {
             setStatus({ success: false });
             setSubmitting(false);

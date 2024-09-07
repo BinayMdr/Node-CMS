@@ -85,6 +85,8 @@ const dashboardDetails = (async (req,res) => {
             }
         });
 
+        if(data.todayEarning == null) data.todayEarning = 0;
+        
         data.totalEarning = await invoice.sum('total',{
           where:{
             status: "Completed"

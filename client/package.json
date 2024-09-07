@@ -56,11 +56,12 @@
   },
   "main": "public/electron.js",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "electron-dev": "electron ."
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm:start\" \"node start-electron.js\""
   },
   "eslintConfig": {
     "extends": [
@@ -88,6 +89,7 @@
   "devDependencies": {
     "@babel/core": "^7.21.4",
     "@babel/eslint-parser": "^7.21.3",
+    "concurrently": "^8.2.2",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-react-app": "^7.0.1",

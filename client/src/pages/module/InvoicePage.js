@@ -738,7 +738,7 @@ const InvoicePage = () => {
                     name="customerName"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter customer number"
+                    placeholder="Enter customer name"
                     fullWidth
                     error={Boolean(touched.customerName && errors.customerName)}
                     readOnly={formAction == "View" || formAction == "Edit"}

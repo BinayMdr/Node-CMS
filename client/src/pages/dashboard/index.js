@@ -100,62 +100,65 @@ const DashboardDefault = () => {
       }
       <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
 
-      {/* row 2 */}
-      <Grid item xs={12} md={7} lg={8}>
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
-            <Typography variant="h5">No. of completed orders</Typography>
-          </Grid>
-          <Grid item>
-            <Stack direction="row" alignItems="center" spacing={0}>
-              <Button
-                size="small"
-                onClick={() => updateSlot('month')}
-                color={slot === 'month' ? 'primary' : 'secondary'}
-                variant={slot === 'month' ? 'outlined' : 'text'}
-              >
-                Month
-              </Button>
-              <Button
-                size="small"
-                onClick={() => updateSlot('week')}
-                color={slot === 'week' ? 'primary' : 'secondary'}
-                variant={slot === 'week' ? 'outlined' : 'text'}
-              >
-                Week
-              </Button>
-            </Stack>
-          </Grid>
-        </Grid>
-        { dashboardData.noOfOrder &&
-          <MainCard content={false} sx={{ mt: 1.5 }}>
-            <Box sx={{ pt: 1, pr: 2 }}>
-              <IncomeAreaChart slot={slot} dashboardData={dashboardData}/>
-            </Box>
-          </MainCard>
-        }
-      </Grid>
-      <Grid item xs={12} md={5} lg={4}>
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
-            <Typography variant="h5">Income Overview</Typography>
-          </Grid>
-          <Grid item />
-        </Grid>
-        { dashboardData.earningPerDay && 
-          <MainCard sx={{ mt: 2 }} content={false}>
-            <Box sx={{ p: 3, pb: 0 }}>
-              <Stack spacing={2}>
-                <Typography variant="h6" color="textSecondary">
-                  This Week Statistics
-                </Typography>
-                <Typography variant="h3"></Typography>
+      { (isAdminUser == "Admin") &&
+        <>
+        <Grid item xs={12} md={7} lg={8}>
+          <Grid container alignItems="center" justifyContent="space-between">
+            <Grid item>
+              <Typography variant="h5">No. of completed orders</Typography>
+            </Grid>
+            <Grid item>
+              <Stack direction="row" alignItems="center" spacing={0}>
+                <Button
+                  size="small"
+                  onClick={() => updateSlot('month')}
+                  color={slot === 'month' ? 'primary' : 'secondary'}
+                  variant={slot === 'month' ? 'outlined' : 'text'}
+                >
+                  Month
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() => updateSlot('week')}
+                  color={slot === 'week' ? 'primary' : 'secondary'}
+                  variant={slot === 'week' ? 'outlined' : 'text'}
+                >
+                  Week
+                </Button>
               </Stack>
-            </Box>
-            <MonthlyBarChart dashboardData={dashboardData}/>
-          </MainCard>
-        }
-      </Grid>
+            </Grid>
+          </Grid>
+          { dashboardData.noOfOrder &&
+            <MainCard content={false} sx={{ mt: 1.5 }}>
+              <Box sx={{ pt: 1, pr: 2 }}>
+                <IncomeAreaChart slot={slot} dashboardData={dashboardData}/>
+              </Box>
+            </MainCard>
+          }
+        </Grid>
+        <Grid item xs={12} md={5} lg={4}>
+          <Grid container alignItems="center" justifyContent="space-between">
+            <Grid item>
+              <Typography variant="h5">Income Overview</Typography>
+            </Grid>
+            <Grid item />
+          </Grid>
+          { dashboardData.earningPerDay && 
+            <MainCard sx={{ mt: 2 }} content={false}>
+              <Box sx={{ p: 3, pb: 0 }}>
+                <Stack spacing={2}>
+                  <Typography variant="h6" color="textSecondary">
+                    This Week Statistics
+                  </Typography>
+                  <Typography variant="h3"></Typography>
+                </Stack>
+              </Box>
+              <MonthlyBarChart dashboardData={dashboardData}/>
+            </MainCard>
+          }
+        </Grid>
+        </>
+      }
 
      
 

@@ -1,4 +1,3 @@
-// electron.js
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
@@ -19,6 +18,14 @@ function createWindow() {
   );
 
   mainWindow.on('closed', () => (mainWindow = null));
+
+  // Detect if the page failed to load
+  mainWindow.webContents.on('did-fail-load', () => {
+    console.log('Page failed to load. Refreshing...');
+    setTimeout(() => {
+      mainWindow.reload();
+    }, 1000); // Adjust timeout as needed
+  });
 }
 
 app.on('ready', createWindow);

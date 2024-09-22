@@ -104,8 +104,9 @@ const storeInvoice = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id, offer_id, offer_amount } = req.body;
+    const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id, offer_id, offer_amount,status } = req.body;
 
+    console.log(req.body)
     try {
 
         let items = [];
@@ -182,9 +183,9 @@ const storeInvoice = [
             payment_method_id:payment_method_id,
             branch_id:decoded['branch_id'],
             prepared_by_id:decoded['id'],
-            status: "Pending",
-            received_amount:0,
-            changed_amount: 0,
+            status: status ?? "Pending",
+            received_amount: received_amount ?? 0,
+            changed_amount: changed_amount ?? 0,
             offer_id: (offer_id != "") ? offer_id : null,
             offer_amount: (offer_amount != "") ? offer_amount : null
         });

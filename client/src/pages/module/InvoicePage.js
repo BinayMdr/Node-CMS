@@ -656,7 +656,11 @@ const InvoicePage = () => {
                 discount_percent: discount,
                 invoice_items: invoiceList,
                 offer_id: (offer != null) ? offer.id : '',
-                offer_amount: (offer != null) ? offerAmount : ''
+                offer_amount: (offer != null) ? offerAmount : '',
+                status: invoiceStatus,
+                payment_method_id:paymentMethod,
+                received_amount: receivedAmount,
+                changed_amount: changedAmount
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -951,7 +955,7 @@ const InvoicePage = () => {
                 <InputLabel>Rs. {total}</InputLabel>
                 </Stack>
               </Grid>
-              { (formAction != "Add") &&
+              { 
                 <> 
                      <Grid item xs={6}>
                     <Stack spacing={1}>

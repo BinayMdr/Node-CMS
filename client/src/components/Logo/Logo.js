@@ -61,7 +61,7 @@ const Logo = () => {
      */
     <>
      {
-      (window.location.href !== `${process.env.REACT_APP_URL}login`) ? <Typography variant="h2" component="h2">{globalSettingName ?? ""}</Typography> : null
+      (window.location.href !== `${process.env.REACT_APP_URL}login`) ? <Typography variant="h3" component="h3">{globalSettingName ?? ""}</Typography> : null
       }
     </>
   );

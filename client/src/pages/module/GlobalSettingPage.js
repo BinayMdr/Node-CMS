@@ -16,6 +16,8 @@ import { updateGlobalName } from "store/reducers/globalSetting";
 const GlobalSettingPage = () => {
 
   const [formValue, setFormValue] = React.useState({"name":"","pan":""})
+  const [imagePreview, setImagePreview] = React.useState(null);
+
 
   const [showData, setShowData] = React.useState(false)
   const userToken = localStorage.getItem('token');
@@ -35,6 +37,10 @@ const GlobalSettingPage = () => {
         result[name] = value;
         return result;
       }, {});
+
+      if (convertedObject.bannerImage) {
+        setImagePreview(`${process.env.REACT_APP_IMAGE_BASE_URL}${convertedObject.bannerImage}`);
+      }
 
       setFormValue(convertedObject);
       
@@ -67,23 +73,34 @@ const GlobalSettingPage = () => {
         <Formik
         initialValues={{
           name: formValue.name,
-          pan:formValue.pan,
-          invoicePrefix:formValue?.invoicePrefix,
+          phoneNumber:formValue.phoneNumber,
+          email:formValue.email,
+          bannerImage: null,
+          chatScript:formValue.chatScript,
           submit: null
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().max(255).required('Name is required'),
-          pan: Yup.string().max(255).required('PAN is required'),
+          phoneNumber: Yup.string().max(255).required('Phone number is required'),
+          email: Yup.string().max(255).required('Email is required').email('Incorrect email format')
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
+            
+            const formData = new FormData();
+            formData.append('name', values.name);
+            formData.append('phoneNumber', values.phoneNumber);
+            formData.append('email', values.email);
+            formData.append('chatScript', values.chatScript);
 
-              await api.put(`global-setting`, {
-                name: values.name,
-                pan: values.pan,
-                invoicePrefix: values.invoicePrefix
-              },{
+            if (values.bannerImage) {
+              formData.append('bannerImage', values.bannerImage);
+            }
+              await api.put(`global-setting`, 
+                formData
+              ,{
                 headers: {
+                  'Content-Type': 'multipart/form-data',
                   'Authorization': `Bearer ${userToken}`
                 }
               });
@@ -121,12 +138,12 @@ const GlobalSettingPage = () => {
           }
         }}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, setFieldValue }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="name">Name</InputLabel>
+                  <InputLabel htmlFor="name">Name (*)</InputLabel>
                   <OutlinedInput
                     id="name"
                     type="text"
@@ -145,48 +162,131 @@ const GlobalSettingPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
+              
+              <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="pan">PAN</InputLabel>
+                  <InputLabel htmlFor="phoneNumber">Phone Number (*)</InputLabel>
                   <OutlinedInput
-                    id="pan"
+                    id="phoneNumber"
                     type="text"
-                    value={values.pan}
-                    name="pan"
+                    value={values.phoneNumber}
+                    name="phoneNumber"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter pan"
+                    placeholder="Enter phone number"
                     fullWidth
-                    error={Boolean(touched.pan && errors.pan)}
+                    error={Boolean(touched.phoneNumber && errors.phoneNumber)}
                   />
-                  {touched.pan && errors.pan && (
-                    <FormHelperText error id="standard-weight-helper-text-pan-login">
-                      {errors.pan}
+                  {touched.phoneNumber && errors.phoneNumber && (
+                    <FormHelperText error id="standard-weight-helper-text-phoneNumber-login">
+                      {errors.phoneNumber}
                     </FormHelperText>
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
+                
+              <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="invoicePrefix">Invoice Prefix</InputLabel>
+                  <InputLabel htmlFor="email">Email (*)</InputLabel>
                   <OutlinedInput
-                    id="invoicePrefix"
-                    type="text"
-                    value={values.invoicePrefix}
-                    name="invoicePrefix"
+                    id="email"
+                    type="email"
+                    value={values.email}
+                    name="email"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter invoice prefix"
+                    placeholder="Enter email"
                     fullWidth
-                    error={Boolean(touched.invoicePrefix && errors.invoicePrefix)}
+                    error={Boolean(touched.email && errors.email)}
                   />
-                  {touched.invoicePrefix && errors.invoicePrefix && (
-                    <FormHelperText error id="standard-weight-helper-text-invoicePrefix-login">
-                      {errors.invoicePrefix}
+                  {touched.email && errors.email && (
+                    <FormHelperText error id="standard-weight-helper-text-email-login">
+                      {errors.email}
                     </FormHelperText>
                   )}
                 </Stack>
               </Grid>
+
+              <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="bannerImage">Banner Image</InputLabel>
+
+                  {values.bannerImage ? (
+                    <Box mt={2}>
+                      <img
+                        src={
+                          typeof values.bannerImage === 'string'
+                            ? `${process.env.REACT_APP_IMAGE_BASE_URL}${values.bannerImage}` // DB image
+                            : URL.createObjectURL(values.bannerImage) // New upload
+                        }
+                        alt="Banner Preview"
+                        style={{
+                          width: '100%',
+                          maxWidth: '300px',
+                          borderRadius: '8px',
+                          border: '1px solid #ccc'
+                        }}
+                      />
+                    </Box>
+                  ) : 
+                  imagePreview && (
+                    <Box mt={2}>
+                      <img
+                        src={imagePreview}
+                        alt="Banner Preview"
+                        style={{ width: '100%', maxWidth: '300px', borderRadius: '8px', border: '1px solid #ccc' }}
+                      />
+                    </Box>
+                  )
+                
+                }
+                
+
+
+                  <OutlinedInput
+                    id="bannerImage"
+                    type="file"
+                    name="bannerImage"
+                    inputProps={{ accept: 'image/*' }}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      setFieldValue('bannerImage', file);
+                    }}
+                    fullWidth
+                    error={Boolean(touched.bannerImage && errors.bannerImage)}
+                  />
+                  {touched.bannerImage && errors.bannerImage && (
+                    <FormHelperText error id="standard-weight-helper-text-bannerImage">
+                      {errors.bannerImage}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+
+
+              <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="chatScript">Chat Script</InputLabel>
+                  <OutlinedInput
+                    id="chatScript"
+                    value={values.chatScript}
+                    name="chatScript"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter chat script"
+                    fullWidth
+                    multiline
+                    minRows={4}
+                    error={Boolean(touched.chatScript && errors.chatScript)}
+                  />
+                  {touched.chatScript && errors.chatScript && (
+                    <FormHelperText error id="standard-weight-helper-text-chatScript-login">
+                      {errors.chatScript}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+              
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">

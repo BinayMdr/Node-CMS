@@ -7,7 +7,7 @@ const GlobalSetting = sequelize.define('GlobalSetting', {
     allowNull: false,
   },
   value: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
   }
 });
 

@@ -68,12 +68,15 @@ const GlobalSettingPage = () => {
         initialValues={{
           name: formValue.name,
           pan:formValue.pan,
+          email:formValue.email,
           invoicePrefix:formValue?.invoicePrefix,
           submit: null
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().max(255).required('Name is required'),
           pan: Yup.string().max(255).required('PAN is required'),
+          email: Yup.string().max(255).email('Enter a valid email address').required('Email is required'),
+          invoicePrefix: Yup.string().max(255).required('Invoice Prefix is required')
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
@@ -81,7 +84,8 @@ const GlobalSettingPage = () => {
               await api.put(`global-setting`, {
                 name: values.name,
                 pan: values.pan,
-                invoicePrefix: values.invoicePrefix
+                invoicePrefix: values.invoicePrefix,
+                email:values.email
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -124,9 +128,9 @@ const GlobalSettingPage = () => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="name">Name</InputLabel>
+                  <InputLabel htmlFor="name">Name (*)</InputLabel>
                   <OutlinedInput
                     id="name"
                     type="text"
@@ -145,7 +149,8 @@ const GlobalSettingPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
+
+              <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="pan">PAN</InputLabel>
                   <OutlinedInput
@@ -166,9 +171,36 @@ const GlobalSettingPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
+                
+             
+  
+              <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="invoicePrefix">Invoice Prefix</InputLabel>
+                  <InputLabel htmlFor="email">Email (*)</InputLabel>
+                  <OutlinedInput
+                    id="email"
+                    type="text"
+                    value={values.email}
+                    name="email"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter email"
+                    fullWidth
+                    error={Boolean(touched.email && errors.email)}
+                  />
+                  {touched.email && errors.email && (
+                    <FormHelperText error id="standard-weight-helper-text-email-login">
+                      {errors.email}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+              
+              
+
+              <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="invoicePrefix">Invoice Prefix (*)</InputLabel>
                   <OutlinedInput
                     id="invoicePrefix"
                     type="text"

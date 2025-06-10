@@ -14,6 +14,7 @@ const invoiceRoute = require('./routes/invoiceRoute.js');
 const userRoute = require('./routes/userRoute.js');
 const offerRoute = require('./routes/offerRoute.js');
 const dashboardRoute = require('./routes/dashboardRoute.js');
+const roleRoute = require('./routes/roleRoute.js');
 
 require("dotenv").config();
 
@@ -22,18 +23,19 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-//Route
 
+//Route
 app.use("/",authenticateRoute);
 app.use("/branch",branchRoute);
 app.use("/payment",paymentRoute);
 app.use("/global-setting",globalsettingRoute);
-app.use("/setting",settingRoute);
 app.use("/product",productRoute);
 app.use("/invoice",invoiceRoute);
 app.use("/user",userRoute);
 app.use("/offer",offerRoute);
 app.use("/dashboard",dashboardRoute);
+app.use("/role",roleRoute);
+app.use("/setting",settingRoute);
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

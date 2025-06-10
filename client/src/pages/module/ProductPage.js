@@ -4,7 +4,7 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Checkbox, FormControlLabel
+        OutlinedInput,Checkbox, FormControlLabel, Autocomplete
       } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
@@ -17,6 +17,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const columns = [
+  { id: 'model_id', label: 'Model Id', minWidth: 170 },
   { id: 'name', label: 'Product Name', minWidth: 170 },
   { id: 'price', label: 'Price', minWidth: 100},
   { id: 'is_enabled', label: 'Status', minWidth: 100},
@@ -32,7 +33,7 @@ const ProductPage = () => {
   const [open, setOpen] = React.useState(false);
   const [totalData,setTotalData] = React.useState(0);
 
-  const [formValue, setFormValue] = React.useState({"id":null,"name":"",
+  const [formValue, setFormValue] = React.useState({"id":null,"model_id":"","name":"",
               "price":0,"status":false})
 
   const [formAction, setFormAction] = React.useState('Add');
@@ -76,17 +77,13 @@ const ProductPage = () => {
     setPage(0);
   };
 
-  const handleChangeSearch = (event) => {
-    setSearchValue(event.target.value)
-    setPage(0)
-  }
-
   const addProduct = () => {
     setFormAction("Add")
     setFormValue({
       "id":null,
       "name":"",
       "price":0,
+      "model_id":"",
       "status":false
     })
     setOpen(true)
@@ -116,7 +113,8 @@ const ProductPage = () => {
           "id":id,
           "name":element['name'],
           "price":element['price'],
-          "status":element['is_enabled']
+          "status":element['is_enabled'],
+          "model_id":element['model_id']
         })
       }
     });
@@ -126,10 +124,36 @@ const ProductPage = () => {
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <ToastContainer></ToastContainer>
-        <TextField id="outlined-search" type="search" placeholder="Search" 
-              sx={{my:1,mx:1,float:'right'}}
-              value={searchValue}
-              onChange={handleChangeSearch}/>
+          <Autocomplete
+            freeSolo
+            id="product-search"
+            disableClearable
+            sx={{
+              '& .MuiInputBase-root': {
+                padding: '0 8px',
+                marginTop: '6px'
+              }
+            }}
+            options={rows.filter(model_id => model_id !== null && model_id !== undefined && model_id !== '')
+              .map((formValue) => formValue.model_id+ '('+ formValue.name + ')')        
+            } 
+            onInputChange={(event, newInputValue) => {
+              setSearchValue(newInputValue);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Search"
+                sx={{ my: 0.5, mx: 1, float: 'right', width: 200,paddingBottom:'10px'}}
+                InputProps={{
+                  ...params.InputProps,
+                  type: 'search',
+                }}
+              />
+            )}
+          />
+
+
         <Button variant="contained"
           sx={{my:1,float:'right'}}
           onClick={addProduct}
@@ -157,7 +181,7 @@ const ProductPage = () => {
                       const value = row[column.id];
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          { (column.id === "name" || column.id === "price") ? (column.format && typeof value === 'number'
+                          { (column.id === "name" || column.id === "price" || column.id === "model_id") ? (column.format && typeof value === 'number'
                             ? column.format(value)
                             : value) : 
                             
@@ -205,10 +229,12 @@ const ProductPage = () => {
           name: formValue.name,
           price:formValue.price,
           status:formValue.status,
+          model_id:formValue.model_id,
           submit: null
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().max(255).required('Name is required'),
+          model_id: Yup.string().max(255).required('Model Id is required'),
           price: Yup.number().required('Price is required').positive('Price must be positive')
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
@@ -220,7 +246,8 @@ const ProductPage = () => {
               await api.post("product", {
                 name: values.name,
                 price: values.price,
-                is_enabled: values.status
+                is_enabled: values.status,
+                model_id: values.model_id
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -232,7 +259,8 @@ const ProductPage = () => {
               await api.put(`product/edit/${formValue.id}`, {
                 name: values.name,
                 price: values.price,
-                is_enabled: values.status
+                is_enabled: values.status,
+                model_id:values.model_id
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -277,7 +305,29 @@ const ProductPage = () => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+            <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="modelId">Model Id</InputLabel>
+                  <OutlinedInput
+                    id="Model Id"
+                    type="text"
+                    value={values.model_id}
+                    name="model_id"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter model id"
+                    fullWidth
+                    error={Boolean(touched.model_id && errors.model_id)}
+                    readOnly={formAction == "View"}
+                  />
+                  {touched.model_id && errors.model_id && (
+                    <FormHelperText error id="standard-weight-helper-text-model_id-login">
+                      {errors.model_id}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="name">Name</InputLabel>
                   <OutlinedInput
@@ -299,7 +349,7 @@ const ProductPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="price">Price</InputLabel>
                   <OutlinedInput

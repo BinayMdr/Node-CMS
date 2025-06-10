@@ -203,9 +203,9 @@ const SettingPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="address">Address</InputLabel>
+                  <InputLabel htmlFor="address">Address (*)</InputLabel>
                   <OutlinedInput
                     id="address"
                     type="text"
@@ -224,9 +224,9 @@ const SettingPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="number">Number</InputLabel>
+                  <InputLabel htmlFor="number">Phone Number (*)</InputLabel>
                   <OutlinedInput
                     id="number"
                     type="text"

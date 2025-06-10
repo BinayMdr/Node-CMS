@@ -15,7 +15,10 @@ const getAllProduct = (async (req,res) => {
     let where = {};
 
     if (filter) {
-      where.name = { [Op.like]: `%${filter}%` };
+      where[Op.or] = [
+        { name: { [Op.like]: `%${filter}%` } },
+        { model_id: { [Op.like]: `%${filter}%` } }
+      ];
     }
 
     const products = await product.findAll({
@@ -58,6 +61,7 @@ const storeProduct = [
   body('price').notEmpty().withMessage('Price is required').
                 isFloat({min:0}).withMessage('Price must be in number'),
   body('is_enabled').isBoolean().withMessage('Is enabled must be a boolean'),
+  body('model_id').notEmpty().withMessage('Model Id is required'),
   async (req, res) => {
 
     const errors = validationResult(req);
@@ -65,9 +69,23 @@ const storeProduct = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, price, is_enabled } = req.body;
+    const { name, price, is_enabled, model_id } = req.body;
 
     try {
+      const existingProductWithModelId = await product.findOne({
+        where:{
+          model_id:model_id
+        }
+      })
+
+      if (existingProductWithModelId) {
+        return res.status(400).json({
+          message: 'Model Id already taken',
+          error: true,
+        });
+      }
+
+
       const existingProduct = await product.findOne({
         where: {
           name: name
@@ -85,6 +103,7 @@ const storeProduct = [
         name: name,
         price: price,
         is_enabled: is_enabled,
+        model_id: model_id
       });
 
       return res.json({
@@ -108,6 +127,7 @@ const updateProduct = [
     body('price').notEmpty().withMessage('Price is required').
                   isFloat({min:0}).withMessage('Price must be in number'),
     body('is_enabled').isBoolean().withMessage('Is enabled must be a boolean'),
+    body('model_id').notEmpty().withMessage('Model Id is required'),
   async (req, res) => {
 
     const errors = validationResult(req);
@@ -115,10 +135,26 @@ const updateProduct = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, price, is_enabled } = req.body;
+    const { name, price, is_enabled,model_id } = req.body;
     const productId = req.params.productId;
 
     try {
+      const existingProductWithModelId = await product.findOne({
+        where:{
+          model_id:model_id,
+          id:{
+            [Sequelize.Op.not]: productId
+          }
+        }
+      })
+
+      if (existingProductWithModelId) {
+        return res.status(400).json({
+          message: 'Model Id already taken',
+          error: true,
+        });
+      }
+
       const existingProduct = await product.findOne({
         where: {
           name: name,
@@ -140,6 +176,7 @@ const updateProduct = [
         name: name,
         price: price,
         is_enabled: is_enabled,
+        model_id:model_id
       },
       {
         where: { id: productId }
@@ -200,7 +237,10 @@ const getProductList = (async (req,res) => {
     // where.is_enabled =  1 ;
 
     if (filter) {
-      where.name = { [Op.like]: `%${filter}%` };
+      where[Op.or] = [
+        { name: { [Op.like]: `%${filter}%` } },
+        { model_id: { [Op.like]: `%${filter}%` } }
+      ];
     }
 
     const products = await product.findAll({

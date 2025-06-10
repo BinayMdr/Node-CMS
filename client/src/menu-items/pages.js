@@ -65,7 +65,6 @@ const pages = {
       forUser: 'Admin',
       icon: icons.PeopleIcon
     },
-  
     {
       id: 'setting',
       title: 'Setting',

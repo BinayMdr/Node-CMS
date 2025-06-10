@@ -2,6 +2,9 @@ const product = require('../models/product');
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 
 const getAllProduct = (async (req,res) => {
@@ -71,6 +74,7 @@ const storeProduct = [
 
     const { name, price, is_enabled, model_id } = req.body;
 
+    console.log(req.body)
     try {
       const existingProductWithModelId = await product.findOne({
         where:{
@@ -99,11 +103,18 @@ const storeProduct = [
         });
       }
 
+      let imagePath = null;
+      if(req.file){
+        console.log('Uploaded file:', req.file);
+        imagePath = path.join('/products', req.file.filename).replace(/\\/g, '/');
+      }
+      
       const productData = await product.create({
         name: name,
         price: price,
         is_enabled: is_enabled,
-        model_id: model_id
+        model_id: model_id,
+        image: imagePath
       });
 
       return res.json({
@@ -172,11 +183,18 @@ const updateProduct = [
         });
       }
 
+      let imagePath = null;
+      if(req.file){
+        console.log('Uploaded file:', req.file);
+        imagePath = path.join('/products', req.file.filename).replace(/\\/g, '/');
+      }
+
       const productData = await product.update({
         name: name,
         price: price,
         is_enabled: is_enabled,
-        model_id:model_id
+        model_id:model_id,
+        image: imagePath
       },
       {
         where: { id: productId }

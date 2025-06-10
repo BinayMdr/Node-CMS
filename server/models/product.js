@@ -10,7 +10,7 @@ const Product = sequelize.define('Product', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  name: {
+  image: {
     type: DataTypes.STRING,
     allowNull: true,
   },

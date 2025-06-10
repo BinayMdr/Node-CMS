@@ -35,6 +35,8 @@ const ProductPage = () => {
 
   const [formValue, setFormValue] = React.useState({"id":null,"model_id":"","name":"",
               "price":0,"status":false})
+  
+  const [imagePreview, setImagePreview] = React.useState(null);
 
   const [formAction, setFormAction] = React.useState('Add');
 
@@ -87,6 +89,7 @@ const ProductPage = () => {
       "status":false
     })
     setOpen(true)
+    setImagePreview(null)
   }
 
   const handleClose = () => {
@@ -101,6 +104,8 @@ const ProductPage = () => {
     width: 500,
     bgcolor: 'background.paper',
     p: '30px',
+    overflowY: 'auto',
+    maxHeight: '90vh',
   };
 
   const handleViewUpdate = (action,id) =>{
@@ -116,10 +121,17 @@ const ProductPage = () => {
           "status":element['is_enabled'],
           "model_id":element['model_id']
         })
+
+        if (element['image']) {
+          const backendUrl = `${process.env.REACT_APP_IMAGE_BASE_URL}`;
+          const imageUrl = backendUrl + element['image'];
+          setImagePreview(imageUrl);
+        } else {
+          setImagePreview(null);
+        }
       }
     });
     setOpen(true)
-
   }
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
@@ -230,6 +242,7 @@ const ProductPage = () => {
           price:formValue.price,
           status:formValue.status,
           model_id:formValue.model_id,
+          image:null,
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -241,29 +254,30 @@ const ProductPage = () => {
           try {
 
             let message = "added";
+            const formData = new FormData();
+            formData.append('name', values.name);
+            formData.append('price', values.price);
+            formData.append('is_enabled', values.status);
+            formData.append('model_id', values.model_id);
+            if (values.image) {
+              formData.append('image', values.image);
+            }
+
             if( formAction == "Add")
             {
-              await api.post("product", {
-                name: values.name,
-                price: values.price,
-                is_enabled: values.status,
-                model_id: values.model_id
-              },{
+              await api.post("product", formData,{
                 headers: {
-                  'Authorization': `Bearer ${userToken}`
+                  'Authorization': `Bearer ${userToken}`,
+                   'Content-Type': 'multipart/form-data'
                 }
               });
             }
             else
             {
-              await api.put(`product/edit/${formValue.id}`, {
-                name: values.name,
-                price: values.price,
-                is_enabled: values.status,
-                model_id:values.model_id
-              },{
+              await api.put(`product/edit/${formValue.id}`, formData,{
                 headers: {
-                  'Authorization': `Bearer ${userToken}`
+                  'Authorization': `Bearer ${userToken}`,
+                   'Content-Type': 'multipart/form-data'
                 }
               });
               message = "updated"
@@ -302,7 +316,7 @@ const ProductPage = () => {
           }
         }}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, setFieldValue }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
             <Grid item xs={6}>
@@ -388,6 +402,46 @@ const ProductPage = () => {
                   />
                 </Stack>
               </Grid>
+
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="image">Product Image</InputLabel>
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={{ marginTop: '10px', maxWidth: '50%', height: '50%', borderRadius: 8 }}
+                    />
+                  )}
+
+                  <OutlinedInput
+                    id="image"
+                    type="file"
+                    name="image"
+                    inputProps={{ accept: 'image/jpeg, image/jpg, image/png' }}
+                    onChange={(event) => {
+                      const file = event.currentTarget.files[0];
+                      setFieldValue('image',file)
+                      handleChange({
+                        target: {
+                          name: 'image',
+                          value: file
+                        }
+                      });
+
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => setImagePreview(reader.result);
+                        reader.readAsDataURL(file);
+                      } else {
+                        setImagePreview(null);
+                      }
+                    }}
+                    fullWidth
+                  />
+                </Stack>
+              </Grid>
+
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText error>{errors.submit}</FormHelperText>

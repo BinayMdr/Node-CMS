@@ -10,6 +10,7 @@ import PublicIcon from '@mui/icons-material/Public';
 import PeopleIcon from '@mui/icons-material/People';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 
 // icons
 const icons = {
@@ -24,7 +25,8 @@ const icons = {
   PublicIcon,
   PeopleIcon,
   ReceiptIcon,
-  LocalOfferIcon
+  LocalOfferIcon,
+  PointOfSaleIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -86,6 +88,14 @@ const pages = {
       title: 'Invoice',
       type: 'item',
       url: '/invoice',
+      forUser: 'All',
+      icon: icons.PointOfSaleIcon
+    },
+    {
+      id: 'expenditure',
+      title: 'Expenditure',
+      type: 'item',
+      url: '/expenditure',
       forUser: 'All',
       icon: icons.ReceiptIcon
     },

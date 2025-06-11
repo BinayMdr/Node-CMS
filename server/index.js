@@ -18,6 +18,7 @@ const userRoute = require('./routes/userRoute.js');
 const offerRoute = require('./routes/offerRoute.js');
 const dashboardRoute = require('./routes/dashboardRoute.js');
 const roleRoute = require('./routes/roleRoute.js');
+const expenditureRoute = require('./routes/expenditureRoute.js');
 
 require("dotenv").config();
 
@@ -77,6 +78,7 @@ app.use("/offer",offerRoute);
 app.use("/dashboard",dashboardRoute);
 app.use("/role",roleRoute);
 app.use("/setting",settingRoute);
+app.use("/expenditure",expenditureRoute);
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

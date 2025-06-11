@@ -46,6 +46,7 @@ const getAllBranch = (async (req,res) => {
     });
     
   } catch (error) {
+    console.log(error)
     return res.json({
       "message": "Data not found",
       "error": true

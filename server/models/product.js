@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../database/database');
+const ProductHasVariation = require('./productHasVariation')
 
 const Product = sequelize.define('Product', {
   model_id: {

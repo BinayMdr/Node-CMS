@@ -3,7 +3,9 @@ const product = require('../models/product');
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
-
+const offerHasBranch =  require('../models/offerhasbranch')
+const branchModel = require('../models/branch')
+const {Branch} = require('../models')
 
 const getAllOffer = (async (req,res) => {
   try {
@@ -16,14 +18,37 @@ const getAllOffer = (async (req,res) => {
     let where = {};
 
     if (filter) {
-      where.name = { [Op.like]: `%${filter}%` };
-    }
+      const branchData =  await Branch.findOne({
+        where:{
+          name: filter
+        }
+      })
 
+      const offerHasBranchData = await offerHasBranch.findAll({
+        where:{
+          branch_id: branchData.dataValues.id
+        }
+      })
+
+      const ids = offerHasBranchData.map(item => item.dataValues.offer_id);
+      
+      where.id = 
+      {
+        [Op.in]: ids
+      }
+    }
+   
     const offers = await offer.findAll({
       where,
       limit: parseInt(pageSize),
       offset,
       order: [['createdAt', 'DESC']],
+      include:{
+        model: Branch,
+        as: 'branches',
+        attributes:['id','name'],
+        through:{attributes:[]}
+      }
     });
 
     const totalOfferCount = await offer.count({
@@ -47,6 +72,7 @@ const getAllOffer = (async (req,res) => {
     });
     
   } catch (error) {
+    console.log(error)
     return res.json({
       "message": "Data not found",
       "error": true
@@ -65,10 +91,10 @@ const storeOffer = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    
     const { name, offer_type, offer_on, is_enabled ,offer_on_amount, offer_on_product, offer_on_quantity,
-          discount_off,amount_off} = req.body;
-
+          discount_off,amount_off,branch} = req.body;
+    
     try {
       const existingOffer = await offer.findOne({
         where: {
@@ -105,6 +131,18 @@ const storeOffer = [
 
       const offerData = await offer.create(data);
 
+      for(let i=0; i<branch.length;i++)
+      {
+        let branchData = await branchModel.findOne({
+          where:{
+            name:branch[i]
+          }
+        })
+        await offerHasBranch.create({
+          offer_id: offerData.dataValues.id,
+          branch_id: branchData.dataValues.id
+        })
+      }
       return res.json({
         message: 'Offer created',
         data: offerData,
@@ -134,9 +172,10 @@ const updateOffer = [
     }
 
     const { name, offer_type, offer_on, is_enabled ,offer_on_amount, offer_on_product, offer_on_quantity,
-          discount_off,amount_off} = req.body;
+          discount_off,amount_off,branch} = req.body;
     const offerId = req.params.offerId;
 
+    
     try {
       const existingOffer = await offer.findOne({
         where: {
@@ -154,6 +193,13 @@ const updateOffer = [
           error: true,
         });
       }
+
+   
+      await offerHasBranch.destroy({
+        where:{
+          offer_id:offerId
+        }
+      })
 
 
       let data = {
@@ -186,6 +232,19 @@ const updateOffer = [
           id: offerId,
         },
       });
+
+      for(let i=0; i<branch.length;i++)
+      {
+        let branchData = await branchModel.findOne({
+          where:{
+            name:branch[i]
+          }
+        })
+        await offerHasBranch.create({
+          offer_id: offerId,
+          branch_id: branchData.dataValues.id
+        })
+      }
 
       return res.json({
         message: 'Offer updated',
@@ -293,6 +352,7 @@ const checkOffer = (async (req,res) => {
     console.log(ex)
   }
 });
+
 module.exports = {
     getAllOffer,
     storeOffer,

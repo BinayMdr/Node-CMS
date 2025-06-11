@@ -5,7 +5,7 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Select, MenuItem , Autocomplete, Checkbox, FormControlLabel
+        OutlinedInput, Autocomplete, Checkbox, FormControlLabel
       } from '@mui/material';
 
 import AnimateButton from 'components/@extended/AnimateButton';
@@ -153,22 +153,24 @@ const ExpenditurePage = () => {
   }
 
   const addProductToExpenditure = (productId) => {
-    const selectedProduct = productList.find(product => product.id === productId);
+    const selectedProduct = productList.find(product => product.model_id === productId);
 
-    const updatedExpenditureList = [...expenditureList,{"id":productId,"name":selectedProduct['name'],
+    const updatedExpenditureList = [...expenditureList,{"id":selectedProduct['id'],"name":selectedProduct['name'],
               "quantity":1,"price": 0,"total":0,
-              "isProduct":isProduct,"variation":null}];
+              "isProduct":isProduct,"variation":null,"modelId":selectedProduct['model_id']}];
 
     setExpenditureList(updatedExpenditureList)
     updateTotalPrice(updatedExpenditureList)
 
     setIsProduct(false)
+
+    console.log(updatedExpenditureList)
   } 
 
   const addItemToExpenditure = (itemName) => {
     const updatedExpenditureList = [...expenditureList,{"id":null,"name":itemName,
               "quantity":1,"price": 0,"total":0,
-              "isProduct":isProduct,"variation":null}];
+              "isProduct":isProduct,"variation":null,"modelId":null}];
 
     setExpenditureList(updatedExpenditureList)
     updateTotalPrice(updatedExpenditureList)
@@ -289,15 +291,19 @@ const ExpenditurePage = () => {
           let productId = null
           let productName = null
           let variation = null
+          let modelId = null
+
           if(isProduct)
           { 
             productId = element['ExpenditureHasProducts'][i]['Product']['id'] ?? null
             productName = isProduct ? element['ExpenditureHasProducts'][i]['Product']['name'] : element['ExpenditureHasProducts'][i]['name']
-            variation = element['ExpenditureHasProducts'][i]['ProductHasVariation']['colorCombination']
+            variation = element['ExpenditureHasProducts'][i]['ProductHasVariation']['colorCombination'],
+            modelId = element['ExpenditureHasProducts'][i]['Product']['model_id']
           }
           else
           {
             productName = element['ExpenditureHasProducts'][i]['name']
+            modelId = null
           }
 
           expenditureProducts[i] = {
@@ -307,7 +313,8 @@ const ExpenditurePage = () => {
             "quantity" : element['ExpenditureHasProducts'][i]['quantity'],
             "price" : element['ExpenditureHasProducts'][i]['cost'],
             "total" : parseFloat(element['ExpenditureHasProducts'][i]['quantity']) * parseFloat(element['ExpenditureHasProducts'][i]['cost']),
-            "variation": variation
+            "variation": variation,
+            "modelId": modelId
           }
         }
 
@@ -348,7 +355,7 @@ const ExpenditurePage = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                placeholder="Search"
+                placeholder="Search Branch"
                 sx={{ my: 0.5, mx: 1, float: 'right', width: 200,paddingBottom:'10px'}}
                 InputProps={{
                   ...params.InputProps,
@@ -655,7 +662,7 @@ const ExpenditurePage = () => {
               
               {
                 expenditureList.map((expenditure,key) => {
-                const { id, name , price, total, quantity,isProduct,variation} = expenditure;
+                const { id, name , price, total, quantity,isProduct,variation,modelId} = expenditure;
                 return (
                   <>
                   <Grid item xs={2}>
@@ -669,7 +676,8 @@ const ExpenditurePage = () => {
                   </Grid>
                   <Grid item xs={1.5} >
                     <Stack spacing={1}>
-                      <Typography key={id}>{name}</Typography>
+                      <Typography key={id}>{name} <br></br>{modelId ? `(${modelId})` : ""}
+                      </Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={1.5}>
@@ -768,36 +776,37 @@ const ExpenditurePage = () => {
                     <Stack spacing={1}>
                       { isProduct ?
                       
-                      <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={values.branch}
-                          onChange={(event) => {
-                            handleChange(event);
-                            addProductToExpenditure(event.target.value)
+                      <Autocomplete
+                        freeSolo
+                        id="productSelect"
+                        disableClearable
+                        options={productList.map((value) => value.model_id)}
+                        sx={{
+                          '& .MuiInputBase-root': {
+                            padding: '0 8px',
+                            marginTop: '6px'
+                          }
+                        }}
+                        onChange={(event, newValue) => {
+                          addProductToExpenditure(newValue)
+                        }}
+                      disabled={formAction === 'View' || formAction === 'Edit'}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="productSelect"
+                          name="productSelect"
+                          type="text"
+                          placeholder="Select product"
+                          onBlur={handleBlur}
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            readOnly: formAction === 'View' || formAction === 'Edit'
                           }}
-                          disabled={ formAction == "View"}
-                        >
-                          {
-                            productList.map((product) => {
-                            const invoiceIds = expenditureList.map(invoice => invoice.id);
-
-                            const { id, name , is_enabled} = product;
-                            return (
-                              (formAction != "Add" && !invoiceIds.includes(id)) ? (
-                                <MenuItem key={id} value={id} disabled={!is_enabled}>
-                                  {name}
-                                </MenuItem>
-                              ) : ( ( formAction == "Add" && is_enabled && !invoiceIds.includes(id)) ?
-                                <MenuItem key={id} value={id} disabled={!is_enabled}>
-                                  {name}
-                                </MenuItem> : null
-                              )
-                              );
-                              })
-                            }
-                        </Select>
-
+                        />
+                      )}
+                    />
 
                         :
                         <TextField

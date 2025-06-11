@@ -4,6 +4,7 @@ const productHasVariation = require('../models/productHasVariation');
 const user = require('../models/user');
 const branchModel = require('../models/branch');
 const product = require('../models/product')
+const history = require('../models/history')
 
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
@@ -163,14 +164,31 @@ const storeExpenditure = [
               }, { transaction });
 
               variationId = newVariation.dataValues.id
+
+              await history.create({
+                product_has_variation_id: variationId,
+                previous_quantity: 0,
+                new_quantity: expenditure_items[i]['quantity'],
+                transaction_type: "Expenditure",
+                transaction_id: expenditureData.dataValues.id
+              },{transaction})
             }
             else
             {
+              await history.create({
+                product_has_variation_id: checkVariationExist.dataValues.id,
+                previous_quantity: checkVariationExist.dataValues.quantity,
+                new_quantity: parseInt(checkVariationExist.dataValues.quantity) + parseInt(expenditure_items[i]['quantity']),
+                transaction_type: "Expenditure",
+                transaction_id: expenditureData.dataValues.id
+              },{transaction})
+
               await checkVariationExist.update({
                 quantity: parseInt(checkVariationExist.dataValues.quantity) + parseInt(expenditure_items[i]['quantity'])
               }, { transaction })
 
               variationId = checkVariationExist.dataValues.id
+              
             }
           }
 

@@ -4,7 +4,7 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Checkbox, FormControlLabel, Select, MenuItem
+        OutlinedInput,Checkbox, FormControlLabel, Select, MenuItem, Autocomplete
       } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
@@ -17,6 +17,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const columns = [
+  { id: 'branch', label: 'Branch', minWidth: 170 },
   { id: 'name', label: 'Name', minWidth: 170 },
   { id: 'offer_type', label: 'Offer Type', minWidth: 100},
   { id: 'offer_on', label: 'Offer On', minWidth: 100},
@@ -42,7 +43,10 @@ const OfferPage = () => {
               "offer_on_product":"","offer_on_quantity":"","status":false})
 
   const [formAction, setFormAction] = React.useState('Add');
+  const [branchList, setBranchList] = React.useState([]);
+  const [selectedBranch,setSelectedBranch] = React.useState([]);
 
+  const [formProduct, setFormProduct] = React.useState(null)
   const userToken = localStorage.getItem('token');
 
   const getProductList = async () => {
@@ -62,6 +66,19 @@ const OfferPage = () => {
       console.log(error)
     }
   } 
+
+  const getBranch = async(search) => {
+     const response = await api.get('branch/get-list',{
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        },
+        params:{
+          filter: search
+        }
+      })
+
+      setBranchList(response.data.data)
+  }
 
   const getOffer = async (page,pageSize,search) => {
     try
@@ -89,6 +106,7 @@ const OfferPage = () => {
   useEffect( () => {
       getOffer(page,rowsPerPage,searchValue)
       getProductList()
+      getBranch()
   },[page,rowsPerPage,searchValue])
   
   const handleChangePage = (event, newPage) => {
@@ -99,11 +117,6 @@ const OfferPage = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-
-  const handleChangeSearch = (event) => {
-    setSearchValue(event.target.value)
-    setPage(0)
-  }
 
   const addOffer = () => {
     setFormAction("Add")
@@ -117,6 +130,8 @@ const OfferPage = () => {
         "amount_off":"",
         "status":false
     })
+    setFormProduct(null)
+    setSelectedBranch([])
     setOfferOn("")
     setOfferType("")
     setOpen(true)
@@ -134,6 +149,8 @@ const OfferPage = () => {
     width: 500,
     bgcolor: 'background.paper',
     p: '30px',
+    overflowY:'auto',
+    maxHeight: '90vh'
   };
 
   const handleViewUpdate = (action,id) =>{
@@ -153,6 +170,10 @@ const OfferPage = () => {
             "status":element['is_enabled']
         })
 
+        setFormProduct(productList.find((value) => value.id == element['offer_on_product'])?.model_id)
+
+
+        setSelectedBranch(element['branches'])
         setOfferOn(element['offer_on'])
         setOfferType(element['offer_type'])
       }
@@ -161,14 +182,40 @@ const OfferPage = () => {
 
   }
   
+  console.log(formProduct)
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <ToastContainer></ToastContainer>
-        <TextField id="outlined-search" type="search" placeholder="Search" 
-              sx={{my:1,mx:1,float:'right'}}
-              value={searchValue}
-              onChange={handleChangeSearch}/>
+
+          <Autocomplete
+              freeSolo
+              id="product-search"
+              disableClearable
+              sx={{
+                '& .MuiInputBase-root': {
+                  padding: '0 8px',
+                  marginTop: '6px'
+                }
+              }}
+              options={branchList.map((value) => value.name)        
+              } 
+              onInputChange={(event, newInputValue) => {
+                setSearchValue(newInputValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Search Branch"
+                  sx={{ my: 0.5, mx: 1, float: 'right', width: 200,paddingBottom:'10px'}}
+                  InputProps={{
+                    ...params.InputProps,
+                    type: 'search',
+                  }}
+                />
+              )}
+            />
+
         <Button variant="contained"
           sx={{my:1,float:'right'}}
           onClick={addOffer}
@@ -194,6 +241,7 @@ const OfferPage = () => {
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     {columns.map((column) => {
                       const value = row[column.id];
+                      
                       return (
                         <TableCell key={column.id} align={column.align}>
                           { (column.id === "name" || column.id === "offer_on" || column.id === "offer_type")  ? (column.format && typeof value === 'number'
@@ -201,12 +249,16 @@ const OfferPage = () => {
                             : value) : 
                             
                             ((column.id == "is_enabled") ? (value === true ? 'Active' : 'Inactive') 
-                            : <span>
-                                <Button onClick={() => handleViewUpdate("View",row.id)}>
-                                    <EyeOutlined/></Button>  
-                                <Button>
-                                    <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
-                              </span>)
+                            : 
+                              ( (column.id == "branch") ? row.branches.map(b => b.name).join(', ') :
+                                <span>
+                                    <Button onClick={() => handleViewUpdate("View",row.id)}>
+                                        <EyeOutlined/></Button>  
+                                    <Button>
+                                        <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
+                                  </span>
+                                )
+                            )
                             
                            }
                         </TableCell>
@@ -243,20 +295,24 @@ const OfferPage = () => {
         initialValues={{
           name: formValue.name,
           offer_on_amount:formValue.offer_on_amount,
-          offer_on_product:formValue.offer_on_product,
+          offer_on_product: formValue.offer_on_product,
           offer_on_quantity:formValue.offer_on_quantity,
           discount_off:formValue.discount_off,
           amount_off:formValue.amount_off,
           status:formValue.status,
-          submit: null
+          submit: null,
+          branch:selectedBranch.map(b=>b.name)
 
         }}
         validationSchema={Yup.object().shape({
-          name: Yup.string().max(255).required('Name is required')
+          name: Yup.string().max(255).required('Name is required'),
+          branch: Yup.array().min(1, 'At least one branch is required')
+              .required('Branch is required'),
+          
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
-
+            console.log(values.branch)
             let message = "";
 
             if(offerType == "") message = "Please select offer type";
@@ -299,7 +355,8 @@ const OfferPage = () => {
                 offer_on_quantity: ( offerOn == "Product") ? values.offer_on_quantity : '',
                 discount_off: (offerType == "Discount") ? values.discount_off : '',
                 amount_off : (offerType == "Amount") ? values.amount_off : '',
-                is_enabled: values.status
+                is_enabled: values.status,
+                branch:values.branch
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -317,7 +374,8 @@ const OfferPage = () => {
                 offer_on_quantity: ( offerOn == "Product") ? values.offer_on_quantity : '',
                 discount_off: (offerType == "Discount") ? values.discount_off : '',
                 amount_off : (offerType == "Amount") ? values.amount_off : '',
-                is_enabled: values.status
+                is_enabled: values.status,
+                branch:values.branch
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -343,6 +401,7 @@ const OfferPage = () => {
           } catch (err) {
             setStatus({ success: false });
             setSubmitting(false);
+            console.log(err)
             if(err.response.status == "400")
             {
               toast.error(err.response.data.message, {
@@ -362,6 +421,49 @@ const OfferPage = () => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, setFieldValue }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="branch">Branch</InputLabel>
+
+                  <Autocomplete
+                    multiple
+                    id="branchAuto"
+                    disableClearable
+                    options={branchList.map((value) => value.name)}
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        padding: '0 8px',
+                        marginTop: '6px'
+                      }
+                    }}
+                    value={values.branch}
+                    onChange={(event, newValue) => {
+                      setFieldValue('branch', newValue);
+                    }}
+                    disabled={formAction === 'View'}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        id="branch"
+                        name="branch"
+                        type="text"
+                        placeholder="Select branch"
+                        onBlur={handleBlur}
+                        error={Boolean(touched.branch && errors.branch)}
+                        helperText={touched.branch && errors.branch}
+                        fullWidth
+                        InputProps={{
+                          ...params.InputProps,
+                          readOnly: formAction === 'View' || formAction === 'Edit'
+                        }}
+                      />
+                    )}
+                  />
+
+        
+                </Stack>
+              </Grid>
+
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="name">Name</InputLabel>
@@ -453,7 +555,47 @@ const OfferPage = () => {
               }
                 { (offerOn == "Product") && 
                 <>
+
                 <Grid item xs={6}>
+                    <Stack spacing={1}>
+                    <InputLabel htmlFor="product">Product</InputLabel>
+                      <Autocomplete
+                        freeSolo
+                        id="productSelect"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            padding: '6px 0px 0px 5px',
+                          }
+                        }}
+                        disableClearable
+                        options={productList.map((value) => value.model_id)}
+                        value={formProduct}
+                        onChange={(event, newValue) => {
+                          const productId = productList.filter((value) => value.model_id == newValue)
+                          setFieldValue('offer_on_product', productId[0]['id'])
+                          setFormProduct(newValue)
+                        }}
+                      disabled={formAction === 'View' }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="productSelect"
+                          name="productSelect"
+                          type="text"
+                          placeholder="Select product"
+                          onBlur={handleBlur}
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            readOnly: formAction === 'View'
+                          }}
+                        />
+                      )}
+                    />
+                  </Stack>
+                </Grid>
+
+                {/* <Grid item xs={6}>
                   <Stack spacing={1}>
                   <InputLabel htmlFor="product">Product</InputLabel>
                     <Select
@@ -461,6 +603,7 @@ const OfferPage = () => {
                         id="product-list"
                         value={values.offer_on_product}
                         onChange={(event) => {
+                          alert(event.target.value)
                           handleChange(event);
                           setFieldValue('offer_on_product', event.target.value);
                         }}
@@ -479,7 +622,7 @@ const OfferPage = () => {
                           }
                       </Select>
                   </Stack>
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={6}>
                 <Stack spacing={1}>

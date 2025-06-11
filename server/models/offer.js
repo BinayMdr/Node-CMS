@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../database/database');
 
+
 const Offer = sequelize.define('Offer', {
   name: {
     type: DataTypes.STRING,
@@ -37,4 +38,8 @@ const Offer = sequelize.define('Offer', {
   }
 });
 
+
 module.exports = Offer;
+
+
+

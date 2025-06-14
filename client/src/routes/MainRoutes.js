@@ -23,7 +23,7 @@ const EditProfile = Loadable(lazy(() => import('pages/module/EditProfilePage')))
 const Invoice = Loadable(lazy(() => import('pages/module/InvoicePage')));
 const Offer = Loadable(lazy(() => import('pages/module/OfferPage')));
 const Expenditure = Loadable(lazy(() => import('pages/module/ExpenditurePage')));
-
+const History = Loadable(lazy(() => import('pages/module/HistoryPage')));
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -73,6 +73,10 @@ const MainRoutes = {
      {
       path: 'expenditure',
       element: <Expenditure />
+    },
+    {
+      path: 'history/:id',
+      element: <History />
     }
   ]
 };

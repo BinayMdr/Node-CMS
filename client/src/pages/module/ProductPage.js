@@ -4,18 +4,20 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Checkbox, FormControlLabel, Autocomplete, Chip
+        OutlinedInput,Checkbox, FormControlLabel, Autocomplete
       } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
 import api from 'routes/Enpoint'
-import {EditOutlined,EyeOutlined,PlusOutlined} from '@ant-design/icons';
+import {EditOutlined,EyeOutlined,PlusOutlined,HistoryOutlined} from '@ant-design/icons';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import HistoryIcon from '@mui/icons-material/History';
+// import HistoryIcon from '@mui/icons-material/History';
+import { useNavigate } from 'react-router-dom';
+
 const columns = [
   { id: 'model_id', label: 'Model Id', minWidth: 170 },
   { id: 'name', label: 'Product Name', minWidth: 170 },
@@ -26,6 +28,7 @@ const columns = [
 
 const ProductPage = () => {
 
+  const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = React.useState('');
@@ -218,20 +221,23 @@ const ProductPage = () => {
                               const level = getStockLevel(value);
                               return (
                                 
-                                <Chip label={`${level.label} - ${value}`} 
-                                sx={{
-                                  backgroundColor: level.color,
-                                  color: '#fff',
-                                  fontWeight: 'bold',
-                                  borderRadius: '8px',
-                                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                                  px: 1.5,
-                                  py: 0.5,
-                                  fontSize: '0.875rem',
-                                  minWidth: '80px',
-                                  textAlign: 'center'
-                                }} /> 
-                                  
+                                <Box
+                                  sx={{
+                                    backgroundColor: level.color,
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    borderRadius: '6px',
+                                    px: 2,
+                                    py: 0.5,
+                                    display: 'inline-block',
+                                    fontSize: '0.85rem',
+                                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1)'
+                                  }}
+                                >
+                                  {level.label} ({value})
+                                </Box>
+
+                                       
                               );
                             })() : (
                               <span>
@@ -241,8 +247,8 @@ const ProductPage = () => {
                                 <Button onClick={() => handleViewUpdate("Edit", row.id)}>
                                   <EditOutlined />
                                 </Button>
-                                <Button onClick={() => handleViewUpdate("Edit", row.id)}>
-                                  <HistoryIcon />
+                                <Button onClick={() => navigate(`/history/${row.id}`)}>
+                                  <HistoryOutlined />
                                 </Button>
                               </span>
                             ))

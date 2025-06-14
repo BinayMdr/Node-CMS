@@ -47,7 +47,7 @@ const getAllProduct = (async (req,res) => {
 
     }
 
-    console.log(products)
+    
     const totalProductCount = await product.count({
       where,
       limit: parseInt(pageSize),
@@ -299,7 +299,7 @@ const getProductList = (async (req,res) => {
   }
 });
 
-const getProductVariation = (async (req,res) => {
+const getProductVariationFromBranch = (async (req,res) => {
     const productId = req.params.productId;
     const branchId = req.params.branchId;
 
@@ -339,6 +339,28 @@ const getProductFromBranch = (async (req,res) => {
       error: false,
     });
 })
+
+const getProductVariation= (async (req,res) => {
+    const productId = req.params.productId;
+
+    const productsVariation = await productHasVariation.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('colorCombination')), 'colorCombination']
+      ],
+      where:{
+        product_id: productId
+      },
+      raw: true
+    })
+
+
+    return res.status(200).json({
+      data: productsVariation,
+      error: false,
+    });
+
+})
+
 module.exports = {
     getAllProduct,
     storeProduct,
@@ -346,5 +368,6 @@ module.exports = {
     getProduct,
     getProductList,
     getProductVariation,
-    getProductFromBranch
+    getProductFromBranch,
+    getProductVariationFromBranch
 }

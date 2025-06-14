@@ -15,6 +15,9 @@ module.exports = {
       product_id: {
         type: Sequelize.INTEGER
       },
+      variation_id: {
+        type: Sequelize.INTEGER
+      },
       price: {
         type: Sequelize.STRING
       },

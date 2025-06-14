@@ -10,6 +10,9 @@ require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
 const jwt = require('jsonwebtoken');
+const productHasVariation = require('../models/productHasVariation')
+const history = require('../models/history')
+const sequelize = require('../database/database')
 
 const getAllInvoice = (async (req,res) => {
   try {
@@ -103,10 +106,16 @@ const storeInvoice = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const transaction = await sequelize.transaction()
 
-    const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id, offer_id, offer_amount,status } = req.body;
+    const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id, offer_id, offer_amount,status,branchName } = req.body;
 
-    console.log(req.body)
+    const branchData = await branch.findOne({
+      where:{
+        name: branchName
+      }
+    })
+
     try {
 
         let items = [];
@@ -122,6 +131,7 @@ const storeInvoice = [
 
             let item = {
                 product_id : invoice_items[i]['id'],
+                variation_id: invoice_items[i]['variationId'],
                 quantity : invoice_items[i]['quantity'],
                 price : productItem['dataValues']['price'],
                 total : productItem['dataValues']['price'] * invoice_items[i]['quantity']
@@ -129,6 +139,7 @@ const storeInvoice = [
 
             items.push(item);
             subTotal = subTotal + ( productItem['dataValues']['price'] * invoice_items[i]['quantity']);
+
         }
 
         subTotal = subTotal.toFixed(2);
@@ -158,7 +169,7 @@ const storeInvoice = [
 
             invoiceNumber = invoicePrefix;
 
-            for (i = 1; i <= 4 - numberPart.toString().length ; i++)
+            for (i = 1; i <= 5 - numberPart.toString().length ; i++)
             {
               invoiceNumber += '0'; 
             }
@@ -180,25 +191,47 @@ const storeInvoice = [
             discount_amount: discount_amount,
             received_amount:received_amount,
             changed_amount:changed_amount,
-            payment_method_id:payment_method_id,
-            branch_id:decoded['branch_id'],
+            payment_method_id:(payment_method_id != "") ? payment_method_id : null,
+            branch_id:branchData.dataValues.id,
             prepared_by_id:decoded['id'],
             status: status ?? "Pending",
             received_amount: received_amount ?? 0,
             changed_amount: changed_amount ?? 0,
             offer_id: (offer_id != "") ? offer_id : null,
             offer_amount: (offer_amount != "") ? offer_amount : null
-        });
+        },{transaction});
+
 
         for(let i = 0; i < items.length ; i++ )
-        {
-            items[i].invoice_id = invoiceData['id'];
+        { 
+          const productHasVariationData = await productHasVariation.findOne({
+            where:{
+              id: invoice_items[i]['variationId']
+            }
+          }) 
+          if(status == "Completed")
+          {
+              await history.create({
+                product_has_variation_id: invoice_items[i]['variationId'],
+                previous_quantity: productHasVariationData.dataValues.quantity,
+                new_quantity: parseInt(productHasVariationData.dataValues.quantity) - parseInt(invoice_items[i]['quantity']),
+                transaction_type: "Sales",
+                transaction_id: invoiceData['id']
+              },{transaction})
+
+              await productHasVariationData.update({
+                quantity: parseInt(productHasVariationData.dataValues.quantity) - parseInt(invoice_items[i]['quantity'])
+              },{transaction})
+          }
+
+          items[i].invoice_id = invoiceData['id'];
         }
         
         await invoicehasproduct.bulkCreate(items); 
 
         invoiceData = await dataFormatter(invoiceData)
-        
+        await transaction.commit()
+
       return res.json({
         message: 'Invoice created',
         data: invoiceData,
@@ -207,6 +240,7 @@ const storeInvoice = [
       
     } catch (error) {
       console.log(error)
+      await transaction.rollback()
       return res.status(500).json({
         message: 'Error in invoice creation',
         error: true,
@@ -229,6 +263,7 @@ const updateInvoice = [
 
     const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id,status,offer_id,offer_amount } = req.body;
     const invoiceId = req.params.invoiceId;
+    const transaction = await sequelize.transaction()
 
     try {
       
@@ -279,12 +314,33 @@ const updateInvoice = [
       },
       {
         where: { id: invoiceId }
-      });
+      },{transaction});
 
       for(let i = 0; i < items.length ; i++ )
+      { 
+        const productHasVariationData = await productHasVariation.findOne({
+            where:{
+              id: invoice_items[i]['variationId']
+            }
+          }) 
+
+        if(status == "Completed")
         {
-            items[i].invoice_id = invoiceId;
+            await history.create({
+              product_has_variation_id: invoice_items[i]['variationId'],
+              previous_quantity: productHasVariationData.dataValues.quantity,
+              new_quantity: parseInt(productHasVariationData.dataValues.quantity) - parseInt(invoice_items[i]['quantity']),
+              transaction_type: "Sales",
+              transaction_id: invoiceId
+            },{transaction})
+
+            await productHasVariationData.update({
+              quantity: parseInt(productHasVariationData.dataValues.quantity) - parseInt(invoice_items[i]['quantity'])
+            },{transaction})
         }
+        
+        items[i].invoice_id = invoiceId;
+      }
         
       await invoicehasproduct.bulkCreate(items); 
 
@@ -294,12 +350,15 @@ const updateInvoice = [
 
       updatedInvoice = await dataFormatter(updatedInvoice);
 
+      await transaction.commit()
       return res.json({
         message: 'Invoice updated',
         data: updatedInvoice,
         error: false,
       });
     } catch (error) {
+      console.log(error)
+      await transaction.rollback()
       return res.status(500).json({
         message: 'Error in invoice update',
         error: true,
@@ -345,17 +404,26 @@ const dataFormatter = (async (invoice) => {
         where:{id: invoiceProducts[i]['dataValues']['product_id']}
       });
 
+      let variationData = await productHasVariation.findOne({
+        where:{id: invoiceProducts[i]['dataValues']['variation_id'] }
+      })
+
+      console.log(variationData)
+
       let productItem = {
         id : invoiceProducts[i]['dataValues']['product_id'],
         name : productData['dataValues']['name'],
         price : invoiceProducts[i]['dataValues']['price'],
         quantity : invoiceProducts[i]['dataValues']['quantity'],
+        variationId: invoiceProducts[i]['dataValues']['variation_id'],
+        variation: variationData?.dataValues.colorCombination,
         total : invoiceProducts[i]['dataValues']['total']
       };
 
       productItems.push(productItem);
     }
     
+    console.log(productItems)
     invoice['dataValues']['products'] = productItems;
     invoice['dataValues']['payment'] = null;
 
@@ -373,7 +441,7 @@ const dataFormatter = (async (invoice) => {
     });
 
     invoice['dataValues']['preparedBy'] = preparedBy['dataValues']['name'];
-    
+
     return invoice;
 });
 module.exports = {

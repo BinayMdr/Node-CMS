@@ -5,7 +5,7 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Select, MenuItem
+        OutlinedInput,Select, MenuItem, Autocomplete
       } from '@mui/material';
 
 import AnimateButton from 'components/@extended/AnimateButton';
@@ -69,12 +69,20 @@ const InvoicePage = () => {
   const [receivedAmount,setReceivedAmount] = React.useState("");
   const [changedAmount,setChangedAmount] = React.useState("");
 
+  const [branchList, setBranchList] = React.useState([]);
+  const [tempBranch,setTempBranch] = React.useState(null)
+  const [tempProduct,setTemProduct] = React.useState([])
+  const [tempProductVariationList,setTemProductVariationList] = React.useState([])
+
+  const [productVariationAutocomplete, setProductVariationAutcomplete] = React.useState('');
+  const [productAutoComplete, setProductAutoComplete] = React.useState('');
+
   const userToken = localStorage.getItem('token');
 
   const getProductList = async () => {
     try
     {
-      const response = await api.get('product/get-list', {
+      const response = await api.get(`product/branch/${branchList.find(b => b.name === tempBranch)?.id}`, {
         headers: {
           'Authorization': `Bearer ${userToken}`
         }
@@ -132,15 +140,52 @@ const InvoicePage = () => {
     }
   } 
 
+
+  const getBranch = async(search) => {
+     const response = await api.get('branch/get-list',{
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        },
+        params:{
+          filter: search
+        }
+      })
+
+      setBranchList(response.data.data)
+  }
+
+  const getProductVariation = async(productName) => {
+
+    let productId = productList.find(p => p.name === productName)?.id
+    setTemProduct(productId)
+
+    let branchId = branchList.find(b => b.name === tempBranch)?.id
+    const response = await api.get(`product/get-variation/${productId}/branch/${branchId}`,{
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      })
+    
+    const colorCombinationList = response.data.data.map(item => ({
+      id: item.id,
+      colorCombination: item.colorCombination
+    }));
+    setTemProductVariationList(colorCombinationList)
+  }
+
   useEffect( () => {
       getInvoice(page,rowsPerPage,searchValue,startDateValue,endDateValue)
+      getBranch()
   },[page,rowsPerPage,searchValue,startDateValue,endDateValue])
 
   useEffect( () => {
-    getProductList()
     getPaymentMethodList()
   },[])
-  
+
+  useEffect( () => {
+    getProductList()
+  },[tempBranch])
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -259,16 +304,21 @@ const InvoicePage = () => {
     }
 
   }
-  const addItemToInvoice = (productId) => {
-    const selectedProduct = productList.find(product => product.id === productId);
+  const addItemToInvoice = (varitation) => {
+    const selectedProduct = productList.find(product => product.id === tempProduct);
+    
+    const variationId = tempProductVariationList.find(c => c.colorCombination === varitation)?.id
+    const updatedInvoiceList = [...invoiceList,{"id":selectedProduct['id'],"name":selectedProduct['name'],
+              "quantity":1,"price":selectedProduct['price'],"total":selectedProduct['price'],
+              "variation":varitation, "variationId": variationId}];
 
-    const updatedInvoiceList = [...invoiceList,{"id":productId,"name":selectedProduct['name'],
-              "quantity":1,"price":selectedProduct['price'],"total":selectedProduct['price']}];
     setInvoiceList(updatedInvoiceList)
     updateTotalPrice(updatedInvoiceList)
 
+   
     handleOffer(updatedInvoiceList)
   } 
+
 
   const removeItemFromInvoice = (id) => {
     const updatedInvoiceList = invoiceList.filter(invoice => invoice.id !== id)
@@ -419,6 +469,7 @@ const InvoicePage = () => {
     setOffer(null)
     setOfferAmount(0)
     setOpen(true)
+    setTempBranch(null)
   }
 
   const handleClose = () => {
@@ -430,9 +481,10 @@ const InvoicePage = () => {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 500,
+    width: 800,
     bgcolor: 'background.paper',
-    p: '30px', overflowY:'auto',maxHeight:'600px'
+    p: '30px', 
+    overflowY:'auto',maxHeight:'600px'
   };
 
   const handleViewUpdate = (action,id) =>{
@@ -456,6 +508,7 @@ const InvoicePage = () => {
         setChangedAmount(element['changed_amount'])
         setReceivedAmount(element['received_amount'])
 
+        setTempBranch(element['Branch']['name'])
         if(element['offer_id'] != null )
         {
           setOffer({
@@ -622,6 +675,7 @@ const InvoicePage = () => {
         initialValues={{
           id: formAction.id,
           customerName: formValue.customerName,
+          branch: tempBranch ?? null,
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -630,6 +684,7 @@ const InvoicePage = () => {
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
             let message = '';
+            
             if(invoiceList.length < 1) message = "Please add items"
             
             if(message != "")
@@ -651,6 +706,7 @@ const InvoicePage = () => {
             if( formAction == "Add")
             {
               message = 'added'
+  
               await api.post("invoice", {
                 customer_name: values.customerName,
                 discount_percent: discount,
@@ -660,7 +716,8 @@ const InvoicePage = () => {
                 status: invoiceStatus,
                 payment_method_id:paymentMethod,
                 received_amount: receivedAmount,
-                changed_amount: changedAmount
+                changed_amount: changedAmount,
+                branchName: values.branch
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -678,7 +735,8 @@ const InvoicePage = () => {
                 received_amount: receivedAmount,
                 changed_amount: changedAmount,
                 offer_id: (offer != null) ? offer.id : '',
-                offer_amount: (offer != null) ? offerAmount : ''
+                offer_amount: (offer != null) ? offerAmount : '',
+                branchName: values.branch
               };
 
               await api.put(`invoice/edit/${formValue.id}`, formData ,{
@@ -697,7 +755,8 @@ const InvoicePage = () => {
             setDiscount(0)
             setInvoiceStatus('')
             setPaymentMethod('')
-
+            setTempBranch(null)
+            
             toast.success(`Invoice ${message} successfully`, {
             position: "top-right",
             autoClose: 5000,
@@ -732,6 +791,54 @@ const InvoicePage = () => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values}) => (
           <form noValidate onSubmit={handleSubmit}>
            { (formAction != "Print") && <Grid container spacing={3}>
+
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="branch">Branch</InputLabel>
+                <Autocomplete
+                    freeSolo
+                    id="branchAuto"
+                    disableClearable
+                    options={branchList.map((value) => value.name)}
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        padding: '0 8px',
+                        marginTop: '6px'
+                      }
+                    }}
+                    value={values.branch}
+                    onChange={(event, newValue) => {
+                      handleChange({
+                        target: {
+                          name: 'branch',
+                          value: newValue
+                        }
+                      });
+                      setTempBranch(newValue)
+                    }}
+                    disabled={formAction === 'View' || formAction === 'Edit'}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        id="branch"
+                        name="branch"
+                        type="text"
+                        placeholder="Select branch"
+                        onBlur={handleBlur}
+                        error={Boolean(touched.branch && errors.branch)}
+                        helperText={touched.branch && errors.branch}
+                        fullWidth
+                        InputProps={{
+                          ...params.InputProps,
+                          readOnly: formAction === 'View' || formAction === 'Edit'
+                        }}
+                      />
+                    )}
+                  />
+                </Stack>
+              </Grid>
+
+
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="customerName">Customer Name</InputLabel>
@@ -761,12 +868,17 @@ const InvoicePage = () => {
                 </Stack>
               </Grid>
 
-              <Grid item xs={3}>
+              <Grid item xs={2}>
                 <Stack spacing={1}>
                 <InputLabel>Product</InputLabel>
                 </Stack>
               </Grid>
-              <Grid item xs={3}>
+               <Grid item xs={2}>
+                <Stack spacing={1}>
+                <InputLabel>Variation</InputLabel>
+                </Stack>
+              </Grid>
+              <Grid item xs={2}>
                 <Stack spacing={1}>
                 <InputLabel>Qty.</InputLabel>
                 </Stack>
@@ -789,15 +901,20 @@ const InvoicePage = () => {
               
               {
                 invoiceList.map((invoice) => {
-                const { id, name , price, total, quantity} = invoice;
+                const { id, name , price, total, quantity,variation} = invoice;
                 return (
                   <>
-                  <Grid item xs={3} >
+                  <Grid item xs={2} >
                     <Stack spacing={1}>
                       <Typography key={id}>{name}</Typography>
                     </Stack>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={2} >
+                    <Stack spacing={1}>
+                      <Typography key={id}>{variation}</Typography>
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={2}>
                     <Stack spacing={1}>
                       <OutlinedInput
                         id={id.toString()}
@@ -838,41 +955,104 @@ const InvoicePage = () => {
               }
 
               { (formAction != "View") &&
-                <Grid item xs={3}>
+              <>
+                <Grid item xs={2}>
                   <Stack spacing={1}>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={values.branch}
-                        onChange={(event) => {
-                          handleChange(event);
-                          addItemToInvoice(event.target.value)
-                        }}
-                        disabled={ formAction == "View"}
-                      >
-                        {
-                          productList.map((product) => {
-                          const invoiceIds = invoiceList.map(invoice => invoice.id);
+                    <Autocomplete
+                      id="productAuto"
+                      disableClearable
+                      values={productAutoComplete}
+                      options={
+                        productList
+                          .filter(product => {
+                            const invoiceIds = invoiceList.map(invoice => invoice.id);
+                            const { id, is_enabled } = product;
 
-                          const { id, name , is_enabled} = product;
-                          return (
-                            (formAction != "Add" && !invoiceIds.includes(id)) ? (
-                              <MenuItem key={id} value={id} disabled={!is_enabled}>
-                                {name}
-                              </MenuItem>
-                            ) : ( ( formAction == "Add" && is_enabled && !invoiceIds.includes(id)) ?
-                              <MenuItem key={id} value={id} disabled={!is_enabled}>
-                                {name}
-                              </MenuItem> : null
-                            )
-                            );
-                            })
-                          }
-                      </Select>
+                            if (formAction === "Add") {
+                              return is_enabled && !invoiceIds.includes(id);
+                            } else {
+                              return !invoiceIds.includes(id);
+                            }
+                          })
+                          .map(product => product.name)
+                      }
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          padding: '0 8px',
+                          marginTop: '6px'
+                        }
+                      }}
+                      onChange={(event, newValue) => {
+                        getProductVariation(newValue)
+                        // addItemToInvoice(newValue);
+                      }}
+                      disabled={formAction === 'View'}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="branch"
+                          name="branch"
+                          type="text"
+                          placeholder="Select product"
+                          onBlur={handleBlur}
+                          error={Boolean(touched.branch && errors.branch)}
+                          helperText={touched.branch && errors.branch}
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            readOnly: formAction === 'View'
+                          }}
+                        />
+                      )}
+                    />
                   </Stack>
                 </Grid>
+
+                 <Grid item xs={2}>
+                  <Stack spacing={1}>
+                    <Autocomplete
+                      id="productVariationAuto"
+                      disableClearable
+                      value={productVariationAutocomplete}
+                      options={
+                        tempProductVariationList.map(variation => variation.colorCombination)
+                      }
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          padding: '0 8px',
+                          marginTop: '6px'
+                        }
+                      }}
+                      onChange={(event, newValue) => {
+                        // getProductVariation(newValue)
+                        addItemToInvoice(newValue);
+                        setProductVariationAutcomplete('')
+                        setProductAutoComplete('')
+                      }}
+                      disabled={formAction === 'View'}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="branchVariation"
+                          name="branchVariation"
+                          type="text"
+                          placeholder="Select product variation"
+                          onBlur={handleBlur}
+                          error={Boolean(touched.branch && errors.branch)}
+                          helperText={touched.branch && errors.branch}
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            readOnly: formAction === 'View'
+                          }}
+                        />
+                      )}
+                    />
+                  </Stack>
+                </Grid>
+                </>
               }
-              <Grid item xs={3}>
+              <Grid item xs={2}>
                 <Stack spacing={1}>
                 {/* <Typography> 0 </Typography> */}
                 </Stack>

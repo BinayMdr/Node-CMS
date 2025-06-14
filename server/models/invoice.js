@@ -40,6 +40,7 @@ const Invoice = sequelize.define('Invoice', {
   },
   payment_method_id: {
     type: DataTypes.INTEGER,
+    allowNull:true
   },
   prepared_by_id: {
     type: DataTypes.INTEGER,

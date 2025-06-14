@@ -1,4 +1,5 @@
 const product = require('../models/product');
+const productHasVariation = require('../models/productHasVariation')
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
@@ -31,6 +32,22 @@ const getAllProduct = (async (req,res) => {
       order: [['createdAt', 'DESC']], 
     });
 
+    
+    for(let i = 0 ; i< products.length ; i++)
+    {
+      const variations = await productHasVariation.findAll({
+        where:{
+          product_id:products[i]['id'] 
+        }
+      })
+ 
+      products[i]['dataValues']['quantity'] = variations.reduce((sum, item) => {
+        return sum + (item.quantity || 0);
+      }, 0);
+
+    }
+
+    console.log(products)
     const totalProductCount = await product.count({
       where,
       limit: parseInt(pageSize),
@@ -281,10 +298,53 @@ const getProductList = (async (req,res) => {
     });
   }
 });
+
+const getProductVariation = (async (req,res) => {
+    const productId = req.params.productId;
+    const branchId = req.params.branchId;
+
+    const productsVariation = await productHasVariation.findAll({
+      where:{
+        product_id: productId,
+        branch_id:branchId
+      }
+    })
+
+    return res.status(200).json({
+      data: productsVariation,
+      error: false,
+    });
+
+})
+
+const getProductFromBranch = (async (req,res) => {
+    const branchId = req.params.branchId;
+
+    const productVariation = await productHasVariation.findAll({
+      where:{
+        branch_id: branchId
+      }
+    })
+
+    const productIds = productVariation.map(item => item.product_id);
+
+    const products = await product.findAll({
+      where:{
+        id: productIds
+      }
+    })
+
+    return res.status(200).json({
+      data: products,
+      error: false,
+    });
+})
 module.exports = {
     getAllProduct,
     storeProduct,
     updateProduct,
     getProduct,
-    getProductList
+    getProductList,
+    getProductVariation,
+    getProductFromBranch
 }

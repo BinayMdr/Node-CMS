@@ -4,7 +4,7 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Checkbox, FormControlLabel, Autocomplete
+        OutlinedInput,Checkbox, FormControlLabel, Autocomplete, Chip
       } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
@@ -15,12 +15,12 @@ import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import HistoryIcon from '@mui/icons-material/History';
 const columns = [
   { id: 'model_id', label: 'Model Id', minWidth: 170 },
   { id: 'name', label: 'Product Name', minWidth: 170 },
   { id: 'price', label: 'Price', minWidth: 100},
-  { id: 'is_enabled', label: 'Status', minWidth: 100},
+  { id: 'quantity', label: 'Stock', minWidth: 100},
   { id: 'action', label: 'Action', minWidth: 100},
 ];
 
@@ -133,6 +133,17 @@ const ProductPage = () => {
     });
     setOpen(true)
   }
+
+  const getStockLevel = (quantity) =>{
+    
+    if (quantity < 1) {
+    return { label: 'Finished', color: 'red' };
+    } else if (quantity < 5) {
+      return { label: 'Low', color: 'yellow' };
+    } else {
+      return { label: 'Good', color: 'green' };
+    }
+  }
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <ToastContainer></ToastContainer>
@@ -191,22 +202,53 @@ const ProductPage = () => {
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     {columns.map((column) => {
                       const value = row[column.id];
+                      
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          { (column.id === "name" || column.id === "price" || column.id === "model_id") ? (column.format && typeof value === 'number'
-                            ? column.format(value)
-                            : value) : 
-                            
-                            ((column.id == "is_enabled") ? (value === true ? 'Active' : 'Inactive') 
-                            : <span>
-                                <Button onClick={() => handleViewUpdate("View",row.id)}>
-                                    <EyeOutlined/></Button>  
-                                <Button>
-                                    <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
-                              </span>)
-                            
-                           }
+                          {
+                            (column.id === "name" || column.id === "price" || column.id === "model_id") ? (
+                              column.format && typeof value === 'number'
+                                ? column.format(value)
+                                : value
+                            ) :
+                            (column.id === "is_enabled") ? (
+                              value === true ? 'Active' : 'Inactive'
+                            ) :
+                            (column.id === "quantity" ? (() => {
+                              const level = getStockLevel(value);
+                              return (
+                                
+                                <Chip label={`${level.label} - ${value}`} 
+                                sx={{
+                                  backgroundColor: level.color,
+                                  color: '#fff',
+                                  fontWeight: 'bold',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                                  px: 1.5,
+                                  py: 0.5,
+                                  fontSize: '0.875rem',
+                                  minWidth: '80px',
+                                  textAlign: 'center'
+                                }} /> 
+                                  
+                              );
+                            })() : (
+                              <span>
+                                <Button onClick={() => handleViewUpdate("View", row.id)}>
+                                  <EyeOutlined />
+                                </Button>
+                                <Button onClick={() => handleViewUpdate("Edit", row.id)}>
+                                  <EditOutlined />
+                                </Button>
+                                <Button onClick={() => handleViewUpdate("Edit", row.id)}>
+                                  <HistoryIcon />
+                                </Button>
+                              </span>
+                            ))
+                          }
                         </TableCell>
+
                       );
                     })}
                   </TableRow>

@@ -11,6 +11,10 @@ const InvoiceHasProduct = sequelize.define('InvoiceHasProduct', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  variation_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   price: {
     type: DataTypes.STRING,
     allowNull: false,

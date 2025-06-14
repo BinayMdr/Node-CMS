@@ -9,6 +9,9 @@ import { Grid, Typography } from '@mui/material';
 // project imports
 import MainCard from '../MainCard';
 
+import { matchPath } from 'react-router-dom';
+
+
 // ==============================|| BREADCRUMBS ||============================== //
 
 const Breadcrumbs = ({ navigation, title, ...others }) => {
@@ -23,7 +26,8 @@ const Breadcrumbs = ({ navigation, title, ...others }) => {
         if (collapse.type && collapse.type === 'collapse') {
           getCollapse(collapse);
         } else if (collapse.type && collapse.type === 'item') {
-          if (location.pathname === collapse.url) {
+          if (matchPath({ path: collapse.url, end: true }, location.pathname))
+          {
             setMain(menu);
             setItem(collapse);
           }

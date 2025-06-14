@@ -198,7 +198,6 @@ const BranchPage = () => {
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     {columns?.map((column) => {
                       const value = row[column.id];
-                      console.log(row)
                       return (
                         <TableCell key={column.id} align={column.align}>
                           { column.id === "branch" ? (column.format && typeof value === 'number'

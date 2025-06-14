@@ -113,7 +113,15 @@ const pages = {
       url: '/offer',
       forUser: 'Admin',
       icon: icons.LocalOfferIcon
-    }
+    },
+    {
+      id: 'history',
+      title: 'History',
+      type: 'item',
+      url: '/history/:id',
+      forUser: 'Admin',
+      icon: icons.LocalOfferIcon
+    },
   ]
 };
 

@@ -168,7 +168,8 @@ const InvoicePage = () => {
     
     const colorCombinationList = response.data.data.map(item => ({
       id: item.id,
-      colorCombination: item.colorCombination
+      colorCombination: item.colorCombination,
+      quantity: item.quantity
     }));
     setTemProductVariationList(colorCombinationList)
   }
@@ -219,7 +220,7 @@ const InvoicePage = () => {
 
     try
     {
-      const response = await api.get('offer/check',{
+      const response = await api.get(`offer/check/${tempBranch}`,{
         headers: {
           'Authorization': `Bearer ${userToken}`
         },
@@ -253,46 +254,41 @@ const InvoicePage = () => {
       else 
       {
         setOffer(response.data.data)
-
-        if(response.data.data.offer_type == "Amount") setOfferAmount(response.data.data.amount_off)
-
-        let offerData = response.data.data
-
         const itemsTotal = invoiceItems.reduce((sum,item) => sum + parseFloat(item.total),0);
-        
-        setSubTotal(itemsTotal.toFixed(2))
-
-        let newTotal = 0;
-        if(discount != 0)
+        let newTotal
+        if(response.data.data.offer_type == "Amount")
         {
-          newTotal = itemsTotal - (discount/100) * itemsTotal;
-
-          if(offerData.offer_type == "Amount") newTotal = newTotal - offerData.amount_off;
-          else
-          {
-            let offerDiscount = (offerData.discount_off/100) * newTotal;
-            setOfferAmount(offerDiscount.toFixed(2));
-            newTotal = newTotal - offerDiscount;
-          }
-          
+          setSubTotal(itemsTotal.toFixed(2))
+          newTotal = itemsTotal - response.data.data.amount_off
+          setOfferAmount(response.data.data.amount_off)
           setTotal(newTotal)
-
-          if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
         }
-        else
+        else if(response.data.data.offer_type == "Discount")
         {
-          if(offerData.offer_type == "Amount") newTotal = itemsTotal - offerData.amount_off;
-          else
+          if(response.data.data.offer_on == "Total Price")
           {
-            let offerDiscount = (offerData.discount_off/100) * itemsTotal;
-            
-            setOfferAmount(offerDiscount.toFixed(2));
-            newTotal = itemsTotal - offerDiscount;
+            setSubTotal(itemsTotal.toFixed(2))
+            let offerDiscount = (response.data.data.discount_off/100) * itemsTotal
+            setOfferAmount(offerDiscount.toFixed(2))
+            newTotal = itemsTotal - offerDiscount
+            setTotal(newTotal)
           }
-          
-          setTotal(newTotal)
+          else(response.data.data.offer_on == "Product")
+          {
+            setSubTotal(itemsTotal.toFixed(2))
 
-          if(receivedAmount != 0) handleChangedAmount(newTotal,receivedAmount)
+            const specificItemTotal = invoiceItems.reduce((sum, item) => {
+                if (response.data.data.offer_on_product.includes(item.id)) {
+                  return sum + parseFloat(item.total);
+                }
+                return sum;
+              }, 0);
+
+            let offerDiscount = (response.data.data.discount_off/100) * specificItemTotal
+            setOfferAmount(offerDiscount.toFixed(2))
+            newTotal = itemsTotal - offerDiscount
+            setTotal(newTotal)
+          }
         }
 
       }
@@ -307,10 +303,11 @@ const InvoicePage = () => {
   const addItemToInvoice = (varitation) => {
     const selectedProduct = productList.find(product => product.id === tempProduct);
     
-    const variationId = tempProductVariationList.find(c => c.colorCombination === varitation)?.id
+    const variationId = tempProductVariationList.find(c => c.colorCombination === varitation)
+
     const updatedInvoiceList = [...invoiceList,{"id":selectedProduct['id'],"name":selectedProduct['name'],
               "quantity":1,"price":selectedProduct['price'],"total":selectedProduct['price'],
-              "variation":varitation, "variationId": variationId}];
+              "variation":varitation, "variationId": variationId.id, "maxQuantity":variationId.quantity}];
 
     setInvoiceList(updatedInvoiceList)
     updateTotalPrice(updatedInvoiceList)
@@ -318,7 +315,6 @@ const InvoicePage = () => {
    
     handleOffer(updatedInvoiceList)
   } 
-
 
   const removeItemFromInvoice = (id) => {
     const updatedInvoiceList = invoiceList.filter(invoice => invoice.id !== id)
@@ -328,13 +324,14 @@ const InvoicePage = () => {
     handleOffer(updatedInvoiceList)
   }
 
-  const updateQuantity = (event,id) => {
+  const updateQuantity = (event,id,maxQuantity) => {
     const newQuantity = parseInt(event.target.value,10);
 
     if(isNaN(newQuantity) || newQuantity < 1) return false;
 
     const quantity = event.target.value;
 
+    if(quantity > maxQuantity) return
     const updatedItems = invoiceList.map(item => {
       if (item.id === id) {
         return { ...item, quantity: quantity, total: quantity * item.price };
@@ -901,7 +898,7 @@ const InvoicePage = () => {
               
               {
                 invoiceList.map((invoice) => {
-                const { id, name , price, total, quantity,variation} = invoice;
+                const { id, name , price, total, quantity,variation,maxQuantity} = invoice;
                 return (
                   <>
                   <Grid item xs={2} >
@@ -911,7 +908,7 @@ const InvoicePage = () => {
                   </Grid>
                   <Grid item xs={2} >
                     <Stack spacing={1}>
-                      <Typography key={id}>{variation}</Typography>
+                      <Typography key={id}>{variation} (Max: {maxQuantity})</Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={2}>
@@ -922,9 +919,10 @@ const InvoicePage = () => {
                         value={quantity}
                         name="quantity"
                         onBlur={handleBlur}
-                        onChange={(event) => updateQuantity(event,id)}
+                        onChange={(event) => updateQuantity(event,id,maxQuantity)}
                         fullWidth
                         readOnly={formAction == "View"}
+                        inputProps={{max: maxQuantity}}
                       />
                     </Stack>
                   </Grid>
@@ -967,7 +965,7 @@ const InvoicePage = () => {
                           .filter(product => {
                             const invoiceIds = invoiceList.map(invoice => invoice.id);
                             const { id, is_enabled } = product;
-
+                            
                             if (formAction === "Add") {
                               return is_enabled && !invoiceIds.includes(id);
                             } else {
@@ -990,13 +988,13 @@ const InvoicePage = () => {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          id="branch"
-                          name="branch"
+                          id="product"
+                          name="product"
                           type="text"
                           placeholder="Select product"
                           onBlur={handleBlur}
-                          error={Boolean(touched.branch && errors.branch)}
-                          helperText={touched.branch && errors.branch}
+                          error={Boolean(touched.product && errors.product)}
+                          helperText={touched.product && errors.product}
                           fullWidth
                           InputProps={{
                             ...params.InputProps,

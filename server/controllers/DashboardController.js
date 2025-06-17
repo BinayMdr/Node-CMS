@@ -91,7 +91,7 @@ const dashboardDetails = (async (req,res) => {
           where:{
             status: "Completed"
           }
-        })
+        }) ?? 0
         
         if(req.query.orderFilterBy == "week") data.noOfOrder = await getOrdersPerDay();
         else data.noOfOrder = await getOrdersPerLast12Months();

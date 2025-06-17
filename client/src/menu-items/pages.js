@@ -120,6 +120,7 @@ const pages = {
       type: 'item',
       url: '/history/:id',
       forUser: 'Admin',
+      hide: true,
       icon: icons.LocalOfferIcon
     },
   ]

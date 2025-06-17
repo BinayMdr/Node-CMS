@@ -412,7 +412,7 @@ const ExpenditurePage = () => {
                     {columns.map((column) => {
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          { ( ["preparedBy"].includes(column.id)) ? (row.User.name) :( (column.id == "branch") ? ( row.Branch.is_enabled ? `${row.Branch.name}` : `${row.Branch.name} (Inactive)`) 
+                          { ( ["preparedBy"].includes(column.id)) ? (row.User.name) :( (column.id == "branch") ? row.Branch.name 
                             :
                             ((column.id == "total") ? "Rs. " + row.total_cost
                             : 

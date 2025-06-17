@@ -17,6 +17,7 @@ const NavGroup = ({ item }) => {
   const { drawerOpen } = menu;
 
   const navCollapse = item.children?.map((menuItem) => {
+    if(menuItem.hide) return null
     switch (menuItem.forUser) {
       case 'All':
         return <NavItem key={menuItem.id} item={menuItem} level={1} />;

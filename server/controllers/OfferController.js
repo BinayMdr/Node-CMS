@@ -209,17 +209,28 @@ const updateOffer = [
         'is_enabled': is_enabled
       };
 
-      if(offer_type == "Discount") data.discount_off = discount_off;
-      else data.amount_off = amount_off;
+      if(offer_type == "Discount") 
+      {
+        data.discount_off = discount_off;
+        data.amount_off = null;
+      }
+      else 
+      { 
+        data.amount_off = amount_off;
+        data.discount_off = null;
+      }
 
       if(offer_on == "Total Price")
       {
         data.offer_on_amount = offer_on_amount;
+        data.offer_on_product = null;
+        data.offer_on_quantity = null;
       }
       else
       {
         data.offer_on_product = offer_on_product;
         data.offer_on_quantity = offer_on_quantity;
+         data.offer_on_amount = null;
       }
 
       const offerData = await offer.update(data,
@@ -287,12 +298,27 @@ const getOffer = (async (req,res) => {
 
 const checkOffer = (async (req,res) => {
   let {invoiceItems} = req.query;
+  const branch = req.params.branchId;
 
   let hasOffer = false;
   let offerData = [];
   try{
 
-       
+      const branchData = await Branch.findOne({
+        where:{
+          name: branch
+        }
+      })
+
+     
+      const offerHasBranchData = await offerHasBranch.findAll({
+        where:{
+          branch_id:branchData.dataValues.id
+        }
+      }) 
+
+      const offerIds = offerHasBranchData.map(o => o.offer_id);
+
       let subTotal = 0;
       for(let i = 0; i < invoiceItems.length ; i++ )
       {
@@ -305,6 +331,9 @@ const checkOffer = (async (req,res) => {
 
       let offerExist = await offer.findOne({
         where: {
+           id: {
+            [Op.in]: offerIds
+          },
           offer_on_amount: {
             [Op.lte]: subTotal
           },
@@ -325,14 +354,16 @@ const checkOffer = (async (req,res) => {
         {
           let offerExist = await offer.findOne({
             where: {
-              offer_on_product:invoiceItems[i]['id'],
-              offer_on_quantity: {
-                [Op.lte]: invoiceItems[i]['quantity']
-              },
-              is_enabled: true
+             [Op.and]: [
+              { id: { [Op.in]: offerIds } },
+              { offer_on_product: invoiceItems[i]['id'] },
+              { offer_on_quantity: { [Op.lte]: invoiceItems[i]['quantity'] } },
+              { is_enabled: true }
+            ]
             }
           });
-
+          
+          console.log(offerExist)
           if(offerExist != null) 
           {
             hasOffer = true;
@@ -341,8 +372,9 @@ const checkOffer = (async (req,res) => {
           }
         } 
       }
+
       return res.json({
-        data: offerData,
+        data: offerData ?? null,
         error: false,
       });
 

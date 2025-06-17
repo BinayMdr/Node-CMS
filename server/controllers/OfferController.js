@@ -363,7 +363,6 @@ const checkOffer = (async (req,res) => {
             }
           });
           
-          console.log(offerExist)
           if(offerExist != null) 
           {
             hasOffer = true;

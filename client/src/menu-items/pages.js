@@ -11,6 +11,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import { EmojiPeople } from '../../node_modules/@mui/icons-material/index';
 
 // icons
 const icons = {
@@ -26,7 +27,8 @@ const icons = {
   PeopleIcon,
   ReceiptIcon,
   LocalOfferIcon,
-  PointOfSaleIcon
+  PointOfSaleIcon,
+  EmojiPeople
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -122,6 +124,14 @@ const pages = {
       forUser: 'Admin',
       hide: true,
       icon: icons.LocalOfferIcon
+    },
+    {
+      id: 'customer',
+      title: 'Customer',
+      type: 'item',
+      url: '/customer',
+      forUser: 'Admin',
+      icon: icons.EmojiPeople
     },
   ]
 };

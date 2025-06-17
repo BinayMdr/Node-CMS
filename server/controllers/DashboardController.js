@@ -188,7 +188,6 @@ async function getOrdersPerLast12Months() {
       // Map results to month
       const ordersMap = new Map(ordersPerMonth.map(record => [record.dataValues.order_month, record]));
 
-      console.log(ordersMap)
       // Fill in missing months
       const result = monthArray.map(({ month, monthName }) => ({
           month, // YYYY-MM format

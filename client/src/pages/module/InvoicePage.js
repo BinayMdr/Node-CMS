@@ -5,7 +5,7 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Select, MenuItem, Autocomplete
+        OutlinedInput,Select, MenuItem, Autocomplete, Checkbox, FormControlLabel
       } from '@mui/material';
 
 import AnimateButton from 'components/@extended/AnimateButton';
@@ -77,7 +77,11 @@ const InvoicePage = () => {
   const [productVariationAutocomplete, setProductVariationAutcomplete] = React.useState('');
   const [productAutoComplete, setProductAutoComplete] = React.useState('');
 
+  const [existingCustomer,setExistingCustomer] = React.useState(false)
+  const [customerList,setCustomerList] = React.useState([])
+  const [customerId,setCustomerId] = React.useState(null)
   const userToken = localStorage.getItem('token');
+
 
   const getProductList = async () => {
     try
@@ -174,6 +178,19 @@ const InvoicePage = () => {
     setTemProductVariationList(colorCombinationList)
   }
 
+  const getCustomer = async(search) => {
+     const response = await api.get('customer/get-list',{
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        },
+        params:{
+          filter: search
+        }
+      })
+
+      setCustomerList(response.data.data)
+  }
+
   useEffect( () => {
       getInvoice(page,rowsPerPage,searchValue,startDateValue,endDateValue)
       getBranch()
@@ -181,6 +198,7 @@ const InvoicePage = () => {
 
   useEffect( () => {
     getPaymentMethodList()
+    getCustomer()
   },[])
 
   useEffect( () => {
@@ -300,6 +318,7 @@ const InvoicePage = () => {
     }
 
   }
+
   const addItemToInvoice = (varitation) => {
     const selectedProduct = productList.find(product => product.id === tempProduct);
     
@@ -447,6 +466,7 @@ const InvoicePage = () => {
       }
     }
   }
+
   const addInvoice = () => {
     setFormAction("Add")
     setFormValue({
@@ -467,6 +487,8 @@ const InvoicePage = () => {
     setOfferAmount(0)
     setOpen(true)
     setTempBranch(null)
+    setExistingCustomer(false)
+    setCustomerId(null)
   }
 
   const handleClose = () => {
@@ -492,7 +514,8 @@ const InvoicePage = () => {
       {
         setFormValue({
           "id":id,
-          "customerName":element['customer_name'],
+          "customerName":element['customer']['name'],
+          "customerNumber":element['customer']['phone_number'],
           "invoiceNumber":element['invoice_number']
         })
 
@@ -529,7 +552,6 @@ const InvoicePage = () => {
     setOpen(true)
   } 
 
-  
   const handleReceivedAmountChange = (event) => {
     const newReceivedAmount = parseInt(event.target.value,10);
 
@@ -612,25 +634,32 @@ const InvoicePage = () => {
                       const value = row[column.id];
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          { ( ["invoice_number","customer_name","status","preparedBy"].includes(column.id)) ? (column.format && typeof value === 'number'
-                            ? column.format(value)
-                            : value) :( (column.id == "branch_id") ? ( row.Branch.is_enabled ? `${row.Branch.name}` : `${row.Branch.name} (Inactive)`) 
-                            :
-                            ((column.id == "total") ? "Rs. " + row.total 
-                            : 
-                            ( (column.id == "createdAt") ? formatDate(row.createdAt)
-                            :
-                            <span>
-                                <Button onClick={() => handleViewUpdate("View",row.id)}>
-                                    <EyeOutlined/></Button>  
-                                <Button>
-                                    <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
-                                <Button>
-                                    <PrintIcon onClick={() => handleViewUpdate("Print",row.id)}/></Button>
-                              </span>))
-                            )
-                            
-                           }
+                         {
+                          ["invoice_number", "status", "preparedBy"].includes(column.id)
+                            ? (column.format && typeof value === 'number' ? column.format(value) : value)
+                            : column.id === "branch_id"
+                              ? (row.Branch.is_enabled ? row.Branch.name : `${row.Branch.name} (Inactive)`)
+                              : column.id === "total"
+                                ? `Rs. ${row.total}`
+                                : column.id === "createdAt"
+                                  ? formatDate(row.createdAt)
+                                  : column.id === "customer_name"
+                                    ? row.customer.name
+                                    : (
+                                      <span>
+                                        <Button onClick={() => handleViewUpdate("View", row.id)}>
+                                          <EyeOutlined />
+                                        </Button>
+                                        <Button onClick={() => handleViewUpdate("Edit", row.id)}>
+                                          <EditOutlined />
+                                        </Button>
+                                        <Button onClick={() => handleViewUpdate("Print", row.id)}>
+                                          <PrintIcon />
+                                        </Button>
+                                      </span>
+                                    )
+                        }
+
                         </TableCell>
                       );
                     })}
@@ -672,11 +701,11 @@ const InvoicePage = () => {
         initialValues={{
           id: formAction.id,
           customerName: formValue.customerName,
+          customerNumber: formValue.customerNumber,
           branch: tempBranch ?? null,
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          customerName: Yup.string().max(255).required('Customer Name is required')
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
@@ -703,9 +732,12 @@ const InvoicePage = () => {
             if( formAction == "Add")
             {
               message = 'added'
-  
+              
+              console.log(existingCustomer)
+              console.log(customerId)
               await api.post("invoice", {
-                customer_name: values.customerName,
+                customer_name: !existingCustomer ? values.customerName : null,
+                customer_number: !existingCustomer ? values.customerNumber : null,
                 discount_percent: discount,
                 invoice_items: invoiceList,
                 offer_id: (offer != null) ? offer.id : '',
@@ -714,7 +746,9 @@ const InvoicePage = () => {
                 payment_method_id:paymentMethod,
                 received_amount: receivedAmount,
                 changed_amount: changedAmount,
-                branchName: values.branch
+                branchName: values.branch,
+                existingCustomer: existingCustomer,
+                customer_id: existingCustomer ? customerId :null
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -724,7 +758,6 @@ const InvoicePage = () => {
             else
             {
               let formData = {
-                customer_name: values.customerName,
                 discount_percent:discount,
                 invoice_items: invoiceList,
                 status: invoiceStatus,
@@ -834,30 +867,121 @@ const InvoicePage = () => {
                   />
                 </Stack>
               </Grid>
+              
+              { (formAction == "Add") &&
+                <Grid item xs={4}>
+                  <Stack spacing={1}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          id="existingCutomer"
+                          name="existingCutomer"
+                          checked={existingCustomer}
+                          onChange={() => setExistingCustomer(!existingCustomer)}
+                          onBlur={handleBlur}
+                          disabled={formAction === "View" || formAction === "Edit"}
+                        />
+                      }
+                      label="Existing Customer"
+                    />
+                  </Stack>
+                </Grid>
+              }
 
 
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="customerName">Customer Name</InputLabel>
-                  <OutlinedInput
-                    id="customerName"
-                    type="text"
-                    value={values.customerName}
-                    name="customerName"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Enter customer name"
-                    fullWidth
-                    error={Boolean(touched.customerName && errors.customerName)}
-                    readOnly={formAction == "View" || formAction == "Edit"}
-                  />
-                  {touched.customerName && errors.customerName && (
-                    <FormHelperText error id="standard-weight-helper-text-customerName-login">
-                      {errors.customerName}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
+              {
+                !existingCustomer ?
+                <>
+                  <Grid item xs={formAction == "Add" ? 4 : 6}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="customerName">Customer Name</InputLabel>
+                      <OutlinedInput
+                        id="customerName"
+                        type="text"
+                        value={values.customerName}
+                        name="customerName"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        placeholder="Enter customer name"
+                        fullWidth
+                        error={Boolean(touched.customerName && errors.customerName)}
+                        readOnly={formAction == "View" || formAction == "Edit"}
+                      />
+                      {touched.customerName && errors.customerName && (
+                        <FormHelperText error id="standard-weight-helper-text-customerName-login">
+                          {errors.customerName}
+                        </FormHelperText>
+                      )}
+                    </Stack>
+                  </Grid>
+
+                  <Grid item xs={formAction == "Add" ? 4 : 6}>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="customerNumber">Customer Number</InputLabel>
+                      <OutlinedInput
+                        id="customerNumber"
+                        type="text"
+                        value={values.customerNumber}
+                        name="customerNumber"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        placeholder="Enter customer number"
+                        fullWidth
+                        error={Boolean(touched.customerNumber && errors.customerNumber)}
+                        readOnly={formAction == "View" || formAction == "Edit"}
+                      />
+                      {touched.customerNumber && errors.customerNumber && (
+                        <FormHelperText error id="standard-weight-helper-text-customerNumber-login">
+                          {errors.customerNumber}
+                        </FormHelperText>
+                      )}
+                    </Stack>
+                  </Grid>
+                </>
+                :
+                <Grid item xs={8}>
+                  <Stack spacing={1}>
+                    <InputLabel htmlFor="customer">Customer</InputLabel>
+                  <Autocomplete
+                      freeSolo
+                      id="customerAuto"
+                      disableClearable
+                      options={customerList.map((value) => ({
+                      label: `${value.name} (${value.phone_number})`,
+                      value: value.id 
+                    }))}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          padding: '0 8px',
+                          marginTop: '6px'
+                        }
+                      }}
+                      onChange={(event, newValue) => {
+                          setCustomerId(newValue['value'])
+                      }}
+                      disabled={formAction === 'View' || formAction === 'Edit'}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="customer"
+                          name="customer"
+                          type="text"
+                          placeholder="Select customer"
+                          onBlur={handleBlur}
+                          error={Boolean(touched.customer && errors.customer)}
+                          helperText={touched.customer && errors.customer}
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            readOnly: formAction === 'View' || formAction === 'Edit'
+                          }}
+                        />
+                      )}
+                    />
+                  </Stack>
+                </Grid>
+              }
+
 
               <Grid item xs={12}>
                 <Stack spacing={1} textAlign="center">

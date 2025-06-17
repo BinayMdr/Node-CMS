@@ -13,6 +13,7 @@ const jwt = require('jsonwebtoken');
 const productHasVariation = require('../models/productHasVariation')
 const history = require('../models/history')
 const sequelize = require('../database/database')
+const customer = require('../models/customer')
 
 const getAllInvoice = (async (req,res) => {
   try {
@@ -66,7 +67,17 @@ const getAllInvoice = (async (req,res) => {
     for(let i = 0 ; i < invoices.length ; i++)
     {
       invoices[i] = await dataFormatter(invoices[i])
+
+       const customerData = await customer.findOne({
+        where:{
+          id: invoices[i]['customer_id']
+        }
+      })
+
+      invoices[i]['dataValues']['customer'] = customerData
     }
+
+   
 
     const totalInvoiceCount = await invoice.count({
       where,
@@ -97,7 +108,6 @@ const getAllInvoice = (async (req,res) => {
 });
 
 const storeInvoice = [
-  body('customer_name').notEmpty().withMessage('Customer name is required'),
   body('discount_percent').isFloat().withMessage('Discount percent is required'),
   body('invoice_items').notEmpty().withMessage('Item is required'),
   async (req, res) => {
@@ -108,8 +118,11 @@ const storeInvoice = [
     }
     const transaction = await sequelize.transaction()
 
-    const { customer_name, discount_percent, invoice_items,received_amount,changed_amount,payment_method_id, offer_id, offer_amount,status,branchName } = req.body;
-
+    const { customer_name, customer_number, discount_percent, invoice_items,received_amount,
+          changed_amount,payment_method_id, offer_id, offer_amount,
+          status,branchName,existingCustomer, customer_id } = req.body;
+    
+    console.log(customer_id)
     const branchData = await branch.findOne({
       where:{
         name: branchName
@@ -117,7 +130,33 @@ const storeInvoice = [
     })
 
     try {
+        let customerId = null
+        if(customer_id) customerId = customer_id
+        else
+        {
+          let customerData = await customer.findOne({
+              where:{
+                phone_number:customer_number
+              }
+            })
+          
+          if(customerData == null)
+          {
+            customerData = await customer.create({
+              name: customer_name,
+              phone_number: customer_number
+            },{transaction})
+          }
+          else
+          {
+            return res.status(400).json({
+              message: 'Customer data already exist',
+              error: false,
+            });
+          }
 
+          customerId = customerData.dataValues.id
+        }
         let items = [];
         let subTotal = 0;
         let total = 0;
@@ -198,7 +237,8 @@ const storeInvoice = [
             received_amount: received_amount ?? 0,
             changed_amount: changed_amount ?? 0,
             offer_id: (offer_id != "") ? offer_id : null,
-            offer_amount: (offer_amount != "") ? offer_amount : null
+            offer_amount: (offer_amount != "") ? offer_amount : null,
+            customer_id: customerId
         },{transaction});
 
 
@@ -239,7 +279,6 @@ const storeInvoice = [
       });
       
     } catch (error) {
-      console.log(error)
       await transaction.rollback()
       return res.status(500).json({
         message: 'Error in invoice creation',
@@ -408,8 +447,6 @@ const dataFormatter = (async (invoice) => {
         where:{id: invoiceProducts[i]['dataValues']['variation_id'] }
       })
 
-      console.log(variationData)
-
       let productItem = {
         id : invoiceProducts[i]['dataValues']['product_id'],
         name : productData['dataValues']['name'],
@@ -423,7 +460,6 @@ const dataFormatter = (async (invoice) => {
       productItems.push(productItem);
     }
     
-    console.log(productItems)
     invoice['dataValues']['products'] = productItems;
     invoice['dataValues']['payment'] = null;
 

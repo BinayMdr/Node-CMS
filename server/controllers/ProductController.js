@@ -91,7 +91,7 @@ const storeProduct = [
 
     const { name, price, is_enabled, model_id } = req.body;
 
-    console.log(req.body)
+
     try {
       const existingProductWithModelId = await product.findOne({
         where:{
@@ -122,7 +122,6 @@ const storeProduct = [
 
       let imagePath = null;
       if(req.file){
-        console.log('Uploaded file:', req.file);
         imagePath = path.join('/products', req.file.filename).replace(/\\/g, '/');
       }
       
@@ -202,7 +201,6 @@ const updateProduct = [
 
       let imagePath = null;
       if(req.file){
-        console.log('Uploaded file:', req.file);
         imagePath = path.join('/products', req.file.filename).replace(/\\/g, '/');
       }
 

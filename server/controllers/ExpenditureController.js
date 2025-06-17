@@ -78,11 +78,6 @@ const getAllExpenditure = (async (req,res) => {
       ]
       });
 
-    for(let i = 0; i < expenditures.lenght ; i ++)
-    {
-      console.log('test')
-      console.log(expenditures[i]['ExpenditureHasProduct']['id'])
-    }
 
     const totalExpenditureCount = await expenditure.count({
       where,

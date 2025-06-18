@@ -15,6 +15,8 @@ import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const columns = [
   { id: 'name', label: 'Payment Name', minWidth: 170 },
@@ -23,7 +25,8 @@ const columns = [
 ];
 
 const PaymentPage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = React.useState('');
@@ -66,6 +69,13 @@ const PaymentPage = () => {
       getPayment(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
   
+
+  useEffect( () => {
+    if(!userDetails?.accessModuleData.includes("View-user")){
+      navigate('/dashboard')
+    }
+  },[])
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -127,10 +137,12 @@ const PaymentPage = () => {
               sx={{my:1,mx:1,float:'right'}}
               value={searchValue}
               onChange={handleChangeSearch}/>
+        {userDetails?.accessModuleData.includes("Add-payment") &&
         <Button variant="contained"
-          sx={{my:1,float:'right'}}
-          onClick={addPayment}
-         ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
+        sx={{my:1,float:'right'}}
+        onClick={addPayment}
+        ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
+       }
       <TableContainer sx={{ maxHeight: 350 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -160,8 +172,10 @@ const PaymentPage = () => {
                             : value) : 
                             ((column.id == "is_enabled") ? (value === true ? 'Active' : 'Inactive') 
                             : <span>
+                              {userDetails?.accessModuleData.includes("Edit-payment") &&
                                 <Button onClick={() => handleViewUpdate("View",row.id)}>
-                                    <EyeOutlined/></Button>  
+                                    <EyeOutlined/></Button> 
+                              } 
                                 <Button>
                                     <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
                               </span>)

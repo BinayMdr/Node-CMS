@@ -12,9 +12,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
 import { updateGlobalName } from "store/reducers/globalSetting";
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const GlobalSettingPage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const [formValue, setFormValue] = React.useState({"name":"","pan":""})
 
   const [showData, setShowData] = React.useState(false)
@@ -48,6 +51,9 @@ const GlobalSettingPage = () => {
   } 
 
   useEffect( () => {
+     if(!userDetails?.accessModuleData.includes("View-global-setting")){
+      navigate('/dashboard')
+    }
     getGlobalSetting()
   },[])
   
@@ -219,6 +225,7 @@ const GlobalSettingPage = () => {
                   )}
                 </Stack>
               </Grid>
+              {userDetails?.accessModuleData.includes("Edit-global-setting") &&
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
@@ -226,6 +233,7 @@ const GlobalSettingPage = () => {
                     </Button>
                   </AnimateButton>
                 </Grid>
+              }
             </Grid>
           </form>
         )}

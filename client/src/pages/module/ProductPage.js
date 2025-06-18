@@ -17,6 +17,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // import HistoryIcon from '@mui/icons-material/History';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const columns = [
   { id: 'model_id', label: 'Model Id', minWidth: 170 },
@@ -27,7 +28,7 @@ const columns = [
 ];
 
 const ProductPage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
   const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -73,6 +74,11 @@ const ProductPage = () => {
       getProduct(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
   
+  useEffect(() => {
+    if(!userDetails?.accessModuleData.includes("View-product")){
+      navigate('/dashboard')
+    }
+  })
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -179,11 +185,12 @@ const ProductPage = () => {
             )}
           />
 
-
+        { userDetails?.accessModuleData.includes("Add-product") &&
         <Button variant="contained"
           sx={{my:1,float:'right'}}
           onClick={addProduct}
          ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
+        }
       <TableContainer sx={{ maxHeight: 350 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -244,9 +251,11 @@ const ProductPage = () => {
                                 <Button onClick={() => handleViewUpdate("View", row.id)}>
                                   <EyeOutlined />
                                 </Button>
-                                <Button onClick={() => handleViewUpdate("Edit", row.id)}>
-                                  <EditOutlined />
-                                </Button>
+                                { userDetails?.accessModuleData.includes("Edit-product") &&
+                                  <Button onClick={() => handleViewUpdate("Edit", row.id)}>
+                                    <EditOutlined />
+                                  </Button>
+                                  }
                                 <Button onClick={() => navigate(`/history/${row.id}`)}>
                                   <HistoryOutlined />
                                 </Button>

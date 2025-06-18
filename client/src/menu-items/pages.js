@@ -7,7 +7,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PublicIcon from '@mui/icons-material/Public';
-import PeopleIcon from '@mui/icons-material/People';
+import PersonIcon from '@mui/icons-material/Person';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
@@ -24,7 +24,7 @@ const icons = {
   SettingsApplicationsIcon,
   SettingsIcon,
   PublicIcon,
-  PeopleIcon,
+  PersonIcon,
   ReceiptIcon,
   LocalOfferIcon,
   PointOfSaleIcon,
@@ -38,11 +38,30 @@ const pages = {
   title: 'Modules',
   type: 'group',
   children: [
+     {
+      id: 'user',
+      title: 'User',
+      type: 'item',
+      url: '/user',
+      forRole: 'View-user',
+      forUser: 'Admin',
+      icon: icons.PersonIcon
+    },
+    {
+      id: 'group',
+      title: 'Group',
+      type: 'item',
+      url: '/group',
+      forRole: 'View-group',
+      forUser: 'Admin',
+      icon: icons.GroupIcon
+    },
     {
       id: 'branch',
       title: 'Branch',
       type: 'item',
       url: '/branch',
+      forRole: 'View-branch',
       forUser: 'Admin',
       icon: icons.HomeOutlined
     },
@@ -51,57 +70,30 @@ const pages = {
       title: 'Product',
       type: 'item',
       url: '/product',
+      forRole: 'View-product',
       forUser: 'Admin',
       icon: icons.CategoryIcon
     },
+   
     {
-      id: 'payment',
-      title: 'Payment',
+      id: 'expenditure',
+      title: 'Expenditure',
       type: 'item',
-      url: '/payment',
+      url: '/expenditure',
+      forRole: 'View-expenditure',
       forUser: 'Admin',
-      icon: icons.PaymentIcon
-    },
-    {
-      id: 'user',
-      title: 'User',
-      type: 'item',
-      url: '/user',
-      forUser: 'Admin',
-      icon: icons.PeopleIcon
-    },
-    {
-      id: 'setting',
-      title: 'Setting',
-      type: 'item',
-      url: '/setting',
-      forUser: 'Admin',
-      icon: icons.SettingsIcon
-    },
-    {
-      id: 'globalSetting',
-      title: 'Global Setting',
-      type: 'item',
-      url: '/global-setting',
-      forUser: 'Admin',
-      icon: icons.PublicIcon
+      icon: icons.ReceiptIcon
     },
     {
       id: 'invoice',
       title: 'Invoice',
       type: 'item',
       url: '/invoice',
-      forUser: 'All',
+      forRole: 'View-invoice',
+      forUser: 'Admin',
       icon: icons.PointOfSaleIcon
     },
-    {
-      id: 'expenditure',
-      title: 'Expenditure',
-      type: 'item',
-      url: '/expenditure',
-      forUser: 'All',
-      icon: icons.ReceiptIcon
-    },
+    
     {
       id: 'edit-profile',
       title: 'Edit Profile',
@@ -114,6 +106,7 @@ const pages = {
       title: 'Offer',
       type: 'item',
       url: '/offer',
+      forRole: 'View-offer',
       forUser: 'Admin',
       icon: icons.LocalOfferIcon
     },
@@ -122,7 +115,6 @@ const pages = {
       title: 'History',
       type: 'item',
       url: '/history/:id',
-      forUser: 'Admin',
       hide: true,
       icon: icons.LocalOfferIcon
     },
@@ -132,15 +124,35 @@ const pages = {
       type: 'item',
       url: '/customer',
       forUser: 'Admin',
+      forRole: 'View-customer',
       icon: icons.EmojiPeople
     },
     {
-      id: 'group',
-      title: 'Group',
+      id: 'payment',
+      title: 'Payment',
       type: 'item',
-      url: '/group',
+      url: '/payment',
       forUser: 'Admin',
-      icon: icons.GroupIcon
+      forRole: 'View-payment',
+      icon: icons.PaymentIcon
+    },
+    {
+      id: 'setting',
+      title: 'Setting',
+      type: 'item',
+      url: '/setting',
+      forUser: 'Admin',
+      forRole: 'View-setting',
+      icon: icons.SettingsIcon
+    },
+    {
+      id: 'globalSetting',
+      title: 'Global Setting',
+      type: 'item',
+      url: '/global-setting',
+      forUser: 'Admin',
+      forRole: 'View-global-setting',
+      icon: icons.PublicIcon
     },
   ]
 };

@@ -18,6 +18,8 @@ import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const columns = [
   { id: 'branch', label: 'Branch', minWidth: 100 },
@@ -29,7 +31,8 @@ const columns = [
 
 
 const ExpenditurePage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -117,6 +120,9 @@ const ExpenditurePage = () => {
   },[page,rowsPerPage,searchValue,startDateValue,endDateValue])
 
   useEffect( () => {
+    if(!userDetails?.accessModuleData.includes("View-expenditure")){
+      navigate('/dashboard')
+    }
     getProductList()
   },[])
   
@@ -364,12 +370,12 @@ const ExpenditurePage = () => {
               />
             )}
           />
-
-        <Button variant="contained"
-          sx={{my:1,float:'right'}}
-          onClick={addExpenditure}
-         ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
-         
+        { userDetails?.accessModuleData.includes("Add-expenditure") &&
+          <Button variant="contained"
+            sx={{my:1,float:'right'}}
+            onClick={addExpenditure}
+          ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
+        }
          <Button variant="contained"
           sx={{my:1,mx:1,float:'right',backgroundColor:'red',
           '&:hover': {

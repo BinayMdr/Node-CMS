@@ -22,6 +22,8 @@ import PrintIcon from '@mui/icons-material/Print';
 import {useRef} from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { ComponentToPrint } from 'pages/invoice-pdf/ComponentToPrint';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const columns = [
   { id: 'invoice_number', label: 'Invoice No.', minWidth: 100 },
@@ -35,7 +37,8 @@ const columns = [
 
 const InvoicePage = () => {
 
-
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const componentRef = useRef();
  
   const handlePrint = useReactToPrint({
@@ -197,6 +200,9 @@ const InvoicePage = () => {
   },[page,rowsPerPage,searchValue,startDateValue,endDateValue])
 
   useEffect( () => {
+     if(!userDetails?.accessModuleData.includes("View-invoice")){
+      navigate('/dashboard')
+    }
     getPaymentMethodList()
     getCustomer()
   },[])
@@ -586,11 +592,12 @@ const InvoicePage = () => {
               sx={{my:1,mx:1,float:'right'}}
               value={searchValue}
               onChange={handleChangeSearch}/>
+        { userDetails?.accessModuleData.includes("Add-invoice") &&
         <Button variant="contained"
           sx={{my:1,float:'right'}}
           onClick={addInvoice}
          ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
-         
+        }
          <Button variant="contained"
           sx={{my:1,mx:1,float:'right',backgroundColor:'red',
           '&:hover': {
@@ -650,9 +657,11 @@ const InvoicePage = () => {
                                         <Button onClick={() => handleViewUpdate("View", row.id)}>
                                           <EyeOutlined />
                                         </Button>
-                                        <Button onClick={() => handleViewUpdate("Edit", row.id)}>
-                                          <EditOutlined />
-                                        </Button>
+                                        { userDetails?.accessModuleData.includes("Edit-invoice") &&
+                                          <Button onClick={() => handleViewUpdate("Edit", row.id)}>
+                                            <EditOutlined />
+                                          </Button>
+                                        }
                                         <Button onClick={() => handleViewUpdate("Print", row.id)}>
                                           <PrintIcon />
                                         </Button>

@@ -16,7 +16,7 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 import { openDrawer } from 'store/reducers/menu';
 import { useNavigate } from 'react-router-dom';
 import { tokenStatus } from 'utils/token-utils';
-import { addUserData, addBranchData } from 'store/reducers/userDetails';
+import { addUserData, addBranchData,addAccessModuleData } from 'store/reducers/userDetails';
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout = () => {
@@ -42,6 +42,7 @@ const MainLayout = () => {
     {
       dispatch(addUserData({ userData: tokenCondition.data.user }))
       dispatch(addBranchData({ branchData: tokenCondition.data.branch }))
+      dispatch(addAccessModuleData({accessModuleData: tokenCondition.data.accessModule}))
     }
     else navigate('/login')
     

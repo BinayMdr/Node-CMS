@@ -13,17 +13,12 @@ const NavGroup = ({ item }) => {
   const menu = useSelector((state) => state.menu);
   const userDetails = useSelector((state => state.userDetails));
 
-  const forAdminUser = userDetails?.userData?.is_admin ? 'Admin' : '';
   const { drawerOpen } = menu;
 
   const navCollapse = item.children?.map((menuItem) => {
     if(menuItem.hide) return null
-    switch (menuItem.forUser) {
-      case 'All':
-        return <NavItem key={menuItem.id} item={menuItem} level={1} />;
-      case forAdminUser:
-        return <NavItem key={menuItem.id} item={menuItem} level={1} />;
-    }
+    else if(menuItem.forUser == "All") return <NavItem key={menuItem.id} item={menuItem} level={1} />;
+    else if(userDetails?.accessModuleData.includes(menuItem.forRole)) return <NavItem key={menuItem.id} item={menuItem} level={1} />;
   });
 
   

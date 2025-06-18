@@ -9,9 +9,12 @@ import api from 'routes/Enpoint'
 import { Formik } from 'formik';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const SettingPage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const [addressError, setAddressError] = React.useState(false)
   const [numberError, setNumberError] = React.useState(false)
 
@@ -77,6 +80,9 @@ const SettingPage = () => {
   } 
 
   useEffect( () => {
+    if(!userDetails?.accessModuleData.includes("View-setting")){
+      navigate('/dashboard')
+    }
     getBranchList()
   },[])
   
@@ -245,6 +251,7 @@ const SettingPage = () => {
                   )}
                 </Stack>
               </Grid>
+              { userDetails?.accessModuleData.includes("Edit-setting") &&
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
@@ -252,6 +259,7 @@ const SettingPage = () => {
                     </Button>
                   </AnimateButton>
                 </Grid>
+              }
             </Grid>
           </form>
         )}

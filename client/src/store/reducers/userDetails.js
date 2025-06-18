@@ -4,7 +4,8 @@ import { createSlice } from '@reduxjs/toolkit';
 // initial state
 const initialState = {
   userData: null,
-  branchData: null
+  branchData: null,
+  accessModuleData: []
 };
 
 // ==============================|| SLICE - MENU ||============================== //
@@ -19,10 +20,15 @@ const userDetails = createSlice({
 
     addBranchData(state, action) {
       state.branchData = action.payload.branchData;
+    },
+
+    addAccessModuleData(state,action)
+    {
+      state.accessModuleData = action.payload.accessModuleData
     }
   }
 });
 
 export default userDetails.reducer;
 
-export const { addUserData, addBranchData} = userDetails.actions;
+export const { addUserData, addBranchData, addAccessModuleData} = userDetails.actions;

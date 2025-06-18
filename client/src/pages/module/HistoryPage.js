@@ -9,7 +9,8 @@ import {EditOutlined,EyeOutlined} from '@ant-design/icons';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams } from 'react-router-dom';
-
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const columns = [
   { id: 'branch', label: 'Branch Name', minWidth: 100 },
@@ -22,7 +23,8 @@ const columns = [
 ];
 
 const BranchPage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const { id } = useParams();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -102,6 +104,11 @@ const BranchPage = () => {
       getProductVariation()
   },[page,rowsPerPage,branchValue,variationValue])
   
+  useEffect(() => {
+    if(!userDetails?.accessModuleData.includes("View-product")){
+      navigate('/dashboard')
+    }
+  })
   const handleChangePage = (event, newPage) => {
     setBranchValue(null)
     setVariationValue(null)

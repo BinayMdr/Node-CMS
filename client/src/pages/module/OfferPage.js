@@ -15,6 +15,8 @@ import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const columns = [
   { id: 'branch', label: 'Branch', minWidth: 170 },
@@ -26,7 +28,8 @@ const columns = [
 ];
 
 const OfferPage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = React.useState('');
@@ -109,6 +112,11 @@ const OfferPage = () => {
       getBranch()
   },[page,rowsPerPage,searchValue])
   
+  useEffect( () => {
+      if(!userDetails?.accessModuleData.includes("View-offer")){
+      navigate('/dashboard')
+    }
+  })
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -215,11 +223,12 @@ const OfferPage = () => {
                 />
               )}
             />
-
+      { userDetails?.accessModuleData.includes("Add-offer") &&
         <Button variant="contained"
           sx={{my:1,float:'right'}}
           onClick={addOffer}
          ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
+      }
       <TableContainer sx={{ maxHeight: 350 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -254,8 +263,10 @@ const OfferPage = () => {
                                 <span>
                                     <Button onClick={() => handleViewUpdate("View",row.id)}>
                                         <EyeOutlined/></Button>  
+                                    { userDetails?.accessModuleData.includes("Edit-offer") &&
                                     <Button>
                                         <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
+                                    }
                                   </span>
                                 )
                             )

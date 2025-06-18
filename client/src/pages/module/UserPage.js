@@ -15,6 +15,8 @@ import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 150 },
@@ -26,7 +28,8 @@ const columns = [
 ];
 
 const UserPage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = React.useState('');
@@ -107,6 +110,9 @@ const UserPage = () => {
   },[page,rowsPerPage,searchValue])
 
   useEffect( () => {
+    if(!userDetails?.accessModuleData.includes("View-user")){
+      navigate('/dashboard')
+    }
     getBranchList()
     getGroupList()
   },[])
@@ -187,10 +193,15 @@ const UserPage = () => {
               sx={{my:1,mx:1,float:'right'}}
               value={searchValue}
               onChange={handleChangeSearch}/>
-        <Button variant="contained"
-          sx={{my:1,float:'right'}}
-          onClick={addUser}
-         ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
+
+        { userDetails?.accessModuleData.includes("Add-user") &&     
+          <Button variant="contained"
+            sx={{my:1,float:'right'}}
+            onClick={addUser}
+          ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
+        }
+
+
       <TableContainer sx={{ maxHeight: 350 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -231,9 +242,11 @@ const UserPage = () => {
                                       <Button onClick={() => handleViewUpdate("View", row.id)}>
                                         <EyeOutlined />
                                       </Button>
-                                      <Button onClick={() => handleViewUpdate("Edit", row.id)}>
-                                        <EditOutlined />
-                                      </Button>
+                                      { userDetails?.accessModuleData.includes("Edit-user") &&
+                                        <Button onClick={() => handleViewUpdate("Edit", row.id)}>
+                                          <EditOutlined />
+                                         </Button>
+                                      } 
                                     </span>
                                   )
                                 )

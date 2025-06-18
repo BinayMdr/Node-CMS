@@ -12,7 +12,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import { EmojiPeople } from '../../node_modules/@mui/icons-material/index';
-
+import GroupIcon from '@mui/icons-material/Group';
 // icons
 const icons = {
   LoginOutlined,
@@ -28,7 +28,8 @@ const icons = {
   ReceiptIcon,
   LocalOfferIcon,
   PointOfSaleIcon,
-  EmojiPeople
+  EmojiPeople,
+  GroupIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -132,6 +133,14 @@ const pages = {
       url: '/customer',
       forUser: 'Admin',
       icon: icons.EmojiPeople
+    },
+    {
+      id: 'group',
+      title: 'Group',
+      type: 'item',
+      url: '/group',
+      forUser: 'Admin',
+      icon: icons.GroupIcon
     },
   ]
 };

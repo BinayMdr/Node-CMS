@@ -27,6 +27,10 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
   },
+  group_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 });
 
 User.belongsTo(Branch, {

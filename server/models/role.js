@@ -17,15 +17,4 @@ const Role = sequelize.define('Role', {
   }
 });
 
-Role.hasMany(Role, {
-  as: 'children',
-  foreignKey: 'parent_role_id'
-});
-
-Role.belongsTo(Role, {
-  as: 'parent',
-  foreignKey: 'parent_role_id'
-});
-
-
 module.exports = Role;

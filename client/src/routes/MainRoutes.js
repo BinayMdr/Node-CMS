@@ -25,6 +25,7 @@ const Offer = Loadable(lazy(() => import('pages/module/OfferPage')));
 const Expenditure = Loadable(lazy(() => import('pages/module/ExpenditurePage')));
 const History = Loadable(lazy(() => import('pages/module/HistoryPage')));
 const Customer = Loadable(lazy(() => import('pages/module/CustomerPage')));
+const Group = Loadable(lazy(() => import('pages/module/GroupPage')));
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -82,6 +83,10 @@ const MainRoutes = {
     {
       path: 'customer',
       element: <Customer />
+    },
+    {
+      path: 'group',
+      element: <Group />
     }
   ]
 };

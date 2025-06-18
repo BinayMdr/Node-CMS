@@ -27,6 +27,9 @@ module.exports = {
       is_admin: {
         type: Sequelize.BOOLEAN
       },
+      group_id: {
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

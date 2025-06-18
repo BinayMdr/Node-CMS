@@ -17,9 +17,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const columns = [
-  { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'email', label: 'Email', minWidth: 170 },
-  { id: 'branch_id', label: 'Branch', minWidth: 170 },
+  { id: 'name', label: 'Name', minWidth: 150 },
+  { id: 'email', label: 'Email', minWidth: 150 },
+  { id: 'group', label: 'Assigned group', minWidth: 150 },
+  { id: 'branch_id', label: 'Branch', minWidth: 150 },
   { id: 'is_active', label: 'Status', minWidth: 100},
   { id: 'action', label: 'Action', minWidth: 100},
 ];
@@ -38,6 +39,7 @@ const UserPage = () => {
 
   const [formAction, setFormAction] = React.useState('Add');
   const [branchList,setBranchList] = React.useState([]);
+  const [groupList,setGroupList] = React.useState([]);
 
   const userToken = localStorage.getItem('token');
 
@@ -82,12 +84,31 @@ const UserPage = () => {
     }
   } 
 
+  const getGroupList = async () => {
+    try
+    {
+      const response = await api.get('group/get-list', {
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
+
+      setGroupList(response.data.data)
+      
+    }
+    catch(error)
+    {
+      console.log(error)
+    }
+  } 
+
   useEffect( () => {
       getUser(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
 
   useEffect( () => {
     getBranchList()
+    getGroupList()
   },[])
   
   const handleChangePage = (event, newPage) => {
@@ -150,6 +171,7 @@ const UserPage = () => {
           "email":element['email'],
           "status":element['is_active'],
           "branch": branchId,
+          "group": element['group_id'],
           "password":"",
           "confirmPassword":""
         })
@@ -192,20 +214,33 @@ const UserPage = () => {
                       const value = row[column.id];
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          { (column.id === "name" || column.id === "email") ? (column.format && typeof value === 'number'
-                            ? column.format(value)
-                            : value) :( (column.id == "branch_id") ? ( row.Branch.is_enabled ? `${row.Branch.name}` : `${row.Branch.name} (Inactive)`) 
-                            :
-                            ((column.id == "is_active") ? (value === true ? 'Active' : 'Inactive') 
-                            : <span>
-                                <Button onClick={() => handleViewUpdate("View",row.id)}>
-                                    <EyeOutlined/></Button>  
-                                <Button>
-                                    <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
-                              </span>)
+                          {
+                            (column.id === "name" || column.id === "email") ? (
+                              column.format && typeof value === 'number' ? column.format(value) : value
+                            ) : (
+                              column.id === "branch_id" ? (
+                                row.Branch?.is_enabled ? `${row.Branch.name}` : `${row.Branch.name} (Inactive)`
+                              ) : (
+                                column.id === "is_active" ? (
+                                  value === true ? 'Active' : 'Inactive'
+                                ) : (
+                                  column.id === "group" ? (
+                                    groupList.find((b) => b.id == row.group_id)?.name
+                                  ) : (
+                                    <span>
+                                      <Button onClick={() => handleViewUpdate("View", row.id)}>
+                                        <EyeOutlined />
+                                      </Button>
+                                      <Button onClick={() => handleViewUpdate("Edit", row.id)}>
+                                        <EditOutlined />
+                                      </Button>
+                                    </span>
+                                  )
+                                )
+                              )
                             )
-                            
-                           }
+                          }
+
                         </TableCell>
                       );
                     })}
@@ -241,6 +276,7 @@ const UserPage = () => {
           name: formValue.name,
           email: formValue.email,
           branch: formValue.branch,
+          group:formValue.group,
           status:formValue.status,
           submit: null
         }}
@@ -256,7 +292,8 @@ const UserPage = () => {
             if( formAction == "Add")
             {
               let message = '';
-              if(values.password.length < 6) message = "Password length must be equal or greater than 6 digits"
+              if(values.password == undefined) message = "Password length must be equal or greater than 6 digits"
+              else if(values.password.length < 6) message = "Password length must be equal or greater than 6 digits"
               if( values.password !== values.confirmPassword) 
               {
                 message = "Password and confirm password should match";
@@ -282,7 +319,8 @@ const UserPage = () => {
                 email: values.email,
                 branch_id: values.branch,
                 is_active: values.status,
-                password: values.password
+                password: values.password,
+                group_id:values.group
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -293,9 +331,11 @@ const UserPage = () => {
             {
               let formData = {
                 branch_id: values.branch,
-                is_active: values.status
+                is_active: values.status,
+                group_id: values.group
               };
-              if(values.password != '')
+
+              if(values.password != '' && values.password != undefined)
               {
                 let message = '';
                 if(values.password.length < 6) message = "Password length must be equal or greater than 6 digits"
@@ -346,6 +386,7 @@ const UserPage = () => {
           } catch (err) {
             setStatus({ success: false });
             setSubmitting(false);
+            console.log(err)
             if(err.response.status == "400")
             {
               toast.error(err.response.data.message, {
@@ -409,7 +450,7 @@ const UserPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="branch">Branch</InputLabel>
                    <Select
@@ -441,7 +482,39 @@ const UserPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={6}>
+                <Grid item xs={4}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="group">Group</InputLabel>
+                   <Select
+                      labelId="demo-simple-select-group-label"
+                      id="demo-simple-group-select"
+                      value={values.group}
+                      onChange={(event) => {
+                        handleChange(event);
+                        setFieldValue('group', event.target.value);
+                      }}
+                      disabled={ formAction == "View"}
+                    >
+                      {
+                        groupList.map((group) => {
+                        const { id, name } = group;
+                        return (
+                          <MenuItem key={id} value={id}>
+                            {name}
+                          </MenuItem>
+                        );
+                        })
+                      }
+                    </Select>
+
+                  {touched.group && errors.group && (
+                    <FormHelperText error id="standard-weight-helper-text-group-login">
+                      {errors.group}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+              <Grid item xs={4}>
                 <Stack spacing={1} direction="row" alignItems="center">
                   <InputLabel htmlFor="status">Status</InputLabel>
                   <FormControlLabel

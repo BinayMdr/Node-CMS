@@ -77,7 +77,7 @@ const storeUser = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, is_active, branch_id} = req.body;
+    const { name, email, password, is_active, branch_id,group_id} = req.body;
 
     try {
       const existingUser = await user.findOne({
@@ -101,7 +101,8 @@ const storeUser = [
         password: encryptedPassword,
         is_active: is_active,
         branch_id: branch_id,
-        is_admin: false
+        is_admin: false,
+        group_id: group_id
       });
 
       return res.json({
@@ -130,7 +131,7 @@ const updateUser = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { password, branch_id, is_active } = req.body;
+    const { password, branch_id, is_active, group_id } = req.body;
 
     const userId = req.params.userId;
     try {
@@ -138,6 +139,7 @@ const updateUser = [
       let storeData = {
         is_active: is_active,
         branch_id: branch_id,
+        group_id: group_id
       };
       if( password != undefined)
       {

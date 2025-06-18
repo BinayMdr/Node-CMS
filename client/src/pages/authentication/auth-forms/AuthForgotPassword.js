@@ -8,13 +8,9 @@ import {
   Button,
   FormHelperText,
   Grid,
-  IconButton,
-  InputAdornment,
   InputLabel,
   OutlinedInput,
-  Stack,
-  Typography,
-  Link
+  Stack
 } from '@mui/material';
 
 // third party
@@ -25,14 +21,16 @@ import { Formik } from 'formik';
 import AnimateButton from 'components/@extended/AnimateButton';
 
 // assets
-import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { tokenStatus } from 'utils/token-utils';
 import { useDispatch } from 'react-redux';
 import { addUserData, addBranchData } from 'store/reducers/userDetails';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 // ============================|| FIREBASE - LOGIN ||============================ //
 
-const AuthLogin = () => {
+const AuthForgotPassword = () => {
 
   const navigate = useNavigate();
 
@@ -53,43 +51,51 @@ const AuthLogin = () => {
     redirectToDashboard()
   });
 
-  const [showPassword, setShowPassword] = React.useState(false);
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
-
   return (
     <>
+     <ToastContainer></ToastContainer>
       <Formik
         initialValues={{
           email: '',
-          password: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string().max(255).required('Password is required')
+          email: Yup.string().email('Must be a valid email').max(255).required('Email is required')
         })}
-        onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+        onSubmit={async (values, {setStatus, setSubmitting, resetForm }) => {
           try {
+            console.log(values.email)
             setStatus({ success: false });
             setSubmitting(false);
             
-            const response = await api.post("login", {
-                email: values.email,
-                password: values.password,
+            const response = await api.post("reset-password", {
+                email: values.email
             });
 
-            localStorage.setItem('token', response.data.token);
+            toast.success(`${response.data.message}`, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
 
-            navigate('/dashboard')
+            resetForm();
           } catch (err) {
             setStatus({ success: false });
-            setErrors({ submit: err.response.data.message });
+            toast.error(`${err.response.data.message}`, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
             setSubmitting(false);
           }
         }}
@@ -118,54 +124,17 @@ const AuthLogin = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="password-login">Password</InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    error={Boolean(touched.password && errors.password)}
-                    id="-password-login"
-                    type={showPassword ? 'text' : 'password'}
-                    value={values.password}
-                    name="password"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          onMouseDown={handleMouseDownPassword}
-                          edge="end"
-                          size="large"
-                        >
-                          {showPassword ? <EyeOutlined /> : <EyeInvisibleOutlined />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    placeholder="Enter password"
-                  />
-                  {touched.password && errors.password && (
-                    <FormHelperText error id="standard-weight-helper-text-password-login">
-                      {errors.password}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
+              
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText error>{errors.submit}</FormHelperText>
                 </Grid>
               )}
-              <Grid item xs={12} container justifyContent="flex-end">
-                <Link href="/forgot-password" underline="hover">
-                  <Typography>Forgot Passowrd?</Typography>
-                </Link>
-              </Grid>
+
               <Grid item xs={12}>
                 <AnimateButton>
                   <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                    Login
+                    Send Reset Link
                   </Button>
                 </AnimateButton>
               </Grid>
@@ -177,4 +146,4 @@ const AuthLogin = () => {
   );
 };
 
-export default AuthLogin;
+export default AuthForgotPassword;

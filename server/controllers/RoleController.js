@@ -3,10 +3,8 @@ require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
 
-
 const getAllRole = (async (req,res) => {
   try {
-    
     const roles = await Role.findAll({
       where: { parent_role_id: null },
       include: [

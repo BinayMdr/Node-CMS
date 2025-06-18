@@ -61,7 +61,15 @@ const Logo = () => {
      */
     <>
      {
-      (window.location.href !== `${process.env.REACT_APP_URL}login`) ? <Typography variant="h3" component="h3" fontWeight="800">{globalSettingName ?? ""}</Typography> : null
+      ![
+        `${process.env.REACT_APP_URL}login`,
+        ].includes(window.location.href) &&
+        !window.location.href.includes('forgot-password') &&
+        !window.location.href.includes('reset-password') ? (
+          <Typography variant="h3" component="h3" fontWeight="800">
+            {globalSettingName ?? ""}
+          </Typography>
+        ) : null
       }
     </>
   );

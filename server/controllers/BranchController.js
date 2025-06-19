@@ -2,7 +2,7 @@ const branch = require('../models/branch');
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
-
+const user =  require('../models/user')
 
 const getAllBranch = (async (req,res) => {
   try {
@@ -229,6 +229,16 @@ const getBranchList = (async (req,res) => {
 
     let where = {};
 
+    const decoded = req.decodedData;
+
+    const userData = await user.findOne({
+      where: {
+        id: decoded['id'],
+      }
+    }); 
+
+    if(!userData.is_admin) where.id = userData.branch_id;
+    
     // where.is_enabled =  1 ;
 
     if (filter) {

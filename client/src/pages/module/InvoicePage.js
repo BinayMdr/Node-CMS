@@ -1095,16 +1095,6 @@ const InvoicePage = () => {
                       values={productAutoComplete}
                       options={
                         productList
-                          .filter(product => {
-                            const invoiceIds = invoiceList.map(invoice => invoice.id);
-                            const { id, is_enabled } = product;
-                            
-                            if (formAction === "Add") {
-                              return is_enabled && !invoiceIds.includes(id);
-                            } else {
-                              return !invoiceIds.includes(id);
-                            }
-                          })
                           .map(product => product.name)
                       }
                       sx={{

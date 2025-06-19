@@ -6,6 +6,7 @@ const {Op,Sequelize} = require('sequelize');
 const offerHasBranch =  require('../models/offerhasbranch')
 const branchModel = require('../models/branch')
 const {Branch} = require('../models')
+const user =  require('../models/user')
 
 const getAllOffer = (async (req,res) => {
   try {
@@ -16,17 +17,35 @@ const getAllOffer = (async (req,res) => {
     
     const offset = (page - 1) * pageSize;
     let where = {};
+    
+    const decoded = req.decodedData;
 
-    if (filter) {
-      const branchData =  await Branch.findOne({
-        where:{
-          name: filter
-        }
-      })
+    const userData = await user.findOne({
+      where: {
+        id: decoded['id'],
+      }
+    }); 
+
+    if(!userData.is_admin || filter) 
+    {
+      let branchId = null
+      if(filter)
+      {
+        const branchData =  await Branch.findOne({
+          where:{
+            name: filter
+          }
+        })
+        branchId = branchData.dataValues.id
+      }
+      else
+      {
+        branchId = userData.branch_id;
+      }
 
       const offerHasBranchData = await offerHasBranch.findAll({
         where:{
-          branch_id: branchData.dataValues.id
+          branch_id: branchId
         }
       })
 
@@ -37,6 +56,27 @@ const getAllOffer = (async (req,res) => {
         [Op.in]: ids
       }
     }
+
+    // if (filter) {
+    //   const branchData =  await Branch.findOne({
+    //     where:{
+    //       name: filter
+    //     }
+    //   })
+
+    //   const offerHasBranchData = await offerHasBranch.findAll({
+    //     where:{
+    //       branch_id: branchData.dataValues.id
+    //     }
+    //   })
+
+    //   const ids = offerHasBranchData.map(item => item.dataValues.offer_id);
+      
+    //   where.id = 
+    //   {
+    //     [Op.in]: ids
+    //   }
+    // }
    
     const offers = await offer.findAll({
       where,

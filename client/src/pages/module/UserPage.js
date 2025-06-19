@@ -140,7 +140,8 @@ const UserPage = () => {
       "branch":"",
       "status":false,
       "password":"",
-      "confirmPassword":""
+      "confirmPassword":"",
+      "is_admin":false
     })
     setOpen(true)
   }
@@ -178,14 +179,16 @@ const UserPage = () => {
           "status":element['is_active'],
           "branch": branchId,
           "group": element['group_id'],
+          "is_admin":element['is_admin'],
           "password":"",
           "confirmPassword":""
         })
       }
     });
     setOpen(true)
-
   }
+
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <ToastContainer></ToastContainer>
@@ -285,12 +288,14 @@ const UserPage = () => {
         </Typography>
         <Divider sx={{my:2}}/>
         <Formik
+        
         initialValues={{
           name: formValue.name,
           email: formValue.email,
           branch: formValue.branch,
           group:formValue.group,
           status:formValue.status,
+          is_admin:formValue.is_admin,
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -333,7 +338,8 @@ const UserPage = () => {
                 branch_id: values.branch,
                 is_active: values.status,
                 password: values.password,
-                group_id:values.group
+                group_id:values.group,
+                is_admin:values.is_admin
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -345,7 +351,8 @@ const UserPage = () => {
               let formData = {
                 branch_id: values.branch,
                 is_active: values.status,
-                group_id: values.group
+                group_id: values.group,
+                is_admin:values.is_admin ?? false
               };
 
               if(values.password != '' && values.password != undefined)
@@ -463,7 +470,7 @@ const UserPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="branch">Branch</InputLabel>
                    <Select
@@ -495,7 +502,7 @@ const UserPage = () => {
                   )}
                 </Stack>
               </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="group">Group</InputLabel>
                    <Select
@@ -527,7 +534,7 @@ const UserPage = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6}>
                 <Stack spacing={1} direction="row" alignItems="center">
                   <InputLabel htmlFor="status">Status</InputLabel>
                   <FormControlLabel
@@ -538,6 +545,23 @@ const UserPage = () => {
                         name="status"
                         onChange={handleChange}
                         checked={values.status}
+                        disabled={formAction == "View"}
+                      />
+                    }
+                  />
+                </Stack>
+              </Grid>
+              <Grid item xs={6}>
+                <Stack spacing={1} direction="row" alignItems="center">
+                  <InputLabel htmlFor="accessAllBranch">Access All Branch</InputLabel>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        id="accessAllBranch"
+                        value={values.is_admin}
+                        name="is_admin"
+                        onChange={(e) => setFieldValue('is_admin', e.target.checked)}
+                        checked={values.is_admin}
                         disabled={formAction == "View"}
                       />
                     }

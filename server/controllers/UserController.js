@@ -23,7 +23,25 @@ const getAllUser = (async (req,res) => {
       ];
     }
 
-    where.is_admin = 0;
+    const userData = await user.findOne({
+      where:{
+        email: process.env.ADMIN_USER_EMAIL
+      }
+    })
+
+    where.id = {
+      [Op.notIn]: [userData.dataValues.id]
+    }
+
+    const decoded = req.decodedData;
+
+    const currentUserData = await user.findOne({
+      where: {
+        id: decoded['id'],
+      }
+    }); 
+
+    if(!currentUserData.is_admin) where.branch_id = currentUserData.branch_id;
 
     const users = await user.findAll({
       where,
@@ -57,6 +75,7 @@ const getAllUser = (async (req,res) => {
     });
     
   } catch (error) {
+    console.log(error)
     return res.json({
       "message": "Data not found",
       "error": true
@@ -69,6 +88,7 @@ const storeUser = [
   body('email').notEmpty().isEmail().withMessage('Password is required'),
   body('password').notEmpty().withMessage('Password is required'),
   body('is_active').isBoolean().withMessage('Is enabled must be a boolean'),
+  body('is_admin').isBoolean().withMessage('Is admin must be a boolean'),
   body('branch_id').isInt().withMessage('Branch must be a integer'),
   async (req, res) => {
 
@@ -77,7 +97,7 @@ const storeUser = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, is_active, branch_id,group_id} = req.body;
+    const { name, email, password, is_active, branch_id,group_id,is_admin} = req.body;
 
     try {
       const existingUser = await user.findOne({
@@ -102,7 +122,8 @@ const storeUser = [
         is_active: is_active,
         branch_id: branch_id,
         is_admin: false,
-        group_id: group_id
+        group_id: group_id,
+        is_admin:is_admin
       });
 
       return res.json({
@@ -131,7 +152,7 @@ const updateUser = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { password, branch_id, is_active, group_id } = req.body;
+    const { password, branch_id, is_active, group_id,is_admin } = req.body;
 
     const userId = req.params.userId;
     try {
@@ -139,7 +160,8 @@ const updateUser = [
       let storeData = {
         is_active: is_active,
         branch_id: branch_id,
-        group_id: group_id
+        group_id: group_id,
+        is_admin:is_admin
       };
       if( password != undefined)
       {

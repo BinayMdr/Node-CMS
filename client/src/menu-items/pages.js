@@ -13,6 +13,7 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import BrowseGalleryIcon from '@mui/icons-material/BrowseGallery';
 import MessageIcon from '@mui/icons-material/Message';
 import ReviewsIcon from '@mui/icons-material/Reviews';
+import InfoIcon from '@mui/icons-material/Info';
 
 // icons
 const icons = {
@@ -30,7 +31,8 @@ const icons = {
   LocalOfferIcon,
   BrowseGalleryIcon,
   MessageIcon,
-  ReviewsIcon
+  ReviewsIcon,
+  InfoIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -94,6 +96,14 @@ const pages = {
       url: '/customer-review',
       forUser: 'All',
       icon: icons.ReviewsIcon
+    },
+     {
+      id: 'aboutUs',
+      title: 'About Us',
+      type: 'item',
+      url: '/about-us',
+      forUser: 'All',
+      icon: icons.InfoIcon
     },
   ]
 };

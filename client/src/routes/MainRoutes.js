@@ -20,6 +20,7 @@ const EditProfile = Loadable(lazy(() => import('pages/module/EditProfilePage')))
 const Gallery = Loadable(lazy(() => import('pages/module/GalleryPage')));
 const Message = Loadable(lazy(() => import('pages/module/MessagePage')));
 const CustomerReview = Loadable(lazy(() => import('pages/module/CustomerReviewPage')));
+const AboutUs = Loadable(lazy(() => import('pages/module/AboutUsPage')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -60,7 +61,10 @@ const MainRoutes = {
       path: 'customer-review',
       element: <CustomerReview />
     },
-
+    {
+      path: 'about-us',
+      element: <AboutUs />
+    },
   ]
 };
 

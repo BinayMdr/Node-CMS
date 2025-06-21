@@ -1,11 +1,10 @@
-const globalsetting = require('../models/globalsetting');
+const aboutUsPage = require('../models/aboutUsPage');
 require("dotenv").config();
 const { Op, Sequelize } = require('sequelize');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Multer config to store uploaded images in 'uploads' folder
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, '../uploads');
@@ -20,13 +19,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Controller to get all global settings (no changes needed)
-const getAllGlobalSetting = async (req, res) => {
+const getAboutUs = async (req, res) => {
   try {
-    const globalSettings = await globalsetting.findAll();
+    const aboutUsData = await aboutUsPage.findAll();
 
     return res.json({
-      data: globalSettings,
+      data: aboutUsData,
       error: false
     });
   } catch (error) {
@@ -37,23 +35,24 @@ const getAllGlobalSetting = async (req, res) => {
   }
 };
 
-const updateGlobalSetting = [
+const updateAboutUs = [
   async (req, res) => {
     try {
+   
       if (req.file) {
-        req.body.bannerImage = req.file.filename;
+        req.body.image = req.file.filename;
       }
 
-      const folder = 'global-settings'
+      const folder = 'about-us'
 
       for (const [name, value] of Object.entries(req.body)) {
         let valToSave = value;
 
-        const existingGlobalSetting = await globalsetting.findOne({ where: { name } });
+        const existingAboutUsData = await aboutUsPage.findOne({ where: { name } });
 
-        if(existingAboutUsData && name === 'bannerImage' && existingAboutUsData.value != null)
+        if(existingAboutUsData && name === 'image' && existingAboutUsData.value != null)
         {
-          const filePath = path.join(process.cwd(), 'uploads', existingGlobalSetting.value);
+          const filePath = path.join(process.cwd(), 'uploads', existingAboutUsData.value);
 
           fs.unlink(filePath, (err) => {
             if (err) {
@@ -64,30 +63,31 @@ const updateGlobalSetting = [
           });
         }
 
-        if (name === 'bannerImage' && req.file) {
+        if (name === 'image' && req.file) {
           valToSave = `${folder}/${req.file.filename}`;
         }
       
-        if (existingGlobalSetting) {
-          await globalsetting.update(
+        if (existingAboutUsData) {
+          await aboutUsPage.update(
             { value: valToSave },
-            { where: { id: existingGlobalSetting.dataValues.id } }
+            { where: { id: existingAboutUsData.dataValues.id } }
           );
         } else {
-          await globalsetting.create({ name, valToSave });
+          await aboutUsPage.create({ name, valToSave });
         }
 
 
       }
 
       return res.json({
-        message: 'Global setting updated',
+        message: 'About us updated',
         error: false,
       });
     } catch (error) {
-      console.error('Error in global setting update:', error);
+
+      console.error('Error in about us update:', error);
       return res.status(500).json({
-        message: 'Error in global setting update',
+        message: 'Error in about us update',
         error: true,
       });
     }
@@ -95,7 +95,7 @@ const updateGlobalSetting = [
 ];
 
 module.exports = {
-  getAllGlobalSetting,
-  updateGlobalSetting,
-  upload, // export if you want to reuse multer middleware elsewhere
+  getAboutUs,
+  updateAboutUs,
+  upload, 
 };

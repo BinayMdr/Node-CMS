@@ -44,6 +44,22 @@ const EditProfilePage = () => {
         onSubmit={async (values, { setStatus, setSubmitting ,resetForm}) => {
           try {
             resetForm()
+            if( values.newPassword === values.oldPassword) 
+            {
+              toast.error("New password should match old password", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                });
+
+              
+              return false;
+            } 
             if( values.newPassword !== values.confirmPassword) 
             {
               toast.error("Password and confirm password should match", {

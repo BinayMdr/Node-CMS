@@ -4,7 +4,7 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Checkbox, FormControlLabel, Select, MenuItem
+        OutlinedInput,Checkbox, FormControlLabel
       } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
@@ -37,28 +37,10 @@ const UserPage = () => {
               "price":0,"status":false})
 
   const [formAction, setFormAction] = React.useState('Add');
-  const [branchList,setBranchList] = React.useState([]);
 
   const userToken = localStorage.getItem('token');
 
-  const getBranchList = async () => {
-    try
-    {
-      const response = await api.get('branch/get-list', {
-        headers: {
-          'Authorization': `Bearer ${userToken}`
-        }
-      });
-
-      setBranchList(response.data.data)
-      
-    }
-    catch(error)
-    {
-      console.log(error)
-    }
-  } 
-
+ 
   const getUser = async (page,pageSize,search) => {
     try
     {
@@ -86,10 +68,7 @@ const UserPage = () => {
       getUser(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
 
-  useEffect( () => {
-    getBranchList()
-  },[])
-  
+ 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -110,7 +89,6 @@ const UserPage = () => {
       "id":null,
       "name":"",
       "email":"",
-      "branch":"",
       "status":false,
       "password":"",
       "confirmPassword":""
@@ -138,18 +116,11 @@ const UserPage = () => {
     rows.find(function(element){
       if(element['id'] == id)
       {
-        let branchId = element['branch_id'];
-
-        if(action == "Edit" && element['Branch']['is_enabled'] == false) 
-        {
-          branchId = '';
-        }
         setFormValue({
           "id":id,
           "name":element['name'],
           "email":element['email'],
           "status":element['is_active'],
-          "branch": branchId,
           "password":"",
           "confirmPassword":""
         })
@@ -247,7 +218,6 @@ const UserPage = () => {
         validationSchema={Yup.object().shape({
           name: Yup.string().max(255).required('Name is required'),
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          branch: Yup.string().max(255).required('Branch is required'),
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
@@ -280,7 +250,6 @@ const UserPage = () => {
               await api.post("user", {
                 name: values.name,
                 email: values.email,
-                branch_id: values.branch,
                 is_active: values.status,
                 password: values.password
               },{
@@ -292,7 +261,6 @@ const UserPage = () => {
             else
             {
               let formData = {
-                branch_id: values.branch,
                 is_active: values.status
               };
               if(values.password != '')
@@ -362,7 +330,7 @@ const UserPage = () => {
           }
         }}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values ,setFieldValue}) => (
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values}) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={6}>
@@ -407,55 +375,6 @@ const UserPage = () => {
                       {errors.email}
                     </FormHelperText>
                   )}
-                </Stack>
-              </Grid>
-              <Grid item xs={6}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="branch">Branch</InputLabel>
-                   <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={values.branch}
-                      onChange={(event) => {
-                        handleChange(event);
-                        setFieldValue('branch', event.target.value);
-                      }}
-                      disabled={ formAction == "View"}
-                    >
-                      {
-                        branchList.map((branch) => {
-                        const { id, name , is_enabled} = branch;
-                        return (
-                          <MenuItem key={id} value={id} disabled={ !is_enabled }>
-                            {name}
-                          </MenuItem>
-                        );
-                        })
-                      }
-                    </Select>
-
-                  {touched.branch && errors.branch && (
-                    <FormHelperText error id="standard-weight-helper-text-branch-login">
-                      {errors.branch}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
-              <Grid item xs={6}>
-                <Stack spacing={1} direction="row" alignItems="center">
-                  <InputLabel htmlFor="status">Status</InputLabel>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        id="status"
-                        value={values.status}
-                        name="status"
-                        onChange={handleChange}
-                        checked={values.status}
-                        disabled={formAction == "View"}
-                      />
-                    }
-                  />
                 </Stack>
               </Grid>
               { (formAction == 'Add' || formAction == 'Edit') &&
@@ -507,6 +426,23 @@ const UserPage = () => {
                   </Stack>
                 </Grid>
               }
+              <Grid item xs={12}>
+                <Stack spacing={1} direction="row" alignItems="center">
+                  <InputLabel htmlFor="status">Status</InputLabel>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        id="status"
+                        value={values.status}
+                        name="status"
+                        onChange={handleChange}
+                        checked={values.status}
+                        disabled={formAction == "View"}
+                      />
+                    }
+                  />
+                </Stack>
+              </Grid>
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText error>{errors.submit}</FormHelperText>

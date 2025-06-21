@@ -13,15 +13,13 @@ const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
 // render - utilities
 // const Color = Loadable(lazy(() => import('pages/components-overview/Color')));
 // const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons')));
-const Branch = Loadable(lazy(() => import('pages/module/BranchPage')));
 const Product = Loadable(lazy(() => import('pages/module/ProductPage')));
-const Payment = Loadable(lazy(() => import('pages/module/PaymentPage')));
 const GlobalSetting = Loadable(lazy(() => import('pages/module/GlobalSettingPage')));
-const Setting = Loadable(lazy(() => import('pages/module/SettingPage')));
 const User = Loadable(lazy(() => import('pages/module/UserPage')));
 const EditProfile = Loadable(lazy(() => import('pages/module/EditProfilePage')));
-const Invoice = Loadable(lazy(() => import('pages/module/InvoicePage')));
-const Offer = Loadable(lazy(() => import('pages/module/OfferPage')));
+const Gallery = Loadable(lazy(() => import('pages/module/GalleryPage')));
+const Message = Loadable(lazy(() => import('pages/module/MessagePage')));
+const CustomerReview = Loadable(lazy(() => import('pages/module/CustomerReviewPage')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -34,25 +32,14 @@ const MainRoutes = {
       element: <DashboardDefault />
     },
     {
-      path: 'branch',
-      element: <Branch />
-    },
-    {
       path: 'product',
       element: <Product />
-    },
-    {
-      path: 'payment',
-      element: <Payment />
     },
     {
       path: 'global-setting',
       element: <GlobalSetting />
     },
-    {
-      path: 'setting',
-      element: <Setting />
-    },
+
     {
       path: 'user',
       element: <User />
@@ -62,13 +49,18 @@ const MainRoutes = {
       element: <EditProfile />
     },
     {
-      path: 'invoice',
-      element: <Invoice />
+      path: 'gallery',
+      element: <Gallery />
     },
     {
-      path: 'offer',
-      element: <Offer />
-    }
+      path: 'message',
+      element: <Message />
+    },
+    {
+      path: 'customer-review',
+      element: <CustomerReview />
+    },
+
   ]
 };
 

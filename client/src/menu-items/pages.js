@@ -10,6 +10,9 @@ import PublicIcon from '@mui/icons-material/Public';
 import PeopleIcon from '@mui/icons-material/People';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import BrowseGalleryIcon from '@mui/icons-material/BrowseGallery';
+import MessageIcon from '@mui/icons-material/Message';
+import ReviewsIcon from '@mui/icons-material/Reviews';
 
 // icons
 const icons = {
@@ -24,7 +27,10 @@ const icons = {
   PublicIcon,
   PeopleIcon,
   ReceiptIcon,
-  LocalOfferIcon
+  LocalOfferIcon,
+  BrowseGalleryIcon,
+  MessageIcon,
+  ReviewsIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -64,7 +70,31 @@ const pages = {
       type: 'item',
       url: '/edit-profile',
       icon: icons.PublicIcon
-    }
+    },
+    {
+      id: 'gallery',
+      title: 'Gallery',
+      type: 'item',
+      url: '/gallery',
+      forUser: 'All',
+      icon: icons.BrowseGalleryIcon
+    },
+    {
+      id: 'message',
+      title: 'Message',
+      type: 'item',
+      url: '/message',
+      forUser: 'All',
+      icon: icons.MessageIcon
+    },
+     {
+      id: 'customerReview',
+      title: 'Customer Review',
+      type: 'item',
+      url: '/customer-review',
+      forUser: 'All',
+      icon: icons.ReviewsIcon
+    },
   ]
 };
 

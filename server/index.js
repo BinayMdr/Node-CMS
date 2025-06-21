@@ -8,15 +8,13 @@ const fs = require('fs');
 
 //routes
 const authenticateRoute = require('./routes/authenticateRoute')
-const branchRoute = require('./routes/branchRoute.js');
-const paymentRoute = require('./routes/paymentRoute.js');
 const globalsettingRoute = require('./routes/globalsettingRoute.js');
-const settingRoute = require('./routes/settingRoute.js');
 const productRoute = require('./routes/productRoute.js');
-const invoiceRoute = require('./routes/invoiceRoute.js');
 const userRoute = require('./routes/userRoute.js');
-const offerRoute = require('./routes/offerRoute.js');
 const dashboardRoute = require('./routes/dashboardRoute.js');
+const galleryRoute = require('./routes/galleryRoute.js');
+const messageRoute = require('./routes/messageRoute.js');
+const customerReviewRoute = require('./routes/customerReviewRoute.js');
 
 require("dotenv").config();
 
@@ -37,8 +35,10 @@ const storage = multer.diskStorage({
     } else if (req.baseUrl.includes('user-profile')) {
       folder = 'uploads/user-profile';
     }
+    else if (req.baseUrl.includes('gallery')) {  
+      folder = 'uploads/gallery';
+    }
 
-    // Use process.cwd() to get the project root directory
     const uploadDir = path.join(process.cwd(), folder);
 
     if (!fs.existsSync(uploadDir)) {
@@ -53,25 +53,29 @@ const storage = multer.diskStorage({
   }
 });
 
+const imageFileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|gif/;
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedTypes.test(file.mimetype);
 
+  if (mimetype && extname) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed (jpeg, jpg, png, gif)'));
+  }
+};
 
-const upload = multer({ storage });
-
-
+const upload = multer({ storage,fileFilter:imageFileFilter });
 
 //Route
-
-
 app.use("/",authenticateRoute);
-app.use("/branch",branchRoute);
-app.use("/payment",paymentRoute);
 app.use("/global-setting",upload.single('bannerImage'),globalsettingRoute);
-app.use("/setting",settingRoute);
 app.use("/product",productRoute);
-app.use("/invoice",invoiceRoute);
 app.use("/user",userRoute);
-app.use("/offer",offerRoute);
 app.use("/dashboard",dashboardRoute);
+app.use('/gallery',upload.single('file'), galleryRoute);
+app.use('/message',messageRoute);
+app.use('/customer-review',customerReviewRoute);
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

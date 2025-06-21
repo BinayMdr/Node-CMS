@@ -66,10 +66,9 @@ const getAllUser = (async (req,res) => {
 
 const storeUser = [
   body('name').notEmpty().withMessage('Name is required'),
-  body('email').notEmpty().isEmail().withMessage('Password is required'),
+  body('email').notEmpty().isEmail().withMessage('Email is required'),
   body('password').notEmpty().withMessage('Password is required'),
   body('is_active').isBoolean().withMessage('Is enabled must be a boolean'),
-  body('branch_id').isInt().withMessage('Branch must be a integer'),
   async (req, res) => {
 
     const errors = validationResult(req);
@@ -77,7 +76,7 @@ const storeUser = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, is_active, branch_id} = req.body;
+    const { name, email, password, is_active} = req.body;
 
     try {
       const existingUser = await user.findOne({
@@ -100,7 +99,6 @@ const storeUser = [
         email: email,
         password: encryptedPassword,
         is_active: is_active,
-        branch_id: branch_id,
         is_admin: false
       });
 
@@ -121,7 +119,6 @@ const storeUser = [
 ];
 
 const updateUser = [
-  body('branch_id').notEmpty().withMessage('Branch is required'),
   body('is_active').isBoolean().withMessage('Is status must be a boolean'),
   async (req, res) => {
 
@@ -130,14 +127,13 @@ const updateUser = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { password, branch_id, is_active } = req.body;
+    const { password, is_active } = req.body;
 
     const userId = req.params.userId;
     try {
       
       let storeData = {
-        is_active: is_active,
-        branch_id: branch_id,
+        is_active: is_active
       };
       if( password != undefined)
       {

@@ -2,7 +2,7 @@
   "development": {
     "username": "dbuser",
     "password": "BIN98498@y",
-    "database": "admin_cms",
+    "database": "cafe_admin",
     "host": "localhost",
     "dialect": "mysql"
   },

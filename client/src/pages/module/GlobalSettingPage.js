@@ -12,6 +12,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
 import { updateGlobalName } from "store/reducers/globalSetting";
+import RichTextEditor from 'pages/components-overview/RichTextEditor';
 
 const GlobalSettingPage = () => {
 
@@ -71,12 +72,18 @@ const GlobalSettingPage = () => {
      { showData &&
       <Box sx={style}>
         <Formik
+        enableReinitialize
         initialValues={{
           name: formValue.name,
           phoneNumber:formValue.phoneNumber,
           email:formValue.email,
           bannerImage: null,
           chatScript:formValue.chatScript,
+          pinterestLink:formValue.pinterestLink,
+          facebookLink:formValue.facebookLink,
+          instagramLink:formValue.instagramLink,
+          twitterLink:formValue.twitterLink,
+          workingTime:formValue.workingTime || '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -92,6 +99,11 @@ const GlobalSettingPage = () => {
             formData.append('phoneNumber', values.phoneNumber);
             formData.append('email', values.email);
             formData.append('chatScript', values.chatScript);
+            formData.append('facebookLink', values.facebookLink);
+            formData.append('instagramLink', values.instagramLink);
+            formData.append('twitterLink', values.twitterLink);
+            formData.append('pinterestLink', values.pinterestLink);
+            formData.append('workingTime', values.workingTime);
 
             if (values.bannerImage) {
               formData.append('bannerImage', values.bannerImage);
@@ -209,6 +221,129 @@ const GlobalSettingPage = () => {
 
               <Grid item xs={6}>
                 <Stack spacing={1}>
+                  <InputLabel htmlFor="facebookLink">Facebook Link</InputLabel>
+                  <OutlinedInput
+                    id="facebookLink"
+                    type="facebookLink"
+                    value={values.facebookLink}
+                    name="facebookLink"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter Facebook Link"
+                    fullWidth
+                    error={Boolean(touched.facebookLink && errors.facebookLink)}
+                  />
+                  {touched.facebookLink && errors.facebookLink && (
+                    <FormHelperText error id="standard-weight-helper-text-facebookLink-login">
+                      {errors.facebookLink}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+              
+               <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="pinterestLink">Instagram Link</InputLabel>
+                  <OutlinedInput
+                    id="instagramLink"
+                    type="instagramLink"
+                    value={values.instagramLink}
+                    name="instagramLink"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter Instagram Link"
+                    fullWidth
+                    error={Boolean(touched.instagramLink && errors.instagramLink)}
+                  />
+                  {touched.instagramLink && errors.instagramLink && (
+                    <FormHelperText error id="standard-weight-helper-text-instagramLink-login">
+                      {errors.instagramLink}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+
+              <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="twitterLink">Twitter Link</InputLabel>
+                  <OutlinedInput
+                    id="twitterLink"
+                    type="twitterLink"
+                    value={values.twitterLink}
+                    name="twitterLink"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter Twitter Link"
+                    fullWidth
+                    error={Boolean(touched.twitterLink && errors.twitterLink)}
+                  />
+                  {touched.twitterLink && errors.twitterLink && (
+                    <FormHelperText error id="standard-weight-helper-text-twitterLink-login">
+                      {errors.twitterLink}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+              
+               <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="pinterestLink">Pinterest Link</InputLabel>
+                  <OutlinedInput
+                    id="pinterestLink"
+                    type="pinterestLink"
+                    value={values.pinterestLink}
+                    name="pinterestLink"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter Pinterest Link"
+                    fullWidth
+                    error={Boolean(touched.pinterestLink && errors.pinterestLink)}
+                  />
+                  {touched.pinterestLink && errors.pinterestLink && (
+                    <FormHelperText error id="standard-weight-helper-text-pinterestLink-login">
+                      {errors.pinterestLink}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+
+              <Grid item xs={6}>
+                <Stack spacing={1}>
+                <InputLabel htmlFor="workingTime">Working Time</InputLabel>
+                <RichTextEditor
+                  name="workingTime"
+                  value={values.workingTime || ''}
+                  onChange={setFieldValue}
+                />
+                </Stack>
+              </Grid>
+
+              <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="chatScript">Chat Script</InputLabel>
+                  <OutlinedInput
+                    id="chatScript"
+                    value={values.chatScript}
+                    name="chatScript"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter chat script"
+                    fullWidth
+                    multiline
+                    minRows={12}
+                    error={Boolean(touched.chatScript && errors.chatScript)}
+                  />
+                  {touched.chatScript && errors.chatScript && (
+                    <FormHelperText error id="standard-weight-helper-text-chatScript-login">
+                      {errors.chatScript}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+
+
+               <Grid item xs={6}>
+                <Stack spacing={1}>
                   <InputLabel htmlFor="bannerImage">Banner Image</InputLabel>
 
                   {values.bannerImage ? (
@@ -241,8 +376,6 @@ const GlobalSettingPage = () => {
                 
                 }
                 
-
-
                   <OutlinedInput
                     id="bannerImage"
                     type="file"
@@ -263,29 +396,6 @@ const GlobalSettingPage = () => {
                 </Stack>
               </Grid>
 
-
-              <Grid item xs={6}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="chatScript">Chat Script</InputLabel>
-                  <OutlinedInput
-                    id="chatScript"
-                    value={values.chatScript}
-                    name="chatScript"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Enter chat script"
-                    fullWidth
-                    multiline
-                    minRows={4}
-                    error={Boolean(touched.chatScript && errors.chatScript)}
-                  />
-                  {touched.chatScript && errors.chatScript && (
-                    <FormHelperText error id="standard-weight-helper-text-chatScript-login">
-                      {errors.chatScript}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
               
                 <Grid item xs={12}>
                   <AnimateButton>

@@ -22,6 +22,7 @@ const Message = Loadable(lazy(() => import('pages/module/MessagePage')));
 const CustomerReview = Loadable(lazy(() => import('pages/module/CustomerReviewPage')));
 const AboutUs = Loadable(lazy(() => import('pages/module/AboutUsPage')));
 const FoodCategory = Loadable(lazy(() => import('pages/module/FoodCategoryPage')));
+const Banner = Loadable(lazy(() => import('pages/module/BannerPage')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -70,6 +71,11 @@ const MainRoutes = {
       path: 'food-category',
       element: <FoodCategory />
     },
+    {
+      path: 'banner',
+      element: <Banner />
+    },
+  
   
   ]
 };

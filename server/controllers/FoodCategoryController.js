@@ -201,7 +201,7 @@ const updateFoodCategoryOrder = [
         for(let i= 0; i< foodCategories.length ; i++)
         {
           startOrder = startOrder + 1
-          await foodCategories.update(
+          await foodCategory.update(
             {
               order: startOrder
             },

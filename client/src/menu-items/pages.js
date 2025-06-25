@@ -15,6 +15,7 @@ import MessageIcon from '@mui/icons-material/Message';
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import InfoIcon from '@mui/icons-material/Info';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
+import ImageIcon from '@mui/icons-material/Image';
 // icons
 const icons = {
   LoginOutlined,
@@ -33,7 +34,8 @@ const icons = {
   MessageIcon,
   ReviewsIcon,
   InfoIcon,
-  FastfoodIcon
+  FastfoodIcon,
+  ImageIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -50,6 +52,14 @@ const pages = {
       url: '/user',
       forUser: 'All',
       icon: icons.PeopleIcon
+    },
+      {
+      id: 'banner',
+      title: 'Banner',
+      type: 'item',
+      url: '/banner',
+      forUser: 'All',
+      icon: icons.ImageIcon
     },
     {
       id: 'foodCategory',

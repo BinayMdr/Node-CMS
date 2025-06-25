@@ -17,6 +17,7 @@ const messageRoute = require('./routes/messageRoute.js');
 const customerReviewRoute = require('./routes/customerReviewRoute.js');
 const aboutUsRoute = require('./routes/aboutUsPageRoute.js');
 const foodCategoryRoute = require('./routes/foodCategoryRoute.js')
+const bannerRoute = require('./routes/bannerRoute.js')
 
 require("dotenv").config();
 
@@ -42,6 +43,8 @@ const storage = multer.diskStorage({
     }
     else if (req.baseUrl.includes('about-us')) {  
       folder = 'uploads/about-us';
+    }else if (req.baseUrl.includes('banner')) {  
+      folder = 'uploads/banner';
     }
 
     const uploadDir = path.join(process.cwd(), folder);
@@ -83,6 +86,7 @@ app.use('/message',messageRoute);
 app.use('/customer-review',customerReviewRoute);
 app.use('/about-us',upload.single('image'),aboutUsRoute);
 app.use('/food-category',foodCategoryRoute);
+app.use('/banner',upload.single('image'),bannerRoute);
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

@@ -32,10 +32,11 @@ const CustomerReviewPage = () => {
   const [totalData, setTotalData] = React.useState(0);
   const [formValue, setFormValue] = React.useState({ id: null, name: '', price: 0, status: false });
   const [formAction, setFormAction] = React.useState('Add');
+  const [draggedRowIndex, setDraggedRowIndex] = React.useState(null);
 
   const userToken = localStorage.getItem('token');
 
-  const getMessage = async (page, pageSize, search) => {
+  const getCustomerReview = async (page, pageSize, search) => {
     try {
       const response = await api.get('customer-review', {
         headers: { Authorization: `Bearer ${userToken}` },
@@ -49,7 +50,7 @@ const CustomerReviewPage = () => {
   };
 
   useEffect(() => {
-    getMessage(page, rowsPerPage, searchValue);
+    getCustomerReview(page, rowsPerPage, searchValue);
   }, [page, rowsPerPage, searchValue]);
 
   const handleChangePage = (event, newPage) => setPage(newPage);
@@ -57,6 +58,7 @@ const CustomerReviewPage = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+
   const handleChangeSearch = (event) => {
     setSearchValue(event.target.value);
     setPage(0);
@@ -96,6 +98,69 @@ const CustomerReviewPage = () => {
     }
   };
 
+  const handleDragStart = (event, index) => {
+    setDraggedRowIndex(index);
+  };
+
+  const handleDragOver = (event, index) => {
+    console.log(index)
+    event.preventDefault();
+  };
+
+  const handleDrop = async (event, dropIndex) => {
+  event.preventDefault();
+    if (draggedRowIndex === null || draggedRowIndex === dropIndex) return;
+
+    const updatedRows = [...rows];
+    const [draggedRow] = updatedRows.splice(draggedRowIndex, 1);
+    updatedRows.splice(dropIndex, 0, draggedRow);
+
+    setRows(updatedRows);
+    setDraggedRowIndex(null);
+
+    try
+    {
+      const response = await api.put("customer-review/update-order", {
+        customerReviews: updatedRows,
+        page: page,
+        pageSize: rowsPerPage
+      },{
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
+
+      toast.success(`${response.data.message}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          });
+    }
+    catch(err)
+    {
+      console.log(err)
+      if(err.response.status == "400")
+      {
+        toast.error(err.response.data.message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          });
+      }
+    }
+  };
+
+  console.log(rows)
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <ToastContainer />
@@ -123,39 +188,43 @@ const CustomerReviewPage = () => {
           </TableHead>
 
           <TableBody>
-            {rows.map((row) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                            { (column.id === "name" || column.id === "designation") 
-                                ? (column.format && typeof value === 'number' ? column.format(value) : value) 
-                                : (column.id === "review" 
-                                    ? (row.review.length > 30 ? `${row.review.slice(0, 30)}...` : row.review)
-                                    : (column.id === "is_enabled" 
-                                        ? (value === true ? 'Active' : 'Inactive') 
-                                        : (
-                                        <span>
-                                            <Button onClick={() => handleViewUpdate("View", row.id)}>
-                                            <EyeOutlined />
-                                            </Button>
-                                             <Button>
-                                                <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
-                                        </span>
-                                        )
-                                    )
-                                )
-                            }
-                        </TableCell>
+            {rows.map((row, index) => (
+              <TableRow
+                key={row.id}
+                draggable= {searchValue === ''}
+                onDragStart={searchValue === '' ? (e) => handleDragStart(e, index) : undefined}
+                onDragOver={searchValue === '' ? (e) => handleDragOver(e, index) : undefined}
+                onDrop={searchValue === '' ? (e) => handleDrop(e, index) : undefined}
+                sx={{ cursor: 'move' }}
+              >
+                {columns.map((column) => {
+                  const value = row[column.id];
+                  return (
+                    <TableCell key={column.id}>
+                      {/* your existing column render logic here */}
+                      {column.id === 'review'
+                        ? row.review.length > 30
+                          ? `${row.review.slice(0, 30)}...`
+                          : row.review
+                        : column.id === 'is_enabled'
+                        ? value
+                          ? 'Active'
+                          : 'Inactive'
+                        : column.id === 'action'
+                        ? (
+                          <>
+                            <Button onClick={() => handleViewUpdate("View", row.id)}><EyeOutlined /></Button>
+                            <Button><EditOutlined onClick={() => handleViewUpdate("Edit", row.id)} /></Button>
+                          </>
+                        )
+                        : value}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))} 
+          </TableBody>
 
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
 
         </Table>
       </TableContainer>
@@ -232,7 +301,7 @@ const CustomerReviewPage = () => {
             }
             
             setOpen(false)
-            getMessage(page,rowsPerPage,searchValue)
+            getCustomerReview(page,rowsPerPage,searchValue)
             
             toast.success(`Customer review ${message} successfully`, {
             position: "top-right",

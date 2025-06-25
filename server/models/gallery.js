@@ -1,17 +1,17 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../database/database');
 
-const Message = sequelize.define('Message', {
+const Gallery = sequelize.define('Gallery', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  email: {
-    type: DataTypes.STRING,
-  },
-  message: {
+  image: {
     type: DataTypes.TEXT,
+  },
+  order: {
+    type: DataTypes.INTEGER,
   }
 });
 
-module.exports = Message;
+module.exports = Gallery;

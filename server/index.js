@@ -77,7 +77,7 @@ app.use("/global-setting",upload.single('bannerImage'),globalsettingRoute);
 app.use("/product",productRoute);
 app.use("/user",userRoute);
 app.use("/dashboard",dashboardRoute);
-app.use('/gallery',upload.single('file'), galleryRoute);
+app.use('/gallery',upload.array('file', 10),  galleryRoute);
 app.use('/message',messageRoute);
 app.use('/customer-review',customerReviewRoute);
 app.use('/about-us',upload.single('image'),aboutUsRoute);

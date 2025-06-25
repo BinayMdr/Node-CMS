@@ -150,9 +150,79 @@ const updateCustomerReview = [
   },
 ];
 
+const updateCustomerReviewOrder = [
+  body('customerReviews').notEmpty().withMessage('Customer reviews is required'),
+  async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { customerReviews, page, pageSize} = req.body;
+
+    // console.log(customerReviews)
+    // console.log(page)
+    // console.log(pageSize)
+
+    // return
+    try {
+      
+      if(page == 0)
+      {
+        for(let i= 0; i< customerReviews.length ; i++)
+        {
+          await customerReview.update(
+            {
+              order: i + 1
+            },
+            {
+              where: {
+                id: customerReviews[i]['id']
+              }
+            }
+          );
+        }
+      }
+      else
+      {
+        let startOrder = page * pageSize
+       
+        for(let i= 0; i< customerReviews.length ; i++)
+        {
+          startOrder = startOrder + 1
+          console.log(startOrder)
+          await customerReview.update(
+            {
+              order: startOrder
+            },
+            {
+              where: {
+                id: customerReviews[i]['id']
+              }
+            }
+          );
+        }
+      }
+
+      return res.json({
+        message: 'Customer review order updated',
+        error: false,
+      });
+    } catch (error) {
+      console.error('Error in custome review order update:', error);
+
+      return res.status(500).json({
+        message: 'Error in custome review order update',
+        error: true,
+      });
+    }
+  },
+];
 
 module.exports = {
     getAllCustomerReview,
     storeCustomerReview,
-    updateCustomerReview
+    updateCustomerReview,
+    updateCustomerReviewOrder
 }

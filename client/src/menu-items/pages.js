@@ -14,7 +14,7 @@ import BrowseGalleryIcon from '@mui/icons-material/BrowseGallery';
 import MessageIcon from '@mui/icons-material/Message';
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import InfoIcon from '@mui/icons-material/Info';
-
+import FastfoodIcon from '@mui/icons-material/Fastfood';
 // icons
 const icons = {
   LoginOutlined,
@@ -32,7 +32,8 @@ const icons = {
   BrowseGalleryIcon,
   MessageIcon,
   ReviewsIcon,
-  InfoIcon
+  InfoIcon,
+  FastfoodIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -41,14 +42,7 @@ const pages = {
   title: 'Modules',
   type: 'group',
   children: [
-    {
-      id: 'product',
-      title: 'Product',
-      type: 'item',
-      url: '/product',
-      forUser: 'All',
-      icon: icons.CategoryIcon
-    },
+    
     {
       id: 'user',
       title: 'User',
@@ -57,15 +51,23 @@ const pages = {
       forUser: 'All',
       icon: icons.PeopleIcon
     },
-    
     {
-      id: 'globalSetting',
-      title: 'Global Setting',
+      id: 'foodCategory',
+      title: 'Food Category',
       type: 'item',
-      url: '/global-setting',
+      url: '/food-category',
       forUser: 'All',
-      icon: icons.PublicIcon
+      icon: icons.FastfoodIcon
     },
+    {
+      id: 'product',
+      title: 'Product',
+      type: 'item',
+      url: '/product',
+      forUser: 'All',
+      icon: icons.CategoryIcon
+    },
+    
     {
       id: 'edit-profile',
       title: 'Edit Profile',
@@ -105,6 +107,16 @@ const pages = {
       forUser: 'All',
       icon: icons.InfoIcon
     },
+
+    {
+      id: 'globalSetting',
+      title: 'Global Setting',
+      type: 'item',
+      url: '/global-setting',
+      forUser: 'All',
+      icon: icons.PublicIcon
+    },
+     
   ]
 };
 

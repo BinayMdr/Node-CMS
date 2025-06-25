@@ -16,6 +16,7 @@ const galleryRoute = require('./routes/galleryRoute.js');
 const messageRoute = require('./routes/messageRoute.js');
 const customerReviewRoute = require('./routes/customerReviewRoute.js');
 const aboutUsRoute = require('./routes/aboutUsPageRoute.js');
+const foodCategoryRoute = require('./routes/foodCategoryRoute.js')
 
 require("dotenv").config();
 
@@ -81,6 +82,7 @@ app.use('/gallery',upload.array('file', 10),  galleryRoute);
 app.use('/message',messageRoute);
 app.use('/customer-review',customerReviewRoute);
 app.use('/about-us',upload.single('image'),aboutUsRoute);
+app.use('/food-category',foodCategoryRoute);
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

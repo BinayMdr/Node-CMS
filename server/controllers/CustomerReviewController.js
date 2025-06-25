@@ -161,11 +161,6 @@ const updateCustomerReviewOrder = [
 
     const { customerReviews, page, pageSize} = req.body;
 
-    // console.log(customerReviews)
-    // console.log(page)
-    // console.log(pageSize)
-
-    // return
     try {
       
       if(page == 0)
@@ -191,7 +186,6 @@ const updateCustomerReviewOrder = [
         for(let i= 0; i< customerReviews.length ; i++)
         {
           startOrder = startOrder + 1
-          console.log(startOrder)
           await customerReview.update(
             {
               order: startOrder

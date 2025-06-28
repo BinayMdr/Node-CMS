@@ -1,4 +1,4 @@
-const banner = require('../models/banner');
+const foodItem = require('../models/foodItem');
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
 const {Op,Sequelize} = require('sequelize');
@@ -7,9 +7,9 @@ const path = require('path');
 const fs = require('fs');
 
 
-const getAllBanner = (async (req,res) => {
+const getAllFoodItem = (async (req,res) => {
   try {
-    let {page,pageSize,filter} = req.query;
+    let {page,pageSize,filter,food_category_id} = req.query;
 
     if(page == undefined) page = 1;
     if(pageSize == undefined) pageSize = 10;
@@ -23,7 +23,9 @@ const getAllBanner = (async (req,res) => {
       ];
     }
 
-    const banners = await banner.findAll({
+    where.food_category_id = food_category_id
+
+    const foodItems = await foodItem.findAll({
       where,
       limit: parseInt(pageSize),
       offset,
@@ -31,7 +33,7 @@ const getAllBanner = (async (req,res) => {
     });
 
     
-    const totalBannerCount = await banner.count({
+    const totalFoodItemCount = await foodItem.count({
       where,
       limit: parseInt(pageSize),
       offset,
@@ -39,14 +41,14 @@ const getAllBanner = (async (req,res) => {
     });
     
     const pageInfo = {
-      "totalData" : parseInt(totalBannerCount),
+      "totalData" : parseInt(totalFoodItemCount),
       "currentPage" : parseInt(page),
       "pageSize" : parseInt(pageSize),
-      "lastPage" : Math.ceil(parseFloat(totalBannerCount/pageSize))
+      "lastPage" : Math.ceil(parseFloat(totalFoodItemCount/pageSize))
     };
 
     return res.json({
-      "data": banners,
+      "data": foodItems,
       "pageInfo": pageInfo,
       "error": false
     });
@@ -59,7 +61,7 @@ const getAllBanner = (async (req,res) => {
   }
 });
 
-const storeBanner = [
+const storeFoodItem = [
   body('name').notEmpty().withMessage('Name is required'),
   body('is_enabled').isBoolean().withMessage('Is enabled must be a boolean'),
   async (req, res) => {
@@ -69,60 +71,58 @@ const storeBanner = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name,is_enabled, button_link, button_title, description } = req.body;
+    const { name,is_enabled, food_category_id } = req.body;
 
 
     try {
         
         
-      let maxOrder = await banner.max('order')
+      let maxOrder = await foodItem.max('order')
       if(maxOrder == null) maxOrder = 0
 
-      const existingBanner = await banner.findOne({
+      const existingFoodItem = await foodItem.findOne({
         where: {
           name: name
         },
       });
 
-      if (existingBanner) {
+      if (existingFoodItem) {
         return res.status(400).json({
-          message: 'Banner name already taken',
+          message: 'Food item name already taken',
           error: true,
         });
       }
 
       let imagePath = null;
       if(req.file){
-        imagePath = path.join('/banner', req.file.filename).replace(/\\/g, '/');
+        imagePath = path.join('/food-item', req.file.filename).replace(/\\/g, '/');
       }
       
-      const BannerData = await banner.create({
+      const FoodItemData = await foodItem.create({
         name: name,
-        button_link: button_link,
-        button_title: button_title,
         is_enabled: is_enabled,
-        description: description,
         order: maxOrder + 1,
-        image: imagePath
+        image: imagePath,
+        food_category_id:food_category_id
       });
 
       return res.json({
-        message: 'Banner created',
-        data: BannerData,
+        message: 'Food item created',
+        data: FoodItemData,
         error: false,
       });
     } catch (error) {
-      console.error('Error in banner creation:', error);
+      console.error('Error in food item creation:', error);
 
       return res.status(500).json({
-        message: 'Error in banner creation',
+        message: 'Error in food item creation',
         error: true,
       });
     }
   },
 ];
 
-const updateBanner = [
+const updateFoodItem = [
     body('name').notEmpty().withMessage('Name is required'),
     body('is_enabled').isBoolean().withMessage('Is enabled must be a boolean'),
   async (req, res) => {
@@ -132,62 +132,59 @@ const updateBanner = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, button_link, is_enabled,button_title, description } = req.body;
-    const bannerId = req.params.bannerId;
+    const { name, is_enabled } = req.body;
+    const foodItemId = req.params.foodItemId;
 
     try {
 
-      const existingBanner = await banner.findOne({
+      const existingFoodItem = await foodItem.findOne({
         where: {
           name: name,
           id:{
-            [Sequelize.Op.not]: bannerId
+            [Sequelize.Op.not]: foodItemId
           }
         }
        
       });
 
-      if (existingBanner) {
+      if (existingFoodItem) {
         return res.status(400).json({
-          message: 'Banner name already taken',
+          message: 'Food item name already taken',
           error: true,
         });
       }
 
       let data = {
         name: name,
-        is_enabled: is_enabled,
-        button_link:button_link,
-        button_title:button_title,
-        description: description
+        is_enabled: is_enabled
       }
       let imagePath = null;
       if(req.file !== undefined && req.file){
-        imagePath = path.join('/banner', req.file.filename).replace(/\\/g, '/');
+        imagePath = path.join('/food-item', req.file.filename).replace(/\\/g, '/');
         data.image = imagePath
       }
 
-      await banner.update(data,
+      await foodItem.update(data,
       {
-        where: { id: bannerId }
+        where: { id: foodItemId }
       });
 
-      const updatedBanner = await banner.findOne({
+      const updatedFoodItem = await foodItem.findOne({
         where: {
-          id: bannerId,
+          id: foodItemId,
         },
       });
 
       return res.json({
-        message: 'Banner updated',
-        data: updatedBanner,
+        message: 'Food item updated',
+        data: updatedFoodItem,
         error: false,
       });
     } catch (error) {
-      console.error('Error in banner update:', error);
+      console.error('Error in food item update:', error);
 
       return res.status(500).json({
-        message: 'Error in banner update',
+        message: 'Error in food item update',
         error: true,
       });
     }
@@ -195,8 +192,8 @@ const updateBanner = [
 ];
 
 
-const updateBannerOrder = [
-  body('banners').notEmpty().withMessage('Banner is required'),
+const updateFoodItemOrder = [
+  body('foodItems').notEmpty().withMessage('Food item is required'),
   async (req, res) => {
 
     const errors = validationResult(req);
@@ -204,21 +201,21 @@ const updateBannerOrder = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { banners, page, pageSize} = req.body;
+    const { foodItems, page, pageSize} = req.body;
 
     try {
       
       if(page == 0)
       {
-        for(let i= 0; i< banners.length ; i++)
+        for(let i= 0; i< foodItems.length ; i++)
         {
-          await banner.update(
+          await foodItem.update(
             {
               order: i + 1
             },
             {
               where: {
-                id: banners[i]['id']
+                id: foodItems[i]['id']
               }
             }
           );
@@ -228,16 +225,16 @@ const updateBannerOrder = [
       {
         let startOrder = page * pageSize
        
-        for(let i= 0; i< banners.length ; i++)
+        for(let i= 0; i< foodItems.length ; i++)
         {
           startOrder = startOrder + 1
-          await banner.update(
+          await foodItem.update(
             {
               order: startOrder
             },
             {
               where: {
-                id: banners[i]['id']
+                id: foodItems[i]['id']
               }
             }
           );
@@ -245,14 +242,14 @@ const updateBannerOrder = [
       }
 
       return res.json({
-        message: 'Banner order updated',
+        message: 'Food item order updated',
         error: false,
       });
     } catch (error) {
-      console.error('Error in banner order update:', error);
+      console.error('Error in food item order update:', error);
 
       return res.status(500).json({
-        message: 'Error in banner order update',
+        message: 'Error in food item order update',
         error: true,
       });
     }
@@ -260,8 +257,8 @@ const updateBannerOrder = [
 ];
 
 module.exports = {
-    getAllBanner,
-    storeBanner,
-    updateBanner,
-    updateBannerOrder
+    getAllFoodItem,
+    storeFoodItem,
+    updateFoodItem,
+    updateFoodItemOrder
 }

@@ -1,21 +1,16 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../database/database');
 
-const Banner = sequelize.define('Banner', {
+const FoodItem = sequelize.define('FoodItem', {
+  food_category_id:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   image: {
-    type: DataTypes.TEXT,
-  },
-   description: {
-    type: DataTypes.TEXT,
-  },
-   button_title: {
-    type: DataTypes.TEXT,
-  },
-   button_link: {
     type: DataTypes.TEXT,
   },
    is_enabled: {
@@ -26,4 +21,4 @@ const Banner = sequelize.define('Banner', {
   }
 });
 
-module.exports = Banner;
+module.exports = FoodItem;

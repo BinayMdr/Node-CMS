@@ -13,7 +13,6 @@ const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
 // render - utilities
 // const Color = Loadable(lazy(() => import('pages/components-overview/Color')));
 // const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons')));
-const Product = Loadable(lazy(() => import('pages/module/ProductPage')));
 const GlobalSetting = Loadable(lazy(() => import('pages/module/GlobalSettingPage')));
 const User = Loadable(lazy(() => import('pages/module/UserPage')));
 const EditProfile = Loadable(lazy(() => import('pages/module/EditProfilePage')));
@@ -23,6 +22,7 @@ const CustomerReview = Loadable(lazy(() => import('pages/module/CustomerReviewPa
 const AboutUs = Loadable(lazy(() => import('pages/module/AboutUsPage')));
 const FoodCategory = Loadable(lazy(() => import('pages/module/FoodCategoryPage')));
 const Banner = Loadable(lazy(() => import('pages/module/BannerPage')));
+const FoodItem = Loadable(lazy(() => import('pages/module/FoodItemPage')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -33,10 +33,6 @@ const MainRoutes = {
     {
       path: 'dashboard',
       element: <DashboardDefault />
-    },
-    {
-      path: 'product',
-      element: <Product />
     },
     {
       path: 'global-setting',
@@ -75,8 +71,12 @@ const MainRoutes = {
       path: 'banner',
       element: <Banner />
     },
+      {
+      path: 'food-item/:id',
+      element: <FoodItem />
+    },
   
-  
+    
   ]
 };
 

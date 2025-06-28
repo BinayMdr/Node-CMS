@@ -9,25 +9,23 @@ import {Paper,Table,TableBody,
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
 import api from 'routes/Enpoint'
-import {EditOutlined,EyeOutlined,PlusOutlined,HistoryOutlined} from '@ant-design/icons';
+import {EditOutlined,EyeOutlined,PlusOutlined} from '@ant-design/icons';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // import HistoryIcon from '@mui/icons-material/History';
-import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 100 },
-  { id: 'button_title', label: 'Button Title', minWidth: 100},
-  { id: 'button_link', label: 'Button Link', minWidth: 100},
   { id: 'status', label: 'Status', minWidth: 100},
   { id: 'action', label: 'Action', minWidth: 100},
 ];
 
-const BannerPage = () => {
-  const navigate = useNavigate();
+const FoodItemPage = () => {
+  const { id } = useParams();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = React.useState('');
@@ -45,17 +43,18 @@ const BannerPage = () => {
   const userToken = localStorage.getItem('token');
   const [draggedRowIndex, setDraggedRowIndex] = React.useState(null);
 
-  const getBanner = async (page,pageSize,search) => {
+  const getFoodItem = async (page,pageSize,search) => {
     try
     {
-      const response = await api.get('banner', {
+      const response = await api.get('food-item', {
         headers: {
           'Authorization': `Bearer ${userToken}`
         },
         params: {
           filter: search,
           pageSize: pageSize,
-          page: page + 1
+          page: page + 1,
+          food_category_id: id
         }
       });
 
@@ -69,7 +68,7 @@ const BannerPage = () => {
   } 
 
   useEffect( () => {
-      getBanner(page,rowsPerPage,searchValue)
+      getFoodItem(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
   
   const handleChangePage = (event, newPage) => {
@@ -119,10 +118,7 @@ const BannerPage = () => {
         setFormValue({
           "id":id,
           "name":element['name'],
-          "button_title":element['button_title'],
-          "status":element['is_enabled'],
-          "button_link":element['button_link'],
-          "description": element['description']
+          "status":element['is_enabled']
         })
 
         if (element['image']) {
@@ -145,8 +141,8 @@ const BannerPage = () => {
 
    try
     {
-      const response = await api.put("banner/reorder", {
-        banners: updated,
+      const response = await api.put("food-item/reorder", {
+        foodItems: updated,
         page: page,
         pageSize: rowsPerPage
       },{
@@ -272,9 +268,6 @@ const BannerPage = () => {
                                   <Button onClick={() => handleViewUpdate("Edit", row.id)}>
                                     <EditOutlined />
                                   </Button>
-                                <Button onClick={() => navigate(`/history/${row.id}`)}>
-                                  <HistoryOutlined />
-                                </Button>
                               </span>
                             )
                           }
@@ -306,7 +299,7 @@ const BannerPage = () => {
     >
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h2" component="h2" sx={{textAlign:'center'}}>
-          {formAction} Banner
+          {formAction} Food Item
         </Typography>
         <Divider sx={{my:2}}/>
         <Formik
@@ -316,7 +309,6 @@ const BannerPage = () => {
           status:formValue.status,
           button_title:formValue.button_title ?? "",
           button_link:formValue.button_link ?? "",
-          description: formValue.description ?? "",
           image:null,
           submit: null
         }}
@@ -329,17 +321,15 @@ const BannerPage = () => {
             let message = "added";
             const formData = new FormData();
             formData.append('name', values.name);
-            formData.append('button_title', values.button_title);
             formData.append('is_enabled', values.status);
-            formData.append('button_link', values.button_link);
-            formData.append('description', values.description);
+            formData.append('food_category_id',id)
             if (values.image) {
               formData.append('image', values.image);
             }
 
             if( formAction == "Add")
             {
-              await api.post("banner", formData,{
+              await api.post("food-item", formData,{
                 headers: {
                   'Authorization': `Bearer ${userToken}`,
                    'Content-Type': 'multipart/form-data'
@@ -348,7 +338,7 @@ const BannerPage = () => {
             }
             else
             {
-              await api.put(`banner/edit/${formValue.id}`, formData,{
+              await api.put(`food-item/edit/${formValue.id}`, formData,{
                 headers: {
                   'Authorization': `Bearer ${userToken}`,
                    'Content-Type': 'multipart/form-data'
@@ -358,9 +348,9 @@ const BannerPage = () => {
             }
 
             setOpen(false)
-            getBanner(page,rowsPerPage,searchValue)
+            getFoodItem(page,rowsPerPage,searchValue)
             
-            toast.success(`Banner ${message} successfully`, {
+            toast.success(`Food item ${message} successfully`, {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -394,7 +384,7 @@ const BannerPage = () => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, setFieldValue }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="name">Name (*)</InputLabel>
                   <OutlinedInput
@@ -412,73 +402,6 @@ const BannerPage = () => {
                   {touched.name && errors.name && (
                     <FormHelperText error id="standard-weight-helper-text-name-login">
                       {errors.name}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="description">Description</InputLabel>
-                  <OutlinedInput
-                    id="description"
-                    value={values.description}
-                    name="description"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Enter discription"
-                    fullWidth
-                    multiline
-                    minRows={6}
-                    error={Boolean(touched.description && errors.description)}
-                  />
-                  {touched.description && errors.description && (
-                    <FormHelperText error id="standard-weight-helper-text-description-login">
-                      {errors.description}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
-
-              <Grid item xs={6}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="button_title">Button Title</InputLabel>
-                  <OutlinedInput
-                    id="button_title"
-                    type="text"
-                    value={values.button_title}
-                    name="button_title"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Enter button title"
-                    fullWidth
-                    error={Boolean(touched.button_title && errors.button_title)}
-                    readOnly={formAction == "View"}
-                  />
-                  {touched.button_title && errors.button_title && (
-                    <FormHelperText error id="standard-weight-helper-text-button_title-login">
-                      {errors.button_title}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
-              <Grid item xs={6}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="button_link">Button Link</InputLabel>
-                  <OutlinedInput
-                    id="button_link"
-                    type="text"
-                    value={values.button_link}
-                    name="button_link"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Enter button link"
-                    fullWidth
-                    error={Boolean(touched.button_link && errors.button_link)}
-                    readOnly={formAction == "View"}
-                  />
-                  {touched.button_link && errors.button_link && (
-                    <FormHelperText error id="standard-weight-helper-text-button_link-login">
-                      {errors.button_link}
                     </FormHelperText>
                   )}
                 </Stack>
@@ -503,7 +426,7 @@ const BannerPage = () => {
 
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="image">Banner Image</InputLabel>
+                  <InputLabel htmlFor="image">Food Item Image</InputLabel>
                   {imagePreview && (
                     <img
                       src={imagePreview}
@@ -549,7 +472,7 @@ const BannerPage = () => {
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                      {formAction == "Edit" ? "Update" : formAction} Banner
+                      {formAction == "Edit" ? "Update" : formAction} Food Item
                     </Button>
                   </AnimateButton>
                 </Grid>
@@ -565,4 +488,4 @@ const BannerPage = () => {
   );
 };
 
-export default BannerPage;
+export default FoodItemPage;

@@ -13,6 +13,8 @@ import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
+import LunchDiningIcon from '@mui/icons-material/LunchDining';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 100 },
@@ -21,6 +23,7 @@ const columns = [
 ];
 
 const FoodCategoryPage = () => {
+  const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = React.useState('');
@@ -209,6 +212,9 @@ const FoodCategoryPage = () => {
                           <>
                             <Button onClick={() => handleViewUpdate("View", row.id)}><EyeOutlined /></Button>
                             <Button><EditOutlined onClick={() => handleViewUpdate("Edit", row.id)} /></Button>
+                            <Button onClick={() => navigate(`/food-item/${row.id}`)}>
+                                  <LunchDiningIcon />
+                              </Button>
                           </>
                         )
                         : value}

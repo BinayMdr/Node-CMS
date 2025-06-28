@@ -78,7 +78,7 @@ const GlobalSettingPage = () => {
           phoneNumber:formValue.phoneNumber,
           email:formValue.email,
           bannerImage: null,
-          chatScript:formValue.chatScript,
+          googleMap:formValue.googleMap,
           pinterestLink:formValue.pinterestLink,
           facebookLink:formValue.facebookLink,
           instagramLink:formValue.instagramLink,
@@ -98,7 +98,7 @@ const GlobalSettingPage = () => {
             formData.append('name', values.name);
             formData.append('phoneNumber', values.phoneNumber);
             formData.append('email', values.email);
-            formData.append('chatScript', values.chatScript);
+            formData.append('googleMap', values.googleMap);
             formData.append('facebookLink', values.facebookLink);
             formData.append('instagramLink', values.instagramLink);
             formData.append('twitterLink', values.twitterLink);
@@ -320,22 +320,22 @@ const GlobalSettingPage = () => {
 
               <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="chatScript">Chat Script</InputLabel>
+                  <InputLabel htmlFor="googleMap">Google Map</InputLabel>
                   <OutlinedInput
-                    id="chatScript"
-                    value={values.chatScript}
-                    name="chatScript"
+                    id="googleMap"
+                    value={values.googleMap}
+                    name="googleMap"
                     onBlur={handleBlur}
                     onChange={handleChange}
                     placeholder="Enter chat script"
                     fullWidth
                     multiline
                     minRows={12}
-                    error={Boolean(touched.chatScript && errors.chatScript)}
+                    error={Boolean(touched.googleMap && errors.googleMap)}
                   />
-                  {touched.chatScript && errors.chatScript && (
-                    <FormHelperText error id="standard-weight-helper-text-chatScript-login">
-                      {errors.chatScript}
+                  {touched.googleMap && errors.googleMap && (
+                    <FormHelperText error id="standard-weight-helper-text-googleMap-login">
+                      {errors.googleMap}
                     </FormHelperText>
                   )}
                 </Stack>

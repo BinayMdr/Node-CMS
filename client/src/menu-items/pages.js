@@ -69,14 +69,6 @@ const pages = {
       forUser: 'All',
       icon: icons.FastfoodIcon
     },
-    {
-      id: 'product',
-      title: 'Product',
-      type: 'item',
-      url: '/product',
-      forUser: 'All',
-      icon: icons.CategoryIcon
-    },
     
     {
       id: 'edit-profile',
@@ -123,6 +115,15 @@ const pages = {
       title: 'Global Setting',
       type: 'item',
       url: '/global-setting',
+      forUser: 'All',
+      icon: icons.PublicIcon
+    },
+
+    {
+      id: 'foodItem',
+      title: 'Food Item',
+      type: 'item',
+      url: '/food-item/:id',
       forUser: 'All',
       icon: icons.PublicIcon
     },

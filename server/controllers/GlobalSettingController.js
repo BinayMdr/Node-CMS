@@ -51,7 +51,7 @@ const updateGlobalSetting = [
 
         const existingGlobalSetting = await globalsetting.findOne({ where: { name } });
 
-        if(existingAboutUsData && name === 'bannerImage' && existingAboutUsData.value != null)
+        if(existingGlobalSetting && name === 'bannerImage' && existingGlobalSetting.value != null)
         {
           const filePath = path.join(process.cwd(), 'uploads', existingGlobalSetting.value);
 

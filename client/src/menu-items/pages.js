@@ -127,6 +127,15 @@ const pages = {
       forUser: 'All',
       icon: icons.PublicIcon
     },
+
+    {
+      id: 'Home',
+      title: 'Home',
+      type: 'item',
+      url: '/home',
+      forUser: 'All',
+      icon: icons.PublicIcon
+    },
      
   ]
 };

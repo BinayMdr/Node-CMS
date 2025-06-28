@@ -22,7 +22,8 @@ const CustomerReview = Loadable(lazy(() => import('pages/module/CustomerReviewPa
 const AboutUs = Loadable(lazy(() => import('pages/module/AboutUsPage')));
 const FoodCategory = Loadable(lazy(() => import('pages/module/FoodCategoryPage')));
 const Banner = Loadable(lazy(() => import('pages/module/BannerPage')));
-const FoodItem = Loadable(lazy(() => import('pages/module/FoodItemPage')));
+const FoodItem = Loadable(lazy(() => import('pages/module/FoodItemPage'))); 
+const Home = Loadable(lazy(() => import('pages/module/HomePage'))); 
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -76,7 +77,10 @@ const MainRoutes = {
       element: <FoodItem />
     },
   
-    
+ {
+      path: 'home',
+      element: <Home />
+    },    
   ]
 };
 

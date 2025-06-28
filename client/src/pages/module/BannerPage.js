@@ -425,7 +425,7 @@ const BannerPage = () => {
                     name="description"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter discription"
+                    placeholder="Enter description"
                     fullWidth
                     multiline
                     minRows={6}

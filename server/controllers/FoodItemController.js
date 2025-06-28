@@ -82,8 +82,11 @@ const storeFoodItem = [
 
       const existingFoodItem = await foodItem.findOne({
         where: {
-          name: name
-        },
+          [Op.and]: [
+            { name: name },
+            { food_category_id: food_category_id }
+          ]
+        }
       });
 
       if (existingFoodItem) {
@@ -139,12 +142,11 @@ const updateFoodItem = [
 
       const existingFoodItem = await foodItem.findOne({
         where: {
-          name: name,
-          id:{
-            [Sequelize.Op.not]: foodItemId
-          }
+          [Op.and]: [
+            { name: name },
+            { food_category_id: food_category_id }
+          ]
         }
-       
       });
 
       if (existingFoodItem) {

@@ -15,6 +15,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import LunchDiningIcon from '@mui/icons-material/LunchDining';
+import { useSelector } from 'react-redux';
+// import { useNavigate } from 'react-router-dom';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 100 },
@@ -23,6 +25,7 @@ const columns = [
 ];
 
 const FoodCategoryPage = () => {
+  const userDetails = useSelector((state => state.userDetails));
   const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -52,6 +55,12 @@ const FoodCategoryPage = () => {
   useEffect(() => {
     getFoodCategory(page, rowsPerPage, searchValue);
   }, [page, rowsPerPage, searchValue]);
+
+   useEffect( () => {
+      if(!userDetails?.accessModuleData.includes("View-food-category")){
+        navigate('/dashboard')
+      }
+    },[])
 
   const handleChangePage = (event, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (event) => {
@@ -169,9 +178,11 @@ const FoodCategoryPage = () => {
         value={searchValue}
         onChange={handleChangeSearch}
       />
-      <Button variant="contained" sx={{ my: 1, float: 'right' }} onClick={addUser}>
-        <PlusOutlined /> <span style={{ marginLeft: '5px' }}>Add</span>
-      </Button>
+      { userDetails?.accessModuleData.includes("Add-food-category") &&
+        <Button variant="contained" sx={{ my: 1, float: 'right' }} onClick={addUser}>
+          <PlusOutlined /> <span style={{ marginLeft: '5px' }}>Add</span>
+        </Button>
+      }
       <TableContainer sx={{ maxHeight: 350 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -211,7 +222,9 @@ const FoodCategoryPage = () => {
                         ? (
                           <>
                             <Button onClick={() => handleViewUpdate("View", row.id)}><EyeOutlined /></Button>
-                            <Button><EditOutlined onClick={() => handleViewUpdate("Edit", row.id)} /></Button>
+                            { userDetails?.accessModuleData.includes("Add-food-category") &&
+                              <Button><EditOutlined onClick={() => handleViewUpdate("Edit", row.id)} /></Button>
+                            }
                             <Button onClick={() => navigate(`/food-item/${row.id}`)}>
                                   <LunchDiningIcon />
                               </Button>

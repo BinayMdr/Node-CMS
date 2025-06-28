@@ -14,8 +14,12 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const [formValue, setFormValue] = React.useState({ name: '', pan: '' });
   const [imagePreviews, setImagePreviews] = React.useState({});
   const [showData, setShowData] = React.useState(false);
@@ -47,6 +51,11 @@ const HomePage = () => {
     getHome();
   }, []);
 
+  useEffect( () => {
+      if(!userDetails?.accessModuleData.includes("View-home")){
+        navigate('/dashboard')
+      }
+    },[])
   const style = {
     position: 'relative',
     left: '50%',
@@ -213,7 +222,7 @@ const HomePage = () => {
                     />
                   </Grid>
 
-
+                  { userDetails?.accessModuleData.includes("Add-home") &&
                   <Grid item xs={12}>
                     <AnimateButton>
                       <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
@@ -221,6 +230,7 @@ const HomePage = () => {
                       </Button>
                     </AnimateButton>
                   </Grid>
+                  }
                 </Grid>
               </form>
             )}

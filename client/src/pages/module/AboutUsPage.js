@@ -11,9 +11,12 @@ import { Formik } from 'formik';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import RichTextEditor from 'pages/components-overview/RichTextEditor';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const AboutUsPage = () => {
-
+   const userDetails = useSelector((state => state.userDetails));
+    const navigate = useNavigate();
   const [formValue, setFormValue] = React.useState({"name":"","pan":""})
   const [imagePreview, setImagePreview] = React.useState(null);
 
@@ -53,7 +56,12 @@ const AboutUsPage = () => {
   useEffect( () => {
     getAboutUs()
   },[])
-  
+
+   useEffect( () => {
+      if(!userDetails?.accessModuleData.includes("View-about-us")){
+        navigate('/dashboard')
+      }
+    },[])
   const style = {
     position: 'relative',
     left: '50%',
@@ -239,7 +247,7 @@ const AboutUsPage = () => {
                 </Stack>
               </Grid>
 
-              
+              { userDetails?.accessModuleData.includes("Add-about-us") &&
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
@@ -247,6 +255,7 @@ const AboutUsPage = () => {
                     </Button>
                   </AnimateButton>
                 </Grid>
+              }
             </Grid>
           </form>
         )}

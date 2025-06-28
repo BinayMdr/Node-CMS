@@ -20,6 +20,8 @@ const foodCategoryRoute = require('./routes/foodCategoryRoute.js')
 const bannerRoute = require('./routes/bannerRoute.js')
 const foodItemRoute = require('./routes/foodItemRoute.js')
 const homePageRoute = require('./routes/homePageRoute.js')
+const groupRoute = require('./routes/groupRoute.js')
+const roleRoute = require('./routes/roleRoute.js')
 
 require("dotenv").config();
 
@@ -105,6 +107,8 @@ app.use(
   ]),
   homePageRoute
 );
+app.use('/group',groupRoute);
+app.use('/role',roleRoute);
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

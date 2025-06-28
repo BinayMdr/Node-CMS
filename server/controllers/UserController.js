@@ -29,11 +29,7 @@ const getAllUser = (async (req,res) => {
       where,
       limit: parseInt(pageSize),
       offset,
-      order: [['createdAt', 'DESC']], 
-      include:[{
-        model: branch,
-        attributes:['name','is_enabled']
-      }]
+      order: [['createdAt', 'DESC']]
     });
 
     const totalUserCount = await user.count({
@@ -76,7 +72,7 @@ const storeUser = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, is_active} = req.body;
+    const { name, email, password, is_active, group} = req.body;
 
     try {
       const existingUser = await user.findOne({
@@ -99,7 +95,8 @@ const storeUser = [
         email: email,
         password: encryptedPassword,
         is_active: is_active,
-        is_admin: false
+        is_admin: false,
+        group_id: group
       });
 
       return res.json({
@@ -127,13 +124,14 @@ const updateUser = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { password, is_active } = req.body;
+    const { password, is_active,group } = req.body;
 
     const userId = req.params.userId;
     try {
       
       let storeData = {
-        is_active: is_active
+        is_active: is_active,
+        group_id:group
       };
       if( password != undefined)
       {

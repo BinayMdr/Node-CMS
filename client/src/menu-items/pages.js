@@ -16,6 +16,8 @@ import ReviewsIcon from '@mui/icons-material/Reviews';
 import InfoIcon from '@mui/icons-material/Info';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import ImageIcon from '@mui/icons-material/Image';
+import HomeIcon from '@mui/icons-material/Home';
+import GroupIcon from '@mui/icons-material/Group';
 // icons
 const icons = {
   LoginOutlined,
@@ -35,7 +37,9 @@ const icons = {
   ReviewsIcon,
   InfoIcon,
   FastfoodIcon,
-  ImageIcon
+  ImageIcon,
+  HomeIcon,
+  GroupIcon
 };
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
@@ -50,15 +54,25 @@ const pages = {
       title: 'User',
       type: 'item',
       url: '/user',
-      forUser: 'All',
+      forRole: 'View-user',
       icon: icons.PeopleIcon
     },
+    {
+      id: 'group',
+      title: 'Group',
+      type: 'item',
+      url: '/group',
+      forRole: 'View-group',
+      icon: icons.GroupIcon
+    },
+
+
       {
       id: 'banner',
       title: 'Banner',
       type: 'item',
       url: '/banner',
-      forUser: 'All',
+      forRole: 'View-banner',
       icon: icons.ImageIcon
     },
     {
@@ -66,7 +80,7 @@ const pages = {
       title: 'Food Category',
       type: 'item',
       url: '/food-category',
-      forUser: 'All',
+      forRole: 'View-food-category',
       icon: icons.FastfoodIcon
     },
     
@@ -82,7 +96,7 @@ const pages = {
       title: 'Gallery',
       type: 'item',
       url: '/gallery',
-      forUser: 'All',
+      forRole: 'View-gallery',
       icon: icons.BrowseGalleryIcon
     },
     {
@@ -90,7 +104,7 @@ const pages = {
       title: 'Message',
       type: 'item',
       url: '/message',
-      forUser: 'All',
+      forRole: 'View-message',
       icon: icons.MessageIcon
     },
      {
@@ -98,15 +112,24 @@ const pages = {
       title: 'Customer Review',
       type: 'item',
       url: '/customer-review',
-      forUser: 'All',
+      fforRole: 'View-customer-review',
       icon: icons.ReviewsIcon
     },
+     {
+      id: 'Home',
+      title: 'Home',
+      type: 'item',
+      url: '/home',
+      forRole: 'View-home',
+      icon: icons.HomeIcon
+    },
+     
      {
       id: 'aboutUs',
       title: 'About Us',
       type: 'item',
       url: '/about-us',
-      forUser: 'All',
+      forRole: 'View-about-us',
       icon: icons.InfoIcon
     },
 
@@ -115,7 +138,7 @@ const pages = {
       title: 'Global Setting',
       type: 'item',
       url: '/global-setting',
-      forUser: 'All',
+      forRole: 'View-global-setting',
       icon: icons.PublicIcon
     },
 
@@ -124,19 +147,10 @@ const pages = {
       title: 'Food Item',
       type: 'item',
       url: '/food-item/:id',
-      forUser: 'All',
+      hide:true,
       icon: icons.PublicIcon
     },
 
-    {
-      id: 'Home',
-      title: 'Home',
-      type: 'item',
-      url: '/home',
-      forUser: 'All',
-      icon: icons.PublicIcon
-    },
-     
   ]
 };
 

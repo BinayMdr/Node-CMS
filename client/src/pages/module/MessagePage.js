@@ -15,6 +15,8 @@ import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 170 },
@@ -24,7 +26,8 @@ const columns = [
 ];
 
 const UserPage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
+    const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = React.useState('');
@@ -66,7 +69,12 @@ const UserPage = () => {
       getMessage(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
 
-  
+   useEffect( () => {
+      if(!userDetails?.accessModuleData.includes("View-message")){
+        navigate('/dashboard')
+      }
+    },[])
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };

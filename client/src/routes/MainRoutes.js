@@ -24,6 +24,7 @@ const FoodCategory = Loadable(lazy(() => import('pages/module/FoodCategoryPage')
 const Banner = Loadable(lazy(() => import('pages/module/BannerPage')));
 const FoodItem = Loadable(lazy(() => import('pages/module/FoodItemPage'))); 
 const Home = Loadable(lazy(() => import('pages/module/HomePage'))); 
+const Group = Loadable(lazy(() => import('pages/module/GroupPage'))); 
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -77,9 +78,14 @@ const MainRoutes = {
       element: <FoodItem />
     },
   
- {
+  {
       path: 'home',
       element: <Home />
+    },    
+
+     {
+      path: 'group',
+      element: <Group />
     },    
   ]
 };

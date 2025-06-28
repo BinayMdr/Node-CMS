@@ -1,9 +1,11 @@
 const user = require('../models/user');
-const branch = require('../models/branch');
+const groupHasRole = require('../models/groupHasRole');
+const role = require("../models/role")
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require("dotenv").config();
 const { body, validationResult } = require('express-validator');
+const { Op, Sequelize } = require('sequelize');
 
 const verifyUserLogin =[  
     body('email').isEmail().withMessage('Invalid email address'),
@@ -47,23 +49,33 @@ const userDetails = (async(req,res) => {
     const decoded = req.decodedData;
 
     const userData = await user.findByPk(decoded.id, {
-        attributes: ['id', 'name', 'email','branch_id','is_admin'],
+        attributes: ['id', 'name', 'email','is_admin','group_id'],
       });
     
     
     let branchData = null;
 
-    if(userData.branch_id != null)
-    {
-        branchData = await branch.findByPk(userData.branch_id,{
-           attributes:['id','name']
-        });
-    }
+    const groupHasRoleData = await groupHasRole.findAll({
+        where:{
+            group_id: userData.dataValues.group_id
+        }
+    })
+
+    const roleIds =  groupHasRoleData.map((g) => g.dataValues.role_id)
+
+    const roleData = await role.findAll({
+        where: {
+            id: {
+            [Op.in]: roleIds
+            }
+        }
+    })
+
+    const accessModule =  roleData.map((a) => a.dataValues.name)
 
     let data = [];
 
-    data = { 'user': userData ,
-         'branch': branchData };
+    data = { 'user': userData ,'accessModule': accessModule};
   
     return res.json({'data':data,'error':false});
 });

@@ -4,7 +4,7 @@ import {Paper,Table,TableBody,
         TablePagination,TableRow,TextField,
         Typography,Button,Box,Modal, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput,Checkbox, FormControlLabel
+        OutlinedInput,Checkbox, FormControlLabel, Select, MenuItem
       } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
@@ -15,23 +15,26 @@ import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 170 },
   { id: 'email', label: 'Email', minWidth: 170 },
-  { id: 'branch_id', label: 'Branch', minWidth: 170 },
   { id: 'is_active', label: 'Status', minWidth: 100},
   { id: 'action', label: 'Action', minWidth: 100},
 ];
 
 const UserPage = () => {
-
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [searchValue, setSearchValue] = React.useState('');
   const [rows,setRows] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [totalData,setTotalData] = React.useState(0);
+  const [groupList,setGroupList] = React.useState([]);
 
   const [formValue, setFormValue] = React.useState({"id":null,"name":"",
               "price":0,"status":false})
@@ -64,10 +67,34 @@ const UserPage = () => {
     }
   } 
 
+  const getGroupList = async () => {
+    try
+    {
+      const response = await api.get('group/get-list', {
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
+
+      setGroupList(response.data.data)
+      
+    }
+    catch(error)
+    {
+      console.log(error)
+    }
+  } 
+
   useEffect( () => {
       getUser(page,rowsPerPage,searchValue)
   },[page,rowsPerPage,searchValue])
 
+  useEffect( () => {
+    if(!userDetails?.accessModuleData.includes("View-user")){
+      navigate('/dashboard')
+    }
+    getGroupList()
+  },[])
  
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -122,7 +149,8 @@ const UserPage = () => {
           "email":element['email'],
           "status":element['is_active'],
           "password":"",
-          "confirmPassword":""
+          "confirmPassword":"",
+          "group": element['group_id'],
         })
       }
     });
@@ -136,10 +164,12 @@ const UserPage = () => {
               sx={{my:1,mx:1,float:'right'}}
               value={searchValue}
               onChange={handleChangeSearch}/>
-        <Button variant="contained"
-          sx={{my:1,float:'right'}}
-          onClick={addUser}
-         ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
+        { userDetails?.accessModuleData.includes("Add-user") &&
+          <Button variant="contained"
+            sx={{my:1,float:'right'}}
+            onClick={addUser}
+          ><PlusOutlined /> <span style={{marginLeft:'5px'}}>Add</span></Button>
+        }
       <TableContainer sx={{ maxHeight: 350 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -165,16 +195,18 @@ const UserPage = () => {
                         <TableCell key={column.id} align={column.align}>
                           { (column.id === "name" || column.id === "email") ? (column.format && typeof value === 'number'
                             ? column.format(value)
-                            : value) :( (column.id == "branch_id") ? ( row.Branch.is_enabled ? `${row.Branch.name}` : `${row.Branch.name} (Inactive)`) 
+                            : value) 
                             :
                             ((column.id == "is_active") ? (value === true ? 'Active' : 'Inactive') 
                             : <span>
                                 <Button onClick={() => handleViewUpdate("View",row.id)}>
                                     <EyeOutlined/></Button>  
-                                <Button>
-                                    <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
+                                { userDetails?.accessModuleData.includes("Edit-user") &&
+                                  <Button>
+                                      <EditOutlined onClick={() => handleViewUpdate("Edit",row.id)}/></Button>
+                                }
                               </span>)
-                            )
+                          
                             
                            }
                         </TableCell>
@@ -213,6 +245,7 @@ const UserPage = () => {
           email: formValue.email,
           branch: formValue.branch,
           status:formValue.status,
+          group:formValue.group,
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -251,7 +284,8 @@ const UserPage = () => {
                 name: values.name,
                 email: values.email,
                 is_active: values.status,
-                password: values.password
+                password: values.password,
+                group: values.group
               },{
                 headers: {
                   'Authorization': `Bearer ${userToken}`
@@ -261,7 +295,8 @@ const UserPage = () => {
             else
             {
               let formData = {
-                is_active: values.status
+                is_active: values.status,
+                group: values.group
               };
               if(values.password != '')
               {
@@ -330,12 +365,12 @@ const UserPage = () => {
           }
         }}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values}) => (
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values,setFieldValue}) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="name">Name</InputLabel>
+                  <InputLabel htmlFor="name">Name (*)</InputLabel>
                   <OutlinedInput
                     id="name"
                     type="text"
@@ -357,7 +392,7 @@ const UserPage = () => {
               </Grid>
               <Grid item xs={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="email">Email</InputLabel>
+                  <InputLabel htmlFor="email">Email (*)</InputLabel>
                   <OutlinedInput
                     id="email"
                     type="text"
@@ -377,10 +412,43 @@ const UserPage = () => {
                   )}
                 </Stack>
               </Grid>
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="group">Group (*)</InputLabel>
+                   <Select
+                      labelId="demo-simple-select-group-label"
+                      id="demo-simple-group-select"
+                      value={values.group}
+                      onChange={(event) => {
+                        handleChange(event);
+                        setFieldValue('group', event.target.value);
+                      }}
+                      disabled={ formAction == "View"}
+                    >
+                      {
+                        groupList.map((group) => {
+                        const { id, name } = group;
+                        return (
+                          <MenuItem key={id} value={id}>
+                            {name}
+                          </MenuItem>
+                        );
+                        })
+                      }
+                    </Select>
+
+                  {touched.group && errors.group && (
+                    <FormHelperText error id="standard-weight-helper-text-group-login">
+                      {errors.group}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+
               { (formAction == 'Add' || formAction == 'Edit') &&
                 <Grid item xs={6}>
                   <Stack spacing={1}>
-                    <InputLabel htmlFor="password">Password</InputLabel>
+                    <InputLabel htmlFor="password">Password (*)</InputLabel>
                     <OutlinedInput
                       id="password"
                       type="password"
@@ -405,7 +473,7 @@ const UserPage = () => {
                 (formAction == 'Add' || formAction == 'Edit') &&
                 <Grid item xs={6}>
                   <Stack spacing={1}>
-                    <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
+                    <InputLabel htmlFor="confirmPassword">Confirm Password (*)</InputLabel>
                     <OutlinedInput
                       id="confirmPassword"
                       type="password"

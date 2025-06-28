@@ -19,8 +19,12 @@ import {
 } from '@mui/icons-material';
 import api from 'routes/Enpoint';
 import {toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const FileManager = () => {
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const [editingIdx, setEditingIdx] = useState(null);
   const [newName, setNewName] = useState('');
@@ -45,6 +49,12 @@ const FileManager = () => {
   useEffect(() => {
     fetchFiles();
   }, []);
+
+  useEffect( () => {
+      if(!userDetails?.accessModuleData.includes("View-gallery")){
+        navigate('/dashboard')
+      }
+    },[])
 
   const handleUpload = async (e) => {
     const formData = new FormData();
@@ -139,6 +149,7 @@ const FileManager = () => {
           📁 File Manager
         </Typography>
 
+        { userDetails?.accessModuleData.includes("Add-gallery") &&
         <Button
           variant="contained"
           component="label"
@@ -164,6 +175,7 @@ const FileManager = () => {
           Upload Files
           <input type="file" hidden multiple onChange={handleUpload} />
         </Button>
+      }
       </Stack>
 
       {files.length > 0 ? (
@@ -259,7 +271,7 @@ const FileManager = () => {
                 
 
                 <Box sx={{ width: '100%', mt: 1.2, px: 1 }}>
-                  {isEditing ? (
+                  {isEditing  ? (
                     <Stack direction="row" spacing={1} alignItems="center">
                       <TextField
                         size="small"
@@ -329,6 +341,7 @@ const FileManager = () => {
                         >
                           {file.name}
                         </Typography>
+                        { userDetails?.accessModuleData.includes("Edit-gallery") &&
                         <Tooltip title="Edit file name">
                           <IconButton
                             size="small"
@@ -341,47 +354,51 @@ const FileManager = () => {
                           >
                             <Edit fontSize="small" />
                           </IconButton>
-                        </Tooltip>
+                        </Tooltip>    
+                       }
                       </Stack>
                     </Tooltip>
                   )}
                 </Box>
-
+            
                 {/* Delete overlay button */}
-                <Box
-                  className="overlay"
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    width: 32,
-                    height: 32,
-                    bgcolor: 'rgba(255, 80, 80, 0.85)',
-                    opacity: 0,
-                    visibility: 'hidden',
-                    transition: 'opacity 0.25s ease, visibility 0.25s ease',
-                    borderRadius: 2,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      bgcolor: 'rgba(255, 60, 60, 1)',
-                    },
-                  }}
-                >
-                  <IconButton
-                    aria-label={`Delete ${file.name}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(file.id);
+                 { userDetails?.accessModuleData.includes("Edit-gallery") &&
+                  <Box
+                    className="overlay"
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      width: 32,
+                      height: 32,
+                      bgcolor: 'rgba(255, 80, 80, 0.85)',
+                      opacity: 0,
+                      visibility: 'hidden',
+                      transition: 'opacity 0.25s ease, visibility 0.25s ease',
+                      borderRadius: 2,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        bgcolor: 'rgba(255, 60, 60, 1)',
+                      },
                     }}
-                    size="small"
-                    sx={{ color: 'white', p: 0 }}
                   >
-                    <Delete fontSize="small" />
-                  </IconButton>
-                </Box>
+                
+                    <IconButton
+                      aria-label={`Delete ${file.name}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(file.id);
+                      }}
+                      size="small"
+                      sx={{ color: 'white', p: 0 }}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </Box>
+                }
               </Paper>
             );
           })}

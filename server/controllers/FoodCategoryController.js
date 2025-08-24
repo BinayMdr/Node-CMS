@@ -135,7 +135,7 @@ const updateFoodCategory = [
         });
       }
 
-      await foodCategory.update({
+      const updatedFoodCategory = await foodCategory.update({
         name: name,
         is_enabled: status,
       },
@@ -143,11 +143,6 @@ const updateFoodCategory = [
         where: { id: foodCategoryId }
       });
 
-      const updatedFoodCategory = await foodCategory.findOne({
-        where: {
-          id: productId,
-        },
-      });
 
       return res.json({
         message: 'Food category updated',

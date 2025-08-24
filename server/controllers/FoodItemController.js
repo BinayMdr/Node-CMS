@@ -138,13 +138,20 @@ const updateFoodItem = [
     const { name, is_enabled } = req.body;
     const foodItemId = req.params.foodItemId;
 
+    const foodItemData = await foodItem.findOne({
+      where:{
+        id:foodItemId
+      }
+    })
+
     try {
 
       const existingFoodItem = await foodItem.findOne({
         where: {
           [Op.and]: [
             { name: name },
-            { food_category_id: food_category_id }
+            { food_category_id: foodItemData['dataValues']['food_category_id'] },
+            { id: { [Op.ne]: foodItemId } }  // ✅ wrap in braces
           ]
         }
       });
@@ -160,6 +167,7 @@ const updateFoodItem = [
         name: name,
         is_enabled: is_enabled
       }
+      
       let imagePath = null;
       if(req.file !== undefined && req.file){
         imagePath = path.join('/food-item', req.file.filename).replace(/\\/g, '/');

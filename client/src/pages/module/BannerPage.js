@@ -9,7 +9,7 @@ import {Paper,Table,TableBody,
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
 import api from 'routes/Enpoint'
-import {EditOutlined,EyeOutlined,PlusOutlined,HistoryOutlined} from '@ant-design/icons';
+import {EditOutlined,EyeOutlined,PlusOutlined} from '@ant-design/icons';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import Divider from '@mui/material/Divider';
@@ -23,7 +23,7 @@ const columns = [
   { id: 'name', label: 'Name', minWidth: 100 },
   { id: 'button_title', label: 'Button Title', minWidth: 100},
   { id: 'button_link', label: 'Button Link', minWidth: 100},
-  { id: 'status', label: 'Status', minWidth: 100},
+  { id: 'is_enabled', label: 'Status', minWidth: 100},
   { id: 'action', label: 'Action', minWidth: 100},
 ];
 
@@ -262,7 +262,6 @@ const BannerPage = () => {
                   >
                     {columns.map((column) => {
                       const value = row[column.id];
-                      
                       return (
                         <TableCell key={column.id} align={column.align}>
                           {
@@ -271,21 +270,18 @@ const BannerPage = () => {
                                 ? column.format(value)
                                 : value
                             ) :
-                            (column.id === "status") ? (
+                            (column.id === "is_enabled") ? (
                               value === true ? 'Active' : 'Inactive'
                             ) : (
                               <span>
                                 <Button onClick={() => handleViewUpdate("View", row.id)}>
                                   <EyeOutlined />
                                 </Button>
-                                { userDetails?.accessModuleData.includes("Edit-user") &&
+                                { userDetails?.accessModuleData.includes("Edit-banner") &&
                                   <Button onClick={() => handleViewUpdate("Edit", row.id)}>
                                     <EditOutlined />
                                   </Button>
                                 }
-                                <Button onClick={() => navigate(`/history/${row.id}`)}>
-                                  <HistoryOutlined />
-                                </Button>
                               </span>
                             )
                           }

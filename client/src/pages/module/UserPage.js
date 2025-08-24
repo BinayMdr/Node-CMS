@@ -254,7 +254,7 @@ const UserPage = () => {
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {
-
+            
             let message = "added";
             if( formAction == "Add")
             {
@@ -294,11 +294,13 @@ const UserPage = () => {
             }
             else
             {
+             
               let formData = {
                 is_active: values.status,
                 group: values.group
               };
-              if(values.password != '')
+
+              if(values.password != '' && values.password != undefined)
               {
                 let message = '';
                 if(values.password.length < 6) message = "Password length must be equal or greater than 6 digits"
@@ -347,6 +349,7 @@ const UserPage = () => {
             });
 
           } catch (err) {
+            console.log(err)
             setStatus({ success: false });
             setSubmitting(false);
             if(err.response.status == "400")

@@ -112,7 +112,7 @@ const pages = {
       title: 'Customer Review',
       type: 'item',
       url: '/customer-review',
-      fforRole: 'View-customer-review',
+      forRole: 'View-customer-review',
       icon: icons.ReviewsIcon
     },
      {

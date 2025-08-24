@@ -92,7 +92,7 @@ const CustomerReviewPage = () => {
         designation: item.designation,
         review: item.review,
         ratings: item.ratings,
-        status: item.is_active,
+        status: item.is_enabled,
       });
       setOpen(true);
     }

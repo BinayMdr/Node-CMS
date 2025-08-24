@@ -23,6 +23,8 @@ const homePageRoute = require('./routes/homePageRoute.js')
 const groupRoute = require('./routes/groupRoute.js')
 const roleRoute = require('./routes/roleRoute.js')
 
+const frontendRoute = require('./routes/frontendRoute.js')
+
 require("dotenv").config();
 
 const app = express();
@@ -109,6 +111,7 @@ app.use(
 );
 app.use('/group',groupRoute);
 app.use('/role',roleRoute);
+app.use('/frontend',frontendRoute)
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

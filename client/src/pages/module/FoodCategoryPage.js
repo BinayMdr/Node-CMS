@@ -98,7 +98,7 @@ const FoodCategoryPage = () => {
       setFormValue({
         id,
         name: item.name,
-        status: item.is_active,
+        status: item.is_enabled,
       });
       setOpen(true);
     }

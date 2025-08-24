@@ -20,7 +20,7 @@ import { useParams } from 'react-router-dom';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 100 },
-  { id: 'status', label: 'Status', minWidth: 100},
+  { id: 'is_enabled', label: 'Status', minWidth: 100},
   { id: 'action', label: 'Action', minWidth: 100},
 ];
 
@@ -258,7 +258,7 @@ const FoodItemPage = () => {
                                 ? column.format(value)
                                 : value
                             ) :
-                            (column.id === "status") ? (
+                            (column.id === "is_enabled") ? (
                               value === true ? 'Active' : 'Inactive'
                             ) : (
                               <span>

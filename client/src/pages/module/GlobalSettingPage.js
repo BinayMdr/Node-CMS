@@ -20,7 +20,6 @@ const GlobalSettingPage = () => {
    const userDetails = useSelector((state => state.userDetails));
     const navigate = useNavigate();
   const [formValue, setFormValue] = React.useState({"name":"","pan":""})
-  const [imagePreview, setImagePreview] = React.useState(null);
 
 
   const [showData, setShowData] = React.useState(false)
@@ -41,10 +40,6 @@ const GlobalSettingPage = () => {
         result[name] = value;
         return result;
       }, {});
-
-      if (convertedObject.bannerImage) {
-        setImagePreview(`${process.env.REACT_APP_IMAGE_BASE_URL}${convertedObject.bannerImage}`);
-      }
 
       setFormValue(convertedObject);
       
@@ -86,7 +81,6 @@ const GlobalSettingPage = () => {
           name: formValue.name,
           phoneNumber:formValue.phoneNumber,
           email:formValue.email,
-          bannerImage: null,
           googleMap:formValue.googleMap,
           pinterestLink:formValue.pinterestLink,
           facebookLink:formValue.facebookLink,
@@ -114,9 +108,6 @@ const GlobalSettingPage = () => {
             formData.append('pinterestLink', values.pinterestLink);
             formData.append('workingTime', values.workingTime);
 
-            if (values.bannerImage) {
-              formData.append('bannerImage', values.bannerImage);
-            }
               await api.put(`global-setting`, 
                 formData
               ,{
@@ -351,60 +342,7 @@ const GlobalSettingPage = () => {
               </Grid>
 
 
-               <Grid item xs={6}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="bannerImage">Banner Image</InputLabel>
-
-                  {values.bannerImage ? (
-                    <Box mt={2}>
-                      <img
-                        src={
-                          typeof values.bannerImage === 'string'
-                            ? `${process.env.REACT_APP_IMAGE_BASE_URL}${values.bannerImage}` // DB image
-                            : URL.createObjectURL(values.bannerImage) // New upload
-                        }
-                        alt="Banner Preview"
-                        style={{
-                          width: '100%',
-                          maxWidth: '300px',
-                          borderRadius: '8px',
-                          border: '1px solid #ccc'
-                        }}
-                      />
-                    </Box>
-                  ) : 
-                  imagePreview && (
-                    <Box mt={2}>
-                      <img
-                        src={imagePreview}
-                        alt="Banner Preview"
-                        style={{ width: '100%', maxWidth: '300px', borderRadius: '8px', border: '1px solid #ccc' }}
-                      />
-                    </Box>
-                  )
-                
-                }
-                
-                  <OutlinedInput
-                    id="bannerImage"
-                    type="file"
-                    name="bannerImage"
-                    inputProps={{ accept: 'image/*' }}
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      setFieldValue('bannerImage', file);
-                    }}
-                    fullWidth
-                    error={Boolean(touched.bannerImage && errors.bannerImage)}
-                  />
-                  {touched.bannerImage && errors.bannerImage && (
-                    <FormHelperText error id="standard-weight-helper-text-bannerImage">
-                      {errors.bannerImage}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
-
+      
                { userDetails?.accessModuleData.includes("Add-global-setting") &&
                 <Grid item xs={12}>
                   <AnimateButton>

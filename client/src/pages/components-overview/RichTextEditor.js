@@ -14,9 +14,7 @@ const RichTextEditor = ({ name, value, onChange }) => {
         height: 400,
         menubar: true, // must be true for code plugin to work
         plugins: [
-          'advlist autolink lists link image charmap print preview anchor',
-          'searchreplace visualblocks code',
-          'insertdatetime table paste help wordcount',
+          'code'
         ],
         toolbar:
           'undo redo | formatselect | bold italic backcolor | ' +

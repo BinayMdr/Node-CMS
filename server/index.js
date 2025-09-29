@@ -111,7 +111,7 @@ app.use(
 );
 app.use('/group',groupRoute);
 app.use('/role',roleRoute);
-app.use('/frontend',frontendRoute)
+app.use('/api/frontend',frontendRoute)
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');

@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: cafe_admin
 -- ------------------------------------------------------
--- Server version	8.0.42-0ubuntu0.22.04.1
+-- Server version	8.0.43-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `AboutUsPages`;
 CREATE TABLE `AboutUsPages` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  `value` varchar(255) DEFAULT NULL,
+  `value` longtext,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
@@ -38,7 +38,7 @@ CREATE TABLE `AboutUsPages` (
 
 LOCK TABLES `AboutUsPages` WRITE;
 /*!40000 ALTER TABLE `AboutUsPages` DISABLE KEYS */;
-INSERT INTO `AboutUsPages` VALUES (1,'description','<p>Hello mama miya</p>','2025-06-21 09:43:09','2025-06-21 10:00:56'),(2,'subHeader','No off','2025-06-21 09:43:09','2025-06-21 10:00:56'),(3,'subDescription','<p>Nice to say</p>','2025-06-21 09:43:09','2025-06-21 10:00:56'),(4,'image','about-us/1750500056692.jpg','2025-06-21 09:50:26','2025-06-21 10:00:56');
+INSERT INTO `AboutUsPages` VALUES (1,'description','<p>Tucked away on vibrant Hutt Street, Plenty Caf&eacute; is your local spot for great coffee, fresh&nbsp;food, and a warm community vibe. Whether you&rsquo;re grabbing your morning brew, enjoying a&nbsp;leisurely brunch, or catching up with friends over lunch, we&rsquo;ve got plenty for everyone.</p>\r\n<p>Our Coffee<br>We take our coffee seriously. Using locally roasted beans, our baristas craft every cup with<br>care&mdash;smooth, rich, and always consistent. From a silky flat white to a bold long black, you&rsquo;ll<br>find your favourite here.<br>Our Food<br>At Plenty Caf&eacute;, we believe in fresh, wholesome, and delicious food. Our menu features a mix<br>of classics and modern caf&eacute; favourites:<br>- All-day breakfast options<br>- Freshly made sandwiches, wraps &amp;amp; salads<br>- Homemade muffins, pastries &amp;amp; sweet treats<br>- Seasonal specials that showcase local produce<br>Vegetarian, vegan, and gluten-free options are always available.<br>The Plenty Vibe<br>Step inside and you&rsquo;ll find more than just a caf&eacute;&mdash;it&rsquo;s a place to unwind, connect, and enjoy.<br>With a relaxed atmosphere, friendly staff, and plenty of natural light, our caf&eacute; is the</p>','2025-06-21 09:43:09','2025-09-29 12:42:43'),(2,'subHeader','No off','2025-06-21 09:43:09','2025-08-24 11:22:09'),(3,'subDescription','<p>Nice to say</p>','2025-06-21 09:43:09','2025-08-24 11:22:09'),(4,'image','about-us/1750500056692.jpg','2025-06-21 09:50:26','2025-06-21 10:00:56');
 /*!40000 ALTER TABLE `AboutUsPages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -61,7 +61,7 @@ CREATE TABLE `Banners` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,7 +70,7 @@ CREATE TABLE `Banners` (
 
 LOCK TABLES `Banners` WRITE;
 /*!40000 ALTER TABLE `Banners` DISABLE KEYS */;
-INSERT INTO `Banners` VALUES (1,'2 12Nourish Noor Cafe',NULL,NULL,'Test 2','Test 2',0,3,'2025-06-25 13:29:53','2025-06-25 13:49:14'),(2,'Nourish Noor Cafe New',NULL,NULL,'undefined','undefined',1,4,'2025-06-25 13:31:38','2025-06-25 13:49:14'),(3,'Binay Manandhar',NULL,'/banner/1750858332010.png','','',0,5,'2025-06-25 13:32:12','2025-06-25 13:49:14'),(4,'Nourish Noor Cafe w',NULL,'/banner/1750858538982.png','Test','Test',0,6,'2025-06-25 13:35:39','2025-06-25 13:49:14'),(5,'admin',NULL,'/banner/1750858556891.png','','undefined',0,2,'2025-06-25 13:35:56','2025-06-25 13:49:14'),(6,'User',NULL,'/banner/1750858579123.png','undefined','undefined',1,1,'2025-06-25 13:36:19','2025-06-25 13:49:14'),(7,'admin 2',NULL,'/banner/1750858646949.png','null','null',1,7,'2025-06-25 13:37:26','2025-06-25 13:49:14'),(8,'Test 2',NULL,'/banner/1750858672473.png','null','null',0,8,'2025-06-25 13:37:52','2025-06-25 13:49:14'),(9,'horoko',NULL,'/banner/1750858716715.png','','',0,9,'2025-06-25 13:38:36','2025-06-25 13:49:14'),(10,'test','Hello','/banner/1751074127397.png','no','ns',1,10,'2025-06-28 01:28:47','2025-06-28 01:29:02');
+INSERT INTO `Banners` VALUES (12,'Seasonal Flavors Timeless Memories','Bring your loves ones & share unforgettable flavors together','/banner/1759141196890.png','View Menu','/menu',1,1,'2025-09-29 10:19:56','2025-09-29 10:30:47');
 /*!40000 ALTER TABLE `Banners` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -92,7 +92,7 @@ CREATE TABLE `CustomerReviews` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,7 +101,7 @@ CREATE TABLE `CustomerReviews` (
 
 LOCK TABLES `CustomerReviews` WRITE;
 /*!40000 ALTER TABLE `CustomerReviews` DISABLE KEYS */;
-INSERT INTO `CustomerReviews` VALUES (2,'Binay Manandhar','Developer','3','Hello asddsa',2,1,'2025-06-21 08:01:24','2025-06-25 12:55:26'),(3,'Nourish Noor Cafe','Developer','2','Test',4,1,'2025-06-21 08:01:50','2025-06-25 12:55:26'),(4,'Admin','Developer','2','saddddd',3,0,'2025-06-21 08:07:03','2025-06-25 12:55:26'),(5,'sadsa','sadsda','3','sddsa',1,1,'2025-06-21 08:11:27','2025-06-25 12:55:26'),(6,'Test','Test','3','dssdaasd',5,1,'2025-06-25 10:05:49','2025-06-25 12:55:26'),(7,'adssad','sdadsa','1','sadsadsad',6,1,'2025-06-25 10:05:54','2025-06-25 12:55:26'),(8,'saddsa','sadsda','2','saddsasadsda',7,0,'2025-06-25 10:05:59','2025-06-25 12:55:26'),(9,'saddsadsa','adssaddsa','1','sdasadsadsda',8,0,'2025-06-25 10:06:04','2025-06-25 12:55:26'),(10,'sadads','saddsa','2','sadsaddsa',9,0,'2025-06-25 10:06:08','2025-06-25 12:55:26'),(11,'sasaddsa','saddsa','1','sadsadsaasd',10,0,'2025-06-25 10:06:13','2025-06-25 12:55:26'),(12,'qewdwd','wqesaddsa','1','sdadsadssad',14,0,'2025-06-25 10:06:18','2025-06-25 10:11:15'),(13,'sddssdadsa','sadsda','1','sdadsasaddsa',13,0,'2025-06-25 10:06:23','2025-06-25 10:11:15'),(14,'sadsad','sasda','2','sdsadasdds',12,0,'2025-06-25 10:06:27','2025-06-25 10:11:15'),(15,'sdasad','sadsa','2','asddsasad',11,0,'2025-06-25 10:06:31','2025-06-25 10:11:15');
+INSERT INTO `CustomerReviews` VALUES (21,'Binay Manandhar','Quality Assurance Engineer','5','Good food with good vibes',1,1,'2025-09-29 10:48:30','2025-09-29 10:48:30'),(22,'Shreejan Manandhar','Backend Engineer','4','Nice place to hangout with friends',2,1,'2025-09-29 10:48:51','2025-09-29 10:48:51'),(23,'Vincent Rai','Manager','5','Friendly environment with good food',3,1,'2025-09-29 10:49:24','2025-09-29 10:49:24'),(24,'Manish Maharjan','Cook','4','Friendly staffs',4,1,'2025-09-29 10:49:52','2025-09-29 10:54:21');
 /*!40000 ALTER TABLE `CustomerReviews` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -146,7 +146,7 @@ CREATE TABLE `FoodCategories` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -155,7 +155,7 @@ CREATE TABLE `FoodCategories` (
 
 LOCK TABLES `FoodCategories` WRITE;
 /*!40000 ALTER TABLE `FoodCategories` DISABLE KEYS */;
-INSERT INTO `FoodCategories` VALUES (1,'Starter',0,1,'2025-06-25 12:52:44','2025-06-28 01:44:57'),(2,'Dinner',1,2,'2025-06-25 12:52:50','2025-06-28 01:44:57');
+INSERT INTO `FoodCategories` VALUES (1,'Starters',1,1,'2025-06-25 12:52:44','2025-08-24 12:08:59'),(2,'Dinner',0,2,'2025-06-25 12:52:50','2025-08-24 12:39:51'),(3,'Test',1,3,'2025-08-24 12:09:11','2025-08-24 12:09:11'),(4,'saddsa',0,4,'2025-08-24 12:22:58','2025-08-24 12:22:58');
 /*!40000 ALTER TABLE `FoodCategories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,7 +176,7 @@ CREATE TABLE `FoodItems` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -185,7 +185,7 @@ CREATE TABLE `FoodItems` (
 
 LOCK TABLES `FoodItems` WRITE;
 /*!40000 ALTER TABLE `FoodItems` DISABLE KEYS */;
-INSERT INTO `FoodItems` VALUES (1,1,'Nourish Noor Cafes','/food-item/1751036210403.png',0,2,'2025-06-27 14:56:36','2025-06-27 14:57:01'),(2,1,'Admin','/food-item/1751036218955.png',1,1,'2025-06-27 14:56:58','2025-06-27 14:57:01');
+INSERT INTO `FoodItems` VALUES (1,1,'Nourish Noor Cafes','/food-item/1751036210403.png',1,2,'2025-06-27 14:56:36','2025-08-24 12:40:48'),(2,1,'Admin','/food-item/1751036218955.png',1,1,'2025-06-27 14:56:58','2025-08-24 12:40:07'),(3,2,'Test','/food-item/1756036234089.jpg',1,3,'2025-08-24 11:50:34','2025-08-24 11:50:34');
 /*!40000 ALTER TABLE `FoodItems` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -204,7 +204,7 @@ CREATE TABLE `Galleries` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,7 +213,7 @@ CREATE TABLE `Galleries` (
 
 LOCK TABLES `Galleries` WRITE;
 /*!40000 ALTER TABLE `Galleries` DISABLE KEYS */;
-INSERT INTO `Galleries` VALUES (28,'3','/gallery/1750851203101.png',5,'2025-06-25 11:33:23','2025-06-25 11:42:16'),(29,'5','/gallery/1750851203107.png',3,'2025-06-25 11:33:23','2025-06-25 11:42:16'),(30,'2','/gallery/1750851203111.png',1,'2025-06-25 11:33:23','2025-06-25 11:42:16'),(31,'4','/gallery/1750851203132.png',4,'2025-06-25 11:33:23','2025-06-25 11:42:16'),(32,'1','/gallery/1750851203133.png',2,'2025-06-25 11:33:23','2025-06-25 11:42:16');
+INSERT INTO `Galleries` VALUES (35,'1759149921490','/gallery/1759149921490.jpg',1,'2025-09-29 12:45:21','2025-09-29 12:45:21'),(36,'1759149945777','/gallery/1759149945777.jpg',2,'2025-09-29 12:45:45','2025-09-29 12:45:45'),(37,'1759149945835','/gallery/1759149945835.jpg',3,'2025-09-29 12:45:45','2025-09-29 12:45:45'),(38,'1759149945899','/gallery/1759149945899.jpg',4,'2025-09-29 12:45:46','2025-09-29 12:45:46');
 /*!40000 ALTER TABLE `Galleries` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -240,7 +240,7 @@ CREATE TABLE `GlobalSettings` (
 
 LOCK TABLES `GlobalSettings` WRITE;
 /*!40000 ALTER TABLE `GlobalSettings` DISABLE KEYS */;
-INSERT INTO `GlobalSettings` VALUES (1,'name','Nourish Noor Cafe','2023-10-07 06:22:24','2025-06-27 14:24:14'),(2,'pan','1234242','2023-10-07 06:24:49','2025-06-04 11:52:11'),(4,'phoneNumber','9841111','2025-06-04 12:16:57','2025-06-27 14:24:16'),(5,'email','asdsdsa@gmail.com','2025-06-04 12:16:57','2025-06-27 14:24:16'),(6,'googleMap','asdsadasd Test','2025-06-04 12:17:58','2025-06-27 14:24:16'),(9,'bannerImage','global-settings/1750499489681.png','2025-06-04 12:52:07','2025-06-21 09:51:29'),(10,'facebookLink','123','2025-06-21 01:28:25','2025-06-27 14:24:16'),(11,'instagramLink','132','2025-06-21 01:28:25','2025-06-27 14:24:16'),(12,'twitterLink','12321','2025-06-21 01:28:25','2025-06-27 14:24:16'),(13,'pinterestLink','12312','2025-06-21 01:28:25','2025-06-27 14:24:16'),(14,'workingTime','<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm<br>Bar opens till 10pm</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>','2025-06-21 02:07:39','2025-06-27 14:24:16');
+INSERT INTO `GlobalSettings` VALUES (1,'name','Nourish Nook Cafe','2023-10-07 06:22:24','2025-08-24 12:51:45'),(2,'pan','1234242','2023-10-07 06:24:49','2025-06-04 11:52:11'),(4,'phoneNumber','9841111','2025-06-04 12:16:57','2025-08-24 12:51:45'),(5,'email','asdsdsa@gmail.com','2025-06-04 12:16:57','2025-08-24 12:51:45'),(6,'googleMap','asdsadasd Test','2025-06-04 12:17:58','2025-08-24 12:51:45'),(9,'bannerImage','global-settings/1750499489681.png','2025-06-04 12:52:07','2025-06-21 09:51:29'),(10,'facebookLink','123','2025-06-21 01:28:25','2025-08-24 12:51:45'),(11,'instagramLink','132','2025-06-21 01:28:25','2025-08-24 12:51:45'),(12,'twitterLink','12321','2025-06-21 01:28:25','2025-08-24 12:51:45'),(13,'pinterestLink','12312','2025-06-21 01:28:25','2025-08-24 12:51:45'),(14,'workingTime','<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm</p>\r\n<p>Monday: 5pm - 10pm<br>Bar opens till 10pm</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>','2025-06-21 02:07:39','2025-08-24 12:51:45');
 /*!40000 ALTER TABLE `GlobalSettings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -320,7 +320,7 @@ CREATE TABLE `HomePages` (
 
 LOCK TABLES `HomePages` WRITE;
 /*!40000 ALTER TABLE `HomePages` DISABLE KEYS */;
-INSERT INTO `HomePages` VALUES (1,'image1Title','123','2025-06-28 02:19:19','2025-06-28 02:30:37'),(2,'image1Description','123321','2025-06-28 02:19:19','2025-06-28 02:30:37'),(3,'image2Title','21231','2025-06-28 02:19:19','2025-06-28 02:30:37'),(4,'image2Description','2132323','2025-06-28 02:19:19','2025-06-28 02:30:37'),(5,'image3Title','2133212','2025-06-28 02:19:19','2025-06-28 02:30:37'),(6,'image3Description','2323','2025-06-28 02:19:19','2025-06-28 02:30:37'),(7,'specialDishes','12312332213','2025-06-28 02:19:19','2025-06-28 02:30:37'),(8,'expertChefs','21321321321','2025-06-28 02:19:19','2025-06-28 02:30:37'),(9,'eventHosted','321321321321','2025-06-28 02:19:19','2025-06-28 02:30:37'),(10,'happyCustomers','213213321','2025-06-28 02:19:19','2025-06-28 02:30:37'),(11,'image1','home/1751077808416.png','2025-06-28 02:30:08','2025-06-28 02:30:08'),(12,'image2','home/1751077837502.png','2025-06-28 02:30:08','2025-06-28 02:30:37'),(13,'image3','home/1751077808429.png','2025-06-28 02:30:08','2025-06-28 02:30:08');
+INSERT INTO `HomePages` VALUES (1,'image1Title','Fresh Ingredients','2025-06-28 02:19:19','2025-09-29 12:15:49'),(2,'image1Description','We proudly server dishes made from farm-fresh, locally sourced ingredients. Every bite is crafted with quality and care, ensuring vibrant flavors and wholesome meals.','2025-06-28 02:19:19','2025-09-29 12:15:49'),(3,'image2Title','Cozy Atmoshphere','2025-06-28 02:19:19','2025-09-29 12:15:49'),(4,'image2Description','Whether you\'re catching up with friends or enjoying a quiet solo coffee, our cafe offers a warm, welcoming space that feel just like home.','2025-06-28 02:19:19','2025-09-29 12:15:49'),(5,'image3Title','Events & Gathering','2025-06-28 02:19:19','2025-09-29 12:15:49'),(6,'image3Description','From birthday brunches to intimate dinners and special celebrations, our venue is ideal for creating unforgettable memories with loves ones.','2025-06-28 02:19:19','2025-09-29 12:15:49'),(7,'specialDishes','150+','2025-06-28 02:19:19','2025-09-29 12:15:49'),(8,'expertChefs','20+','2025-06-28 02:19:19','2025-09-29 12:15:49'),(9,'eventHosted','50+','2025-06-28 02:19:19','2025-09-29 12:15:49'),(10,'happyCustomers','10k+','2025-06-28 02:19:19','2025-09-29 12:15:49'),(11,'image1','home/1759143929297.jpg','2025-06-28 02:30:08','2025-09-29 11:05:29'),(12,'image2','home/1759143929327.jpg','2025-06-28 02:30:08','2025-09-29 11:05:29'),(13,'image3','home/1759143929350.jpg','2025-06-28 02:30:08','2025-09-29 11:05:29');
 /*!40000 ALTER TABLE `HomePages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -376,7 +376,7 @@ CREATE TABLE `Roles` (
 
 LOCK TABLES `Roles` WRITE;
 /*!40000 ALTER TABLE `Roles` DISABLE KEYS */;
-INSERT INTO `Roles` VALUES (1,'User',NULL,1,NULL,NULL),(2,'View-user',1,1,NULL,NULL),(3,'Add-user',1,2,NULL,NULL),(4,'Edit-User',1,3,NULL,NULL),(5,'Banner',NULL,3,NULL,NULL),(6,'View-banner',5,1,NULL,NULL),(7,'Add-banner',5,2,NULL,NULL),(8,'Edit-banner',5,3,NULL,NULL),(9,'Food Category',NULL,4,NULL,NULL),(10,'View-food-category',9,1,NULL,NULL),(11,'Add-food-category',9,2,NULL,NULL),(12,'Edit-food-category',9,3,NULL,NULL),(13,'Gallery',NULL,5,NULL,NULL),(14,'View-gallery',13,1,NULL,NULL),(15,'Add-gallery',13,2,NULL,NULL),(16,'Edit-gallery',13,3,NULL,NULL),(17,'Message',NULL,6,NULL,NULL),(18,'View-message',17,1,NULL,NULL),(19,'Customer Review',NULL,7,NULL,NULL),(20,'View-customer-review',19,1,NULL,NULL),(21,'Add-customer-review',19,2,NULL,NULL),(22,'Edit-customer-review',19,3,NULL,NULL),(23,'Home',NULL,8,NULL,NULL),(24,'View-home',23,1,NULL,NULL),(25,'Add-home',23,2,NULL,NULL),(26,'About Us',NULL,9,NULL,NULL),(27,'View-about-us',26,1,NULL,NULL),(28,'Add-about-us',26,2,NULL,NULL),(29,'Global Setting',NULL,10,NULL,NULL),(30,'View-global-setting',29,1,NULL,NULL),(31,'Add-global-setting',29,2,NULL,NULL),(32,'Group',NULL,2,NULL,NULL),(33,'View-group',32,1,NULL,NULL),(34,'Add-group',32,2,NULL,NULL),(35,'Edit-group',32,3,NULL,NULL);
+INSERT INTO `Roles` VALUES (1,'User',NULL,1,NULL,NULL),(2,'View-user',1,1,NULL,NULL),(3,'Add-user',1,2,NULL,NULL),(4,'Edit-user',1,3,NULL,NULL),(5,'Banner',NULL,3,NULL,NULL),(6,'View-banner',5,1,NULL,NULL),(7,'Add-banner',5,2,NULL,NULL),(8,'Edit-banner',5,3,NULL,NULL),(9,'Food Category',NULL,4,NULL,NULL),(10,'View-food-category',9,1,NULL,NULL),(11,'Add-food-category',9,2,NULL,NULL),(12,'Edit-food-category',9,3,NULL,NULL),(13,'Gallery',NULL,5,NULL,NULL),(14,'View-gallery',13,1,NULL,NULL),(15,'Add-gallery',13,2,NULL,NULL),(16,'Edit-gallery',13,3,NULL,NULL),(17,'Message',NULL,6,NULL,NULL),(18,'View-message',17,1,NULL,NULL),(19,'Customer Review',NULL,7,NULL,NULL),(20,'View-customer-review',19,1,NULL,NULL),(21,'Add-customer-review',19,2,NULL,NULL),(22,'Edit-customer-review',19,3,NULL,NULL),(23,'Home',NULL,8,NULL,NULL),(24,'View-home',23,1,NULL,NULL),(25,'Add-home',23,2,NULL,NULL),(26,'About Us',NULL,9,NULL,NULL),(27,'View-about-us',26,1,NULL,NULL),(28,'Add-about-us',26,2,NULL,NULL),(29,'Global Setting',NULL,10,NULL,NULL),(30,'View-global-setting',29,1,NULL,NULL),(31,'Add-global-setting',29,2,NULL,NULL),(32,'Group',NULL,2,NULL,NULL),(33,'View-group',32,1,NULL,NULL),(34,'Add-group',32,2,NULL,NULL),(35,'Edit-group',32,3,NULL,NULL);
 /*!40000 ALTER TABLE `Roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -460,7 +460,7 @@ CREATE TABLE `Users` (
 
 LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
-INSERT INTO `Users` VALUES (10,1,'Super Admin','super@admin.com','$2b$10$gp5hXb2uKYt21Ww6U.doVe9i.A/au/fMRhZbPHKfMm0MFpNyXYv9K',1,1,'2023-10-01 15:56:00','2023-10-01 15:56:00',NULL),(11,NULL,'User','user@mv.com','$2b$10$SGJa8qhT.MKz5B6YddaDJO16y/RB9/OzwlGSr62.sXrTEXuOjLCsq',0,0,'2023-10-01 15:56:00','2024-12-19 01:36:23',NULL),(12,NULL,'Test','test@mv.com','$2b$10$t/QeU.rkqBf8QMe7Eqv06Oo/dO9BFM8h2JemONp0kk56ez55ALEXC',1,0,'2024-01-13 11:37:06','2024-01-14 12:10:41',NULL),(13,2,'Binay Manandhar','binaymdr25@gmail.com','$2b$10$9RlPZKR8C5tz0pkTaOEWEOldoaZaC9bCMTq6tnamSqfb19PGEwxpC',1,0,'2025-06-28 03:38:51','2025-06-28 03:38:51',NULL);
+INSERT INTO `Users` VALUES (10,1,'Super Admin','super@admin.com','$2b$10$gp5hXb2uKYt21Ww6U.doVe9i.A/au/fMRhZbPHKfMm0MFpNyXYv9K',1,1,'2023-10-01 15:56:00','2023-10-01 15:56:00',NULL),(11,2,'User','user@mv.com','$2b$10$6XL7dpSIjgBXcbstNULsf.PxSte/LgLgAhF1Z49T8ubS2xmwrdpYq',1,0,'2023-10-01 15:56:00','2025-08-24 12:49:12',NULL),(12,NULL,'Test','test@mv.com','$2b$10$t/QeU.rkqBf8QMe7Eqv06Oo/dO9BFM8h2JemONp0kk56ez55ALEXC',1,0,'2024-01-13 11:37:06','2024-01-14 12:10:41',NULL),(13,2,'Binay Manandhar','binaymdr25@gmail.com','$2b$10$9RlPZKR8C5tz0pkTaOEWEOldoaZaC9bCMTq6tnamSqfb19PGEwxpC',0,0,'2025-06-28 03:38:51','2025-08-24 12:48:45',NULL);
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -473,4 +473,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-28 10:30:36
+-- Dump completed on 2025-09-29 19:12:28

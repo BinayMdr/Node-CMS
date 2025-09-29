@@ -20,7 +20,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 const columns = [
-  { id: 'name', label: 'Name', minWidth: 100 },
+  { id: 'name', label: 'Name', minWidth: 150 },
   { id: 'button_title', label: 'Button Title', minWidth: 100},
   { id: 'button_link', label: 'Button Link', minWidth: 100},
   { id: 'is_enabled', label: 'Status', minWidth: 100},

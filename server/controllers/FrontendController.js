@@ -17,8 +17,12 @@ const getAboutUs = async (req, res) => {
       where: { name: "description" }
     });
 
+     const result = {
+      [aboutUsData.name]: aboutUsData.value
+    };
+
     return res.json({
-      data: aboutUsData,
+      data: result,
       error: false
     });
 
@@ -62,8 +66,14 @@ const getHomePage = async (req, res) => {
   try {
     const homePageData = await homePage.findAll();
 
+    const homePageKeyValue = {};
+    homePageData.forEach(item => {
+      const data = item.dataValues; 
+      homePageKeyValue[data.name] = data.value;
+    });
+
     return res.json({
-      data: homePageData,
+      data: homePageKeyValue,
       error: false
     });
   } catch (error) {

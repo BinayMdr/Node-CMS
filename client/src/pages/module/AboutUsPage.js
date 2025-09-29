@@ -79,7 +79,7 @@ const AboutUsPage = () => {
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          description: Yup.string().max(255).required('Description is required'),
+          description: Yup.string().required('Description is required'),
         })}
         onSubmit={async (values, { setStatus, setSubmitting }) => {
           try {

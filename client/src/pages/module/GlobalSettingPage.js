@@ -80,6 +80,7 @@ const GlobalSettingPage = () => {
         initialValues={{
           name: formValue.name,
           phoneNumber:formValue.phoneNumber,
+          address:formValue.address,
           email:formValue.email,
           googleMap:formValue.googleMap,
           pinterestLink:formValue.pinterestLink,
@@ -91,6 +92,7 @@ const GlobalSettingPage = () => {
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().max(255).required('Name is required'),
+          address: Yup.string().max(255).required('Address is required'),
           phoneNumber: Yup.string().max(255).required('Phone number is required'),
           email: Yup.string().max(255).required('Email is required').email('Incorrect email format')
         })}
@@ -99,6 +101,7 @@ const GlobalSettingPage = () => {
             
             const formData = new FormData();
             formData.append('name', values.name);
+            formData.append('address', values.address);
             formData.append('phoneNumber', values.phoneNumber);
             formData.append('email', values.email);
             formData.append('googleMap', values.googleMap);
@@ -153,7 +156,7 @@ const GlobalSettingPage = () => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, setFieldValue }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="name">Name (*)</InputLabel>
                   <OutlinedInput
@@ -175,6 +178,28 @@ const GlobalSettingPage = () => {
                 </Stack>
               </Grid>
               
+              <Grid item xs={6}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="address">Address (*)</InputLabel>
+                  <OutlinedInput
+                    id="address"
+                    type="text"
+                    value={values.address}
+                    name="address"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter address"
+                    fullWidth
+                    error={Boolean(touched.address && errors.address)}
+                  />
+                  {touched.address && errors.address && (
+                    <FormHelperText error id="standard-weight-helper-text-address-login">
+                      {errors.address}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+
               <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="phoneNumber">Phone Number (*)</InputLabel>

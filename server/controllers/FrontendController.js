@@ -6,6 +6,7 @@ const banner =  require('../models/banner')
 const customerReview =  require('../models/customerReview')
 const foodCategory =  require('../models/foodCategory')
 const foodItem =  require('../models/foodItem')
+const messageData = require('../models/message');
 
 require("dotenv").config();
 const { Op, Sequelize } = require('sequelize');
@@ -38,8 +39,13 @@ const getAllGlobalSetting = async (req, res) => {
   try {
     const globalSettings = await globalsetting.findAll();
 
+    const settingsObj = {};
+    globalSettings.forEach(setting => {
+      settingsObj[setting.name] = setting.value;
+    });
+
     return res.json({
-      data: globalSettings,
+      data: settingsObj,
       error: false
     });
   } catch (error) {
@@ -154,6 +160,36 @@ const getMenu = async (req, res) => {
   }
 };
 
+// controllers/contactController.js
+
+const storeMessage = async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: true, message: "All fields are required" });
+    }
+
+   const newMessage = await messageData.create({
+      name,
+      email,
+      message,
+    });
+
+    return res.status(201).json({
+      error: false,
+      message: "Message stored successfully",
+      data: { name, email, message }
+    });
+  } catch (error) {
+    console.error("Error saving message:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error"
+    });
+  }
+};
+
 
 module.exports = {
   getAboutUs,
@@ -162,5 +198,6 @@ module.exports = {
   getHomePage,
   getBanner,
   getCustomerReview,
-  getMenu
+  getMenu,
+  storeMessage
 };

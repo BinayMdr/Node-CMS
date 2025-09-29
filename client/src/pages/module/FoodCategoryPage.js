@@ -19,9 +19,9 @@ import { useSelector } from 'react-redux';
 // import { useNavigate } from 'react-router-dom';
 
 const columns = [
-  { id: 'name', label: 'Name', minWidth: 100 },
-  { id: 'is_enabled', label: 'Status', minWidth: 100 },
-  { id: 'action', label: 'Action', minWidth: 100 },
+  { id: 'name', label: 'Name', minWidth: 250 },
+  { id: 'is_enabled', label: 'Status', minWidth: 250 },
+  { id: 'action', label: 'Action', minWidth: 250 },
 ];
 
 const FoodCategoryPage = () => {

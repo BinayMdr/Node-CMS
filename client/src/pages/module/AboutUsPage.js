@@ -25,7 +25,12 @@ const AboutUsPage = () => {
   const getAboutUs = async () => {
     try
     {
-      const response = await api.get('about-us');
+      
+      const response = await api.get('about-us', {
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
 
       const pluckedData = response.data.data.map(({name,value}) => ({
         name,value

@@ -266,9 +266,20 @@ const updateFoodItemOrder = [
   },
 ];
 
+const getFoodItemList =  (async (req,res) => {
+    const foodItems = await foodItem.findAll({
+      order: [['name', 'ASC']], 
+    });
+
+     return res.json({
+      "data": foodItems,
+      "error": false
+    });
+})
 module.exports = {
     getAllFoodItem,
     storeFoodItem,
     updateFoodItem,
-    updateFoodItemOrder
+    updateFoodItemOrder,
+    getFoodItemList
 }

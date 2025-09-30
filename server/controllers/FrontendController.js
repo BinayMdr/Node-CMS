@@ -160,8 +160,6 @@ const getMenu = async (req, res) => {
   }
 };
 
-// controllers/contactController.js
-
 const storeMessage = async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -190,6 +188,47 @@ const storeMessage = async (req, res) => {
   }
 };
 
+const getFoodItem = async (req, res) => {
+  try {
+    const foodItemsSetting = await globalsetting.findOne({
+      where: { name: 'foodItems' }
+    });
+
+    if (!foodItemsSetting || !foodItemsSetting.value) {
+      return res.json({ data: [], error: false });
+    }
+
+    let foodItemIds;
+    try {
+      foodItemIds = JSON.parse(foodItemsSetting.value);
+    } catch (e) {
+      foodItemIds = foodItemsSetting.value.split(',').map(id => Number(id));
+    }
+
+    const items = await foodItem.findAll({
+      where: {
+        id: { [Op.in]: foodItemIds },
+        is_enabled: true
+      }
+    });
+
+    // Sort according to the order in foodItemIds
+    const orderedItems = foodItemIds
+      .map(id => items.find(item => item.id === id))
+      .filter(item => item); // remove any nulls
+
+    return res.json({
+      data: orderedItems,
+      error: false
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      message: "Data not found",
+      error: true
+    });
+  }
+};
 
 module.exports = {
   getAboutUs,
@@ -199,5 +238,6 @@ module.exports = {
   getBanner,
   getCustomerReview,
   getMenu,
-  storeMessage
+  storeMessage,
+  getFoodItem
 };

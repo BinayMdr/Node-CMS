@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Paper,Button,Box, Grid,
         Stack, InputLabel,FormHelperText,
-        OutlinedInput
+        OutlinedInput, Checkbox, Autocomplete, TextField
       } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { useEffect } from 'react';
@@ -15,11 +15,18 @@ import { updateGlobalName } from "store/reducers/globalSetting";
 import RichTextEditor from 'pages/components-overview/RichTextEditor';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 const GlobalSettingPage = () => {
-   const userDetails = useSelector((state => state.userDetails));
-    const navigate = useNavigate();
+
+  const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
+
+  const userDetails = useSelector((state => state.userDetails));
+  const navigate = useNavigate();
   const [formValue, setFormValue] = React.useState({"name":"","pan":""})
+  const [foodItem,setFoodItem] = React.useState([])
 
 
   const [showData, setShowData] = React.useState(false)
@@ -30,7 +37,12 @@ const GlobalSettingPage = () => {
   const getGlobalSetting = async () => {
     try
     {
-      const response = await api.get('global-setting');
+
+      const response = await api.get('global-setting', {
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
 
       const pluckedData = response.data.data.map(({name,value}) => ({
         name,value
@@ -41,8 +53,16 @@ const GlobalSettingPage = () => {
         return result;
       }, {});
 
+      const foodItemResponse = await api.get('food-item/list', {
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
+
+      setFoodItem(foodItemResponse.data.data)
       setFormValue(convertedObject);
       
+
       
       setShowData(true)
     }
@@ -88,7 +108,8 @@ const GlobalSettingPage = () => {
           instagramLink:formValue.instagramLink,
           twitterLink:formValue.twitterLink,
           workingTime:formValue.workingTime || '',
-          submit: null
+          submit: null,
+          foodItems: formValue.foodItems ? JSON.parse(formValue.foodItems) : []
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().max(255).required('Name is required'),
@@ -110,6 +131,7 @@ const GlobalSettingPage = () => {
             formData.append('twitterLink', values.twitterLink);
             formData.append('pinterestLink', values.pinterestLink);
             formData.append('workingTime', values.workingTime);
+            formData.append('foodItems', JSON.stringify(values.foodItems));
 
               await api.put(`global-setting`, 
                 formData
@@ -365,6 +387,93 @@ const GlobalSettingPage = () => {
                   )}
                 </Stack>
               </Grid>
+
+            <Grid item xs={12}>
+        <Autocomplete
+          multiple
+          id="foodItems"
+          options={foodItem}
+          disableCloseOnSelect
+          fullWidth
+          getOptionLabel={(option) => option.name}
+          value={foodItem.filter((item) =>
+            values.foodItems?.includes(item.id)
+          )}
+          onChange={(event, newValue) =>
+            setFieldValue(
+              "foodItems",
+              newValue.map((item) => item.id)
+            )
+          }
+          renderOption={(props, option, { selected }) => (
+            <li
+              {...props}
+              style={{
+                color: option.is_enabled ? "inherit" : "red",
+                fontWeight: option.is_enabled ? "normal" : "bold"
+              }}
+            >
+              <Checkbox
+                icon={icon}
+                checkedIcon={checkedIcon}
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              {option.name}
+            </li>
+          )}
+          renderTags={(selectedOptions, getTagProps) =>
+            selectedOptions.map((option, index) => {
+              const tagProps = getTagProps({ index });
+              return (
+                <span
+                  key={option.id}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    margin: 2,
+                    padding: "2px 6px",
+                    borderRadius: 4,
+                    backgroundColor: "#e0e0e0", // chip bg
+                    color: option.is_enabled ? "inherit" : "red",
+                    fontWeight: option.is_enabled ? "normal" : "bold"
+                  }}
+                >
+                  {option.name}
+                  {/* Accessible delete button */}
+                  <button
+                    type="button"
+                    onClick={tagProps.onDelete}
+                    style={{
+                      marginLeft: 4,
+                      border: "none",
+                      background: "transparent",
+                      cursor: "pointer",
+                      color: "inherit",
+                      fontWeight: "bold",
+                      padding: 0
+                    }}
+                  >
+                    ×
+                  </button>
+                </span>
+              );
+            })
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Food Items"
+              placeholder="Search & select..."
+              onBlur={handleBlur}
+              fullWidth
+            />
+          )}
+        />
+</Grid>
+
+
+
 
 
       

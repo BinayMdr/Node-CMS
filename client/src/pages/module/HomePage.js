@@ -27,7 +27,11 @@ const HomePage = () => {
 
   const getHome = async () => {
     try {
-      const response = await api.get('home');
+      const response = await api.get('home', {
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
       const pluckedData = response.data.data.map(({ name, value }) => ({ name, value }));
       const convertedObject = pluckedData.reduce((result, { name, value }) => {
         result[name] = value;

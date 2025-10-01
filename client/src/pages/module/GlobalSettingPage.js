@@ -108,6 +108,7 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
           instagramLink:formValue.instagramLink,
           twitterLink:formValue.twitterLink,
           workingTime:formValue.workingTime || '',
+          footerText: formValue.footerText || '',
           submit: null,
           foodItems: formValue.foodItems ? JSON.parse(formValue.foodItems) : []
         }}
@@ -131,6 +132,7 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
             formData.append('twitterLink', values.twitterLink);
             formData.append('pinterestLink', values.pinterestLink);
             formData.append('workingTime', values.workingTime);
+            formData.append('footerText', values.footerText);
             formData.append('foodItems', JSON.stringify(values.foodItems));
 
               await api.put(`global-setting`, 
@@ -388,7 +390,8 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
                 </Stack>
               </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={6}>
+              
         <Autocomplete
           multiple
           id="foodItems"
@@ -470,13 +473,19 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
             />
           )}
         />
+        </Grid>
+
+        <Grid item xs={6}>
+  <Stack spacing={1}>
+    <InputLabel htmlFor="footerText">Footer Text</InputLabel>
+    <RichTextEditor
+      name="footerText"
+      value={values.footerText || ''}
+      onChange={setFieldValue}
+    />
+  </Stack>
 </Grid>
 
-
-
-
-
-      
                { userDetails?.accessModuleData.includes("Add-global-setting") &&
                 <Grid item xs={12}>
                   <AnimateButton>
